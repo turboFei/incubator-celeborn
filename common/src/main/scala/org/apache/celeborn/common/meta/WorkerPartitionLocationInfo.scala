@@ -25,6 +25,7 @@ import scala.collection.JavaConverters._
 
 import org.apache.celeborn.common.internal.Logging
 import org.apache.celeborn.common.protocol.PartitionLocation
+import org.apache.celeborn.common.util.JavaUtils
 
 class WorkerPartitionLocationInfo extends Logging {
 
@@ -148,7 +149,7 @@ class WorkerPartitionLocationInfo extends Logging {
     if (locations != null && locations.size() > 0) {
       partitionInfo.computeIfAbsent(
         shuffleKey,
-        _ => new ConcurrentHashMap[Long, PartitionLocation]())
+        _ => JavaUtils.newConcurrentHashMap[Long, PartitionLocation]())
       val partitionMap = partitionInfo.get(shuffleKey)
       locations.asScala.foreach { loc =>
         partitionMap.computeIfAbsent(encode(loc.getId, loc.getEpoch), _ => loc)

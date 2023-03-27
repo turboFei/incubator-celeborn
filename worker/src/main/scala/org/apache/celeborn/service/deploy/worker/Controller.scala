@@ -37,7 +37,7 @@ import org.apache.celeborn.common.protocol.{PartitionLocation, PartitionSplitMod
 import org.apache.celeborn.common.protocol.message.ControlMessages._
 import org.apache.celeborn.common.protocol.message.StatusCode
 import org.apache.celeborn.common.rpc._
-import org.apache.celeborn.common.util.Utils
+import org.apache.celeborn.common.util.{JavaUtils, Utils}
 import org.apache.celeborn.service.deploy.worker.storage.StorageManager
 
 private[deploy] class Controller(
@@ -351,7 +351,9 @@ private[deploy] class Controller(
 
     val shuffleCommitTimeout = conf.workerShuffleCommitTimeout
 
-    shuffleCommitInfos.computeIfAbsent(shuffleKey, _ => new ConcurrentHashMap[Long, CommitInfo]())
+    shuffleCommitInfos.computeIfAbsent(
+      shuffleKey,
+      _ => JavaUtils.newConcurrentHashMap[Long, CommitInfo]())
     val epochCommitMap = shuffleCommitInfos.get(shuffleKey)
     epochCommitMap.computeIfAbsent(epoch, _ => new CommitInfo(null, CommitInfo.COMMIT_NOTSTARTED))
     val commitInfo = epochCommitMap.get(epoch)
@@ -409,9 +411,9 @@ private[deploy] class Controller(
     val committedSlaveIds = ConcurrentHashMap.newKeySet[String]()
     val failedMasterIds = ConcurrentHashMap.newKeySet[String]()
     val failedSlaveIds = ConcurrentHashMap.newKeySet[String]()
-    val committedMasterStorageInfos = new ConcurrentHashMap[String, StorageInfo]()
-    val committedSlaveStorageInfos = new ConcurrentHashMap[String, StorageInfo]()
-    val committedMapIdBitMap = new ConcurrentHashMap[String, RoaringBitmap]()
+    val committedMasterStorageInfos = JavaUtils.newConcurrentHashMap[String, StorageInfo]()
+    val committedSlaveStorageInfos = JavaUtils.newConcurrentHashMap[String, StorageInfo]()
+    val committedMapIdBitMap = JavaUtils.newConcurrentHashMap[String, RoaringBitmap]()
     val partitionSizeList = new LinkedBlockingQueue[Long]()
 
     val masterFuture =
