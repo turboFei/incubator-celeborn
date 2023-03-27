@@ -128,7 +128,8 @@ public class TransportClientFactory implements Closeable {
     // Create the ClientPool if we don't have it yet.
     ClientPool clientPool = connectionPool.get(unresolvedAddress);
     if (clientPool == null) {
-      connectionPool.computeIfAbsent(unresolvedAddress, (address -> new ClientPool(numConnectionsPerPeer)));
+      connectionPool.computeIfAbsent(
+          unresolvedAddress, (address -> new ClientPool(numConnectionsPerPeer)));
       clientPool = connectionPool.get(unresolvedAddress);
     }
 
