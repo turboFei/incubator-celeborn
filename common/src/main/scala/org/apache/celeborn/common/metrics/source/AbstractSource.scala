@@ -98,9 +98,9 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     if (!metricRegistry.getTimers.containsKey(metricNameWithLabels(name, labels + roleLabel))) {
       val timer =
         metricRegistry.timer(metricNameWithLabels(name, labels + roleLabel), timerSupplier)
-      namedTimers.putIfAbsent(
+      namedTimers.computeIfAbsent(
         metricNameWithLabels(name, labels + roleLabel),
-        (NamedTimer(name, timer, labels + roleLabel), new ConcurrentHashMap[String, Long]()))
+        _ => (NamedTimer(name, timer, labels + roleLabel), new ConcurrentHashMap[String, Long]()))
     }
   }
 

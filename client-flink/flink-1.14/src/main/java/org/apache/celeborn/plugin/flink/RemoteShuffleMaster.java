@@ -73,7 +73,7 @@ public class RemoteShuffleMaster implements ShuffleMaster<RemoteShuffleDescripto
       }
     }
 
-    Set<Integer> previousShuffleIds = jobShuffleIds.putIfAbsent(jobID, new HashSet<>());
+    Set<Integer> previousShuffleIds = jobShuffleIds.computeIfAbsent(jobID, (id) -> new HashSet<>());
     if (previousShuffleIds != null) {
       throw new RuntimeException("Duplicated registration job: " + jobID);
     }

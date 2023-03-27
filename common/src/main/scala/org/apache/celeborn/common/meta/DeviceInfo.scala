@@ -220,7 +220,7 @@ object DeviceInfo {
         } else {
           deviceNameToDeviceInfo.computeIfAbsent(deviceName, newDeviceInfoFunc)
         }
-      mountPointToDeviceInfo.putIfAbsent(mountPoint, deviceInfo)
+      mountPointToDeviceInfo.computeIfAbsent(mountPoint, _ => deviceInfo)
     }
 
     val retDeviceInfos = new ConcurrentHashMap[String, DeviceInfo]()

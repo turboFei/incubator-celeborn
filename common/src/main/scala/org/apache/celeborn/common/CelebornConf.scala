@@ -107,7 +107,7 @@ class CelebornConf(loadDefaults: Boolean) extends Cloneable with Logging with Se
   /** Set a parameter if it isn't already configured */
   def setIfMissing(key: String, value: String): CelebornConf = {
     requireDefaultValueOfRemovedConf(key, value)
-    if (settings.putIfAbsent(key, value) == null) {
+    if (settings.computeIfAbsent(key, _ => value) == null) {
       logDeprecationWarning(key)
     }
     this

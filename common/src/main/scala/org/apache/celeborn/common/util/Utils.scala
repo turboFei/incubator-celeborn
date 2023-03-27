@@ -471,7 +471,7 @@ object Utils extends Logging {
       }
       val port = hostPort.substring(index + 2).trim()
       val retVal = (hostPort.substring(0, index + 1).trim(), if (port.isEmpty) 0 else port.toInt)
-      hostPortParseResults.putIfAbsent(hostPort, retVal)
+      hostPortParseResults.computeIfAbsent(hostPort, _ => retVal)
     } else {
       val index: Int = hostPort.lastIndexOf(':')
       if (-1 == index) {
@@ -479,7 +479,7 @@ object Utils extends Logging {
       }
       val port = hostPort.substring(index + 1).trim()
       val retVal = (hostPort.substring(0, index).trim(), if (port.isEmpty) 0 else port.toInt)
-      hostPortParseResults.putIfAbsent(hostPort, retVal)
+      hostPortParseResults.computeIfAbsent(hostPort, _ => retVal)
     }
 
     hostPortParseResults.get(hostPort)
