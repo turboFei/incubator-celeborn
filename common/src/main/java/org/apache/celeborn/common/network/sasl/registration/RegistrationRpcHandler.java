@@ -30,15 +30,16 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.celeborn.common.identity.UserIdentifier;
 import org.apache.celeborn.common.network.client.RpcResponseCallback;
 import org.apache.celeborn.common.network.client.TransportClient;
 import org.apache.celeborn.common.network.protocol.RequestMessage;
 import org.apache.celeborn.common.network.protocol.RpcFailure;
 import org.apache.celeborn.common.network.protocol.RpcRequest;
 import org.apache.celeborn.common.network.protocol.TransportMessage;
+import org.apache.celeborn.common.network.sasl.ApplicationRegistry;
 import org.apache.celeborn.common.network.sasl.CelebornSaslServer;
 import org.apache.celeborn.common.network.sasl.SaslRpcHandler;
-import org.apache.celeborn.common.network.sasl.SecretRegistry;
 import org.apache.celeborn.common.network.server.BaseMessageHandler;
 import org.apache.celeborn.common.network.util.TransportConf;
 import org.apache.celeborn.common.protocol.PbAuthType;
@@ -48,6 +49,7 @@ import org.apache.celeborn.common.protocol.PbRegisterApplicationRequest;
 import org.apache.celeborn.common.protocol.PbRegisterApplicationResponse;
 import org.apache.celeborn.common.protocol.PbSaslMechanism;
 import org.apache.celeborn.common.protocol.PbSaslRequest;
+import org.apache.celeborn.common.util.PbSerDeUtils;
 
 /**
  * RPC Handler which registers an application. If an application is registered or the connection is
@@ -84,7 +86,9 @@ public class RegistrationRpcHandler extends BaseMessageHandler {
   private RegistrationState registrationState = RegistrationState.NONE;
 
   /** Class which provides secret keys which are shared by server and client on a per-app basis. */
-  private final SecretRegistry secretRegistry;
+  private final ApplicationRegistry applicationRegistry;
+
+  private final Boolean authEnabled;
 
   private SaslRpcHandler saslHandler;
 
@@ -95,12 +99,14 @@ public class RegistrationRpcHandler extends BaseMessageHandler {
       TransportConf conf,
       Channel channel,
       BaseMessageHandler delegate,
-      SecretRegistry secretRegistry) {
+      ApplicationRegistry applicationRegistry,
+      Boolean authEnabled) {
     this.conf = conf;
     this.channel = channel;
-    this.secretRegistry = secretRegistry;
+    this.applicationRegistry = applicationRegistry;
     this.delegate = delegate;
-    this.saslHandler = new SaslRpcHandler(conf, channel, delegate, secretRegistry);
+    this.saslHandler = new SaslRpcHandler(conf, channel, delegate, applicationRegistry);
+    this.authEnabled = authEnabled;
   }
 
   @Override
@@ -119,7 +125,11 @@ public class RegistrationRpcHandler extends BaseMessageHandler {
     } else {
       RpcRequest rpcRequest = (RpcRequest) message;
       try {
-        processRpcMessage(client, rpcRequest, callback);
+        if (authEnabled) {
+          processSaslRpcMessage(client, rpcRequest, callback);
+        } else {
+          processNonSaslRpcMessage(rpcRequest, callback);
+        }
       } catch (Exception e) {
         LOG.error("Error while invoking RpcHandler#receive() on RPC id " + rpcRequest.requestId, e);
         registrationState = RegistrationState.FAILED;
@@ -143,7 +153,27 @@ public class RegistrationRpcHandler extends BaseMessageHandler {
     }
   }
 
-  private void processRpcMessage(
+  private void processNonSaslRpcMessage(RpcRequest message, RpcResponseCallback callback)
+      throws IOException {
+    TransportMessage pbMsg = TransportMessage.fromByteBuffer(message.body().nioByteBuffer());
+    switch (pbMsg.getMessageTypeValue()) {
+      case REGISTER_APPLICATION_REQUEST_VALUE:
+        PbRegisterApplicationRequest registerApplicationRequest = pbMsg.getParsedPayload();
+        LOG.trace("Application registration started {}", registerApplicationRequest.getId());
+        processRegisterApplicationRequest(registerApplicationRequest, callback);
+        registrationState = RegistrationState.REGISTERED;
+        LOG.info(
+            "Application registered: appId {} rpcId {}",
+            registerApplicationRequest.getId(),
+            message.requestId);
+        break;
+      default:
+        throw new SecurityException(
+            "The app is not registered for connection " + message.requestId);
+    }
+  }
+
+  private void processSaslRpcMessage(
       TransportClient client, RpcRequest message, RpcResponseCallback callback) throws IOException {
     TransportMessage pbMsg = TransportMessage.fromByteBuffer(message.body().nioByteBuffer());
     switch (pbMsg.getMessageTypeValue()) {
@@ -177,7 +207,9 @@ public class RegistrationRpcHandler extends BaseMessageHandler {
         break;
       case REGISTER_APPLICATION_REQUEST_VALUE:
         PbRegisterApplicationRequest registerApplicationRequest = pbMsg.getParsedPayload();
-        checkRequestAllowed(RegistrationState.AUTHENTICATED);
+        if (registerApplicationRequest.getAuthEnabled()) {
+          checkRequestAllowed(RegistrationState.AUTHENTICATED);
+        }
         LOG.trace("Application registration started {}", registerApplicationRequest.getId());
         processRegisterApplicationRequest(registerApplicationRequest, callback);
         registrationState = RegistrationState.REGISTERED;
@@ -229,13 +261,17 @@ public class RegistrationRpcHandler extends BaseMessageHandler {
 
   private void processRegisterApplicationRequest(
       PbRegisterApplicationRequest registerApplicationRequest, RpcResponseCallback callback) {
-    if (secretRegistry.isRegistered(registerApplicationRequest.getId())) {
+    if (applicationRegistry.isRegistered(registerApplicationRequest.getId())) {
       // Re-registration is not allowed.
       throw new IllegalStateException(
           "Application is already registered " + registerApplicationRequest.getId());
     }
-    secretRegistry.register(
-        registerApplicationRequest.getId(), registerApplicationRequest.getSecret());
+    UserIdentifier userIdentifier =
+        registerApplicationRequest.getUserIdentifier() != null
+            ? PbSerDeUtils.fromPbUserIdentifier(registerApplicationRequest.getUserIdentifier())
+            : UserIdentifier.UNKNOWN_USER_IDENTIFIER();
+    applicationRegistry.register(
+        registerApplicationRequest.getId(), userIdentifier, registerApplicationRequest.getSecret());
     PbRegisterApplicationResponse response =
         PbRegisterApplicationResponse.newBuilder().setStatus(true).build();
     TransportMessage message =

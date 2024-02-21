@@ -49,8 +49,8 @@ import org.apache.celeborn.common.protocol.RpcNameConstants.WORKER_EP
 import org.apache.celeborn.common.protocol.message.ControlMessages._
 import org.apache.celeborn.common.protocol.message.StatusCode
 import org.apache.celeborn.common.rpc._
+import org.apache.celeborn.common.rpc.{ClientRpcContextBuilder, RpcContext, RpcContextBuilder}
 import org.apache.celeborn.common.rpc.netty.{LocalNettyRpcCallContext, RemoteNettyRpcCallContext}
-import org.apache.celeborn.common.security.{ClientSaslContextBuilder, RpcSecurityContext, RpcSecurityContextBuilder}
 import org.apache.celeborn.common.util.{JavaUtils, PbSerDeUtils, ThreadUtils, Utils}
 // Can Remove this if celeborn don't support scala211 in future
 import org.apache.celeborn.common.util.FunctionConverter._
@@ -164,32 +164,32 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
 
   logInfo(s"Starting LifecycleManager on ${rpcEnv.address}")
 
-  private var masterRpcEnvInUse = rpcEnv
+  private val appSecret = createSecret()
+  private val masterAppRegistryRpcEnvInUse =
+    RpcEnv.create(
+      RpcNameConstants.LIFECYCLE_MANAGER_MASTER_SYS,
+      lifecycleHost,
+      0,
+      conf,
+      createRpcContext(
+        appSecret,
+        addClientRegistrationBootstrap = true,
+        Some(new RegistrationInfo())))
+
   private var workerRpcEnvInUse = rpcEnv
+
   if (authEnabled) {
-    logInfo(s"Authentication is enabled; setting up master and worker RPC environments")
-    val appSecret = createSecret()
-    val registrationInfo = new RegistrationInfo()
-    masterRpcEnvInUse =
-      RpcEnv.create(
-        RpcNameConstants.LIFECYCLE_MANAGER_MASTER_SYS,
-        lifecycleHost,
-        0,
-        conf,
-        createRpcSecurityContext(
-          appSecret,
-          addClientRegistrationBootstrap = true,
-          Some(registrationInfo)))
+    logInfo(s"Authentication is enabled; setting up worker RPC environments")
     workerRpcEnvInUse =
       RpcEnv.create(
         RpcNameConstants.LIFECYCLE_MANAGER_WORKER_SYS,
         lifecycleHost,
         0,
         conf,
-        createRpcSecurityContext(appSecret))
+        createRpcContext(appSecret))
   }
 
-  private val masterClient = new MasterClient(masterRpcEnvInUse, conf, false)
+  private val masterClient = new MasterClient(masterAppRegistryRpcEnvInUse, conf, false)
   val commitManager = new CommitManager(appUniqueId, conf, this)
   val workerStatusTracker = new WorkerStatusTracker(conf, this)
   private val heartbeater =
@@ -244,11 +244,11 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
       rpcEnv.shutdown()
       rpcEnv.awaitTermination()
     }
+    if (masterAppRegistryRpcEnvInUse != null) {
+      masterAppRegistryRpcEnvInUse.shutdown()
+      masterAppRegistryRpcEnvInUse.awaitTermination()
+    }
     if (authEnabled) {
-      if (masterRpcEnvInUse != null) {
-        masterRpcEnvInUse.shutdown()
-        masterRpcEnvInUse.awaitTermination()
-      }
       if (workerRpcEnvInUse != null) {
         workerRpcEnvInUse.shutdown()
         workerRpcEnvInUse.awaitTermination()
@@ -257,23 +257,25 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
   }
 
   /**
-   * Creates security context for external RPC endpoint.
+   * Creates rpc context for external RPC endpoint.
    */
-  def createRpcSecurityContext(
+  private def createRpcContext(
       appSecret: String,
       addClientRegistrationBootstrap: Boolean = false,
-      registrationInfo: Option[RegistrationInfo] = None): Option[RpcSecurityContext] = {
-    val clientSaslContextBuilder = new ClientSaslContextBuilder()
+      registrationInfo: Option[RegistrationInfo] = None): Option[RpcContext] = {
+    val clientSaslContextBuilder = new ClientRpcContextBuilder()
       .withAddRegistrationBootstrap(addClientRegistrationBootstrap)
       .withAppId(appUniqueId)
+      .withUserIdentifier(userIdentifier)
+      .withAuthEnabled(authEnabled)
       .withSaslUser(appUniqueId)
       .withSaslPassword(appSecret)
     if (registrationInfo.isDefined) {
       clientSaslContextBuilder.withRegistrationInfo(registrationInfo.get)
     }
-    val rpcSecurityContext = new RpcSecurityContextBuilder()
+    val rpcContext = new RpcContextBuilder()
       .withClientSaslContext(clientSaslContextBuilder.build()).build()
-    Some(rpcSecurityContext)
+    Some(rpcContext)
   }
 
   def getUserIdentifier: UserIdentifier = {

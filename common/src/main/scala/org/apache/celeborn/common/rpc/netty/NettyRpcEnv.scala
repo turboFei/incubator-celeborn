@@ -63,20 +63,22 @@ class NettyRpcEnv(
     new TransportContext(transportConf, new NettyRpcHandler(dispatcher, this))
 
   private def createClientBootstraps(): java.util.List[TransportClientBootstrap] = {
-    val bootstrapOpt = securityContext.flatMap(_.clientSaslContext.map { clientSaslContext =>
-      if (clientSaslContext.addRegistrationBootstrap) {
+    val bootstrapOpt = securityContext.flatMap(_.clientRpcContext.map { clientRpcContext =>
+      if (clientRpcContext.addRegistrationBootstrap) {
         logInfo("Add registration client bootstrap")
         new RegistrationClientBootstrap(
           transportConf,
-          clientSaslContext.appId,
-          clientSaslContext.saslCredentials,
-          clientSaslContext.registrationInfo)
+          clientRpcContext.appId,
+          clientRpcContext.saslCredentials,
+          clientRpcContext.registrationInfo,
+          clientRpcContext.userIdentifier,
+          clientRpcContext.authEnabled)
       } else {
         logInfo("Add sasl client bootstrap")
         new SaslClientBootstrap(
           transportConf,
-          clientSaslContext.appId,
-          clientSaslContext.saslCredentials)
+          clientRpcContext.appId,
+          clientRpcContext.saslCredentials)
       }
     })
     bootstrapOpt.toList.asJava
@@ -114,17 +116,18 @@ class NettyRpcEnv(
   }
 
   private def createServerBootstraps(): java.util.List[TransportServerBootstrap] = {
-    val bootstrapOpt = securityContext.flatMap(_.serverSaslContext.map { serverSaslContext =>
-      if (serverSaslContext.addRegistrationBootstrap) {
+    val bootstrapOpt = securityContext.flatMap(_.serverRpcContext.map { serverRpcContext =>
+      if (serverRpcContext.addRegistrationBootstrap) {
         logInfo("Add registration server bootstrap")
         new RegistrationServerBootstrap(
           transportConf,
-          serverSaslContext.secretRegistry)
+          serverRpcContext.applicationRegistry,
+          serverRpcContext.authEnabled)
       } else {
         logInfo("Add sasl server bootstrap")
         new SaslServerBootstrap(
           transportConf,
-          serverSaslContext.secretRegistry)
+          serverRpcContext.applicationRegistry)
       }
     })
     bootstrapOpt.toList.asJava

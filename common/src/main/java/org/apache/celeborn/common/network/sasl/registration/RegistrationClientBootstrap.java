@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.celeborn.common.exception.CelebornException;
+import org.apache.celeborn.common.identity.UserIdentifier;
 import org.apache.celeborn.common.network.client.TransportClient;
 import org.apache.celeborn.common.network.client.TransportClientBootstrap;
 import org.apache.celeborn.common.network.protocol.TransportMessage;
@@ -52,6 +53,7 @@ import org.apache.celeborn.common.protocol.PbRegisterApplicationResponse;
 import org.apache.celeborn.common.protocol.PbSaslMechanism;
 import org.apache.celeborn.common.protocol.PbSaslRequest;
 import org.apache.celeborn.common.util.JavaUtils;
+import org.apache.celeborn.common.util.PbSerDeUtils;
 
 /**
  * Bootstraps a {@link TransportClient} by registering application (if the application is not
@@ -81,6 +83,10 @@ public class RegistrationClientBootstrap implements TransportClientBootstrap {
 
   private final TransportConf conf;
   private final String appId;
+
+  private final UserIdentifier userIdentifier;
+
+  private final boolean authEnabled;
   private final SaslCredentials saslCredentials;
 
   private final RegistrationInfo registrationInfo;
@@ -89,15 +95,46 @@ public class RegistrationClientBootstrap implements TransportClientBootstrap {
       TransportConf conf,
       String appId,
       SaslCredentials saslCredentials,
-      RegistrationInfo registrationInfo) {
+      RegistrationInfo registrationInfo,
+      UserIdentifier userIdentifier,
+      boolean authEnabled) {
     this.conf = Preconditions.checkNotNull(conf, "conf");
     this.appId = Preconditions.checkNotNull(appId, "appId");
     this.saslCredentials = Preconditions.checkNotNull(saslCredentials, "saslCredentials");
     this.registrationInfo = Preconditions.checkNotNull(registrationInfo, "registrationInfo");
+    this.userIdentifier = Preconditions.checkNotNull(userIdentifier, "userIdentifier");
+    this.authEnabled = authEnabled;
   }
 
   @Override
   public void doBootstrap(TransportClient client) throws RuntimeException {
+    if (authEnabled) {
+      doSaslRegisterBootstrap(client);
+    } else {
+      doNonSaslRegisterBootstrap(client);
+    }
+  }
+
+  public void doNonSaslRegisterBootstrap(TransportClient client) {
+    if (registrationInfo.getRegistrationState() == RegistrationInfo.RegistrationState.REGISTERED) {
+      LOG.info("client has already registered, skip register.");
+      return;
+    }
+    try {
+      register(client);
+      LOG.info("Registration for {}", appId);
+      registrationInfo.setRegistrationState(RegistrationInfo.RegistrationState.REGISTERED);
+    } catch (IOException | CelebornException e) {
+      throw new RuntimeException(e);
+    } finally {
+      if (registrationInfo.getRegistrationState()
+          != RegistrationInfo.RegistrationState.REGISTERED) {
+        registrationInfo.setRegistrationState(RegistrationInfo.RegistrationState.FAILED);
+      }
+    }
+  }
+
+  public void doSaslRegisterBootstrap(TransportClient client) throws RuntimeException {
     if (registrationInfo.getRegistrationState() == RegistrationInfo.RegistrationState.REGISTERED) {
       LOG.info("client has already registered, skip register.");
       doSaslBootstrap(client);
@@ -202,6 +239,8 @@ public class RegistrationClientBootstrap implements TransportClientBootstrap {
             PbRegisterApplicationRequest.newBuilder()
                 .setId(appId)
                 .setSecret(saslCredentials.getPassword())
+                .setUserIdentifier(PbSerDeUtils.toPbUserIdentifier(userIdentifier))
+                .setAuthEnabled(authEnabled)
                 .build()
                 .toByteArray());
     ByteBuffer response;

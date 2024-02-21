@@ -611,6 +611,8 @@ message PbSnapshotMetaInfo {
   repeated PbWorkerInfo shutdownWorkers = 13;
   repeated PbWorkerInfo manuallyExcludedWorkers = 14;
   map<string, PbWorkerEventInfo> workerEventInfos = 15;
+  map<string, PbApplicationRegistration> applicationRegistrations = 16;
+  map<string, PbApplicationInfo> applications = 17;
 }
 
 message PbOpenStream {
@@ -717,8 +719,23 @@ message PbAuthenticationInitiationResponse {
 message PbRegisterApplicationRequest {
   string id = 1;
   string secret = 2;
+  bool authEnabled = 3;
+  PbUserIdentifier userIdentifier = 4;
 }
 
 message PbRegisterApplicationResponse {
   bool status = 1;
+}
+
+message PbApplicationInfo {
+  PbUserIdentifier userIdentifier = 1;
+  int64 totalWritten = 2;
+  int64 fileCount = 3;
+  int64 lastHeartbeatTime = 4;
+}
+
+message PbApplicationRegistration {
+  string appId = 1;
+  PbUserIdentifier userIdentifier = 2;
+  string secret = 3;
 }

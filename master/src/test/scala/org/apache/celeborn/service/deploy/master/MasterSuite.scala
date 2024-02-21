@@ -62,6 +62,7 @@ class MasterSuite extends AnyFunSuite
     Thread.sleep(5000L)
     master.stop(CelebornExitKind.EXIT_IMMEDIATELY)
     master.rpcEnv.shutdown()
+    master.appRegistrationRpcEnv.shutdown()
   }
 
   test("test dedicated internal port receives") {
@@ -96,6 +97,7 @@ class MasterSuite extends AnyFunSuite
     master.stop(CelebornExitKind.EXIT_IMMEDIATELY)
     master.rpcEnv.shutdown()
     master.internalRpcEnvInUse.shutdown()
+    master.appRegistrationRpcEnv.shutdown()
   }
 
   test("test secured port receives") {
@@ -118,23 +120,23 @@ class MasterSuite extends AnyFunSuite
       }
     }.start()
     Thread.sleep(5000L)
-    master.securedRpcEndpoint.receiveAndReply(
+    master.appRegistrationRpcEndpoint.receiveAndReply(
       mock(classOf[org.apache.celeborn.common.rpc.RpcCallContext]))
       .applyOrElse(
         HeartbeatFromApplication("appId", 0L, 0L, null),
         (_: Any) => fail("Unexpected message"))
-    master.securedRpcEndpoint.receiveAndReply(
+    master.appRegistrationRpcEndpoint.receiveAndReply(
       mock(classOf[org.apache.celeborn.common.rpc.RpcCallContext]))
       .applyOrElse(ApplicationLost("appId"), (_: Any) => fail("Unexpected message"))
 
     assertThrows[scala.MatchError] {
-      master.securedRpcEndpoint.receiveAndReply(
+      master.appRegistrationRpcEndpoint.receiveAndReply(
         mock(classOf[org.apache.celeborn.common.rpc.RpcCallContext]))(
         PbRegisterWorker.newBuilder().build())
     }
     master.stop(CelebornExitKind.EXIT_IMMEDIATELY)
     master.rpcEnv.shutdown()
     master.internalRpcEnvInUse.shutdown()
-    master.securedRpcEnv.shutdown()
+    master.appRegistrationRpcEnv.shutdown()
   }
 }

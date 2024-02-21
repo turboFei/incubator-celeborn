@@ -21,58 +21,59 @@ import org.scalatest.matchers.must.Matchers.be
 import org.scalatest.matchers.should.Matchers.{an, convertToAnyShouldWrapper}
 
 import org.apache.celeborn.CelebornFunSuite
-import org.apache.celeborn.common.network.sasl.{SaslCredentials, SecretRegistryImpl}
+import org.apache.celeborn.common.identity.UserIdentifier
+import org.apache.celeborn.common.network.sasl.{ApplicationRegistryImpl, SaslCredentials}
 import org.apache.celeborn.common.network.sasl.registration.RegistrationInfo
-import org.apache.celeborn.common.security.{ClientSaslContext, ClientSaslContextBuilder, RpcSecurityContextBuilder, ServerSaslContext, ServerSaslContextBuilder}
 
-class RpcSecurityContextSuite extends CelebornFunSuite {
+class RpcContextSuite extends CelebornFunSuite {
 
-  test("RpcSecurityContext should be created with either client and server sasl contexts") {
-    val clientContext = ClientSaslContext(
+  test("RpcContext should be created with either client and server sasl contexts") {
+    val clientContext = ClientRpcContext(
       "clientAppId",
       new SaslCredentials("user", "password"),
       addRegistrationBootstrap = true)
 
-    val rpcSecurityContext = new RpcSecurityContextBuilder()
+    val rpcContext = new RpcContextBuilder()
       .withClientSaslContext(clientContext)
       .build()
 
-    rpcSecurityContext.clientSaslContext shouldBe Some(clientContext)
-    rpcSecurityContext.serverSaslContext shouldBe None
+    rpcContext.clientRpcContext shouldBe Some(clientContext)
+    rpcContext.serverRpcContext shouldBe None
   }
 
-  test("RpcSecurityContext should be created with only client sasl context") {
-    val clientContext = ClientSaslContext(
+  test("RpcContext should be created with only client sasl context") {
+    val clientContext = ClientRpcContext(
       "clientAppId",
       new SaslCredentials("user", "password"),
       addRegistrationBootstrap = true)
 
-    val rpcSecurityContext = new RpcSecurityContextBuilder()
+    val rpcContext = new RpcContextBuilder()
       .withClientSaslContext(clientContext)
       .build()
 
-    rpcSecurityContext.clientSaslContext shouldBe Some(clientContext)
-    rpcSecurityContext.serverSaslContext shouldBe None
+    rpcContext.clientRpcContext shouldBe Some(clientContext)
+    rpcContext.serverRpcContext shouldBe None
   }
 
-  test("RpcSecurityContext should be created with only server sasl context") {
-    val serverContext = ServerSaslContext(new SecretRegistryImpl())
+  test("RpcContext should be created with only server sasl context") {
+    val serverContext = ServerRpcContext(new ApplicationRegistryImpl())
 
-    val rpcSecurityContext = new RpcSecurityContextBuilder()
-      .withServerSaslContext(serverContext)
+    val rpcContext = new RpcContextBuilder()
+      .withServerRpcContext(serverContext)
       .build()
 
-    rpcSecurityContext.clientSaslContext shouldBe None
-    rpcSecurityContext.serverSaslContext shouldBe Some(serverContext)
+    rpcContext.clientRpcContext shouldBe None
+    rpcContext.serverRpcContext shouldBe Some(serverContext)
   }
 
-  test("ClientSaslContext build with valid parameters") {
-    val clientContext = new ClientSaslContextBuilder()
+  test("ClientRpcContext build with valid parameters") {
+    val clientContext = new ClientRpcContextBuilder()
       .withSaslUser("user")
       .withSaslPassword("password")
       .withAppId("clientAppId")
       .withAddRegistrationBootstrap(true)
       .withRegistrationInfo(new RegistrationInfo())
+      .withUserIdentifier(new UserIdentifier("default", "user"))
       .build()
 
     clientContext.appId shouldBe "clientAppId"
@@ -82,9 +83,9 @@ class RpcSecurityContextSuite extends CelebornFunSuite {
     clientContext.registrationInfo shouldNot be(null)
   }
 
-  test("ClientSaslContext build should throw IllegalArgumentException when sasl user/password is not set") {
+  test("ClientRpcContext build should throw IllegalArgumentException when sasl user/password is not set") {
     an[IllegalArgumentException] should be thrownBy {
-      new ClientSaslContextBuilder()
+      new ClientRpcContextBuilder()
         .withAppId("clientAppId")
         .withAddRegistrationBootstrap(true)
         .withRegistrationInfo(new RegistrationInfo())
@@ -92,9 +93,9 @@ class RpcSecurityContextSuite extends CelebornFunSuite {
     }
   }
 
-  test("ClientSaslContext build should throw IllegalArgumentException when app id is not set") {
+  test("ClientRpcContext build should throw IllegalArgumentException when app id is not set") {
     an[IllegalArgumentException] should be thrownBy {
-      new ClientSaslContextBuilder()
+      new ClientRpcContextBuilder()
         .withSaslUser("user")
         .withSaslPassword("password")
         .withAddRegistrationBootstrap(true)
@@ -103,9 +104,9 @@ class RpcSecurityContextSuite extends CelebornFunSuite {
     }
   }
 
-  test("ClientSaslContext build should throw IllegalArgumentException when addRegistrationBootstrap is true but registration info is not set") {
+  test("ClientRpcContext build should throw IllegalArgumentException when addRegistrationBootstrap is true but registration info is not set") {
     an[IllegalArgumentException] should be thrownBy {
-      new ClientSaslContextBuilder()
+      new ClientRpcContextBuilder()
         .withSaslUser("user")
         .withSaslPassword("password")
         .withAppId("clientAppId")
@@ -114,20 +115,20 @@ class RpcSecurityContextSuite extends CelebornFunSuite {
     }
   }
 
-  test("ServerSaslContext build should build ServerSaslContext with valid parameters") {
-    val serverContext = new ServerSaslContextBuilder()
-      .withSecretRegistry(new SecretRegistryImpl())
+  test("ServerRpcContext build should build ServerSaslContext with valid parameters") {
+    val serverContext = new ServerRpcContextBuilder()
+      .withApplicationRegistry(new ApplicationRegistryImpl())
       .withAddRegistrationBootstrap(true)
       .build()
 
-    serverContext.secretRegistry shouldNot be(null)
+    serverContext.applicationRegistry shouldNot be(null)
     serverContext.addRegistrationBootstrap shouldBe true
   }
 
   test(
-    "ServerSaslContext build should throw IllegalArgumentException when secret registry is not set") {
+    "ServerRpcContext build should throw IllegalArgumentException when secret registry is not set") {
     an[IllegalArgumentException] should be thrownBy {
-      new ServerSaslContextBuilder()
+      new ServerRpcContextBuilder()
         .withAddRegistrationBootstrap(true)
         .build()
     }

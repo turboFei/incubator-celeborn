@@ -15,23 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.celeborn.common.network.client;
+package org.apache.celeborn.common.meta
 
-/**
- * A bootstrap which is executed on a TransportClient before it is returned to the user. This
- * enables an initial exchange of information (e.g., SASL authentication tokens) on a once-per-
- * connection basis.
- *
- * <p>Since connections (and TransportClients) are reused as much as possible, it is generally
- * reasonable to perform an expensive bootstrapping operation, as they often share a lifespan with
- * the JVM itself.
- */
-public interface TransportClientBootstrap {
-  /**
-   * Performs the bootstrapping operation, throwing an exception on failure.
-   *
-   * @param client the transport client to bootstrap
-   * @throws RuntimeException
-   */
-  void doBootstrap(TransportClient client) throws RuntimeException;
-}
+import org.apache.celeborn.common.identity.UserIdentifier
+
+class ApplicationRegistration(val userIdentifier: UserIdentifier, val secret: String)
