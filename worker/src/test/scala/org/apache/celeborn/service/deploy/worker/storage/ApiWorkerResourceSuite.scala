@@ -32,12 +32,14 @@ class ApiWorkerResourceSuite extends ApiBaseResourceSuite {
   override def beforeAll(): Unit = {
     val workerArgs = new WorkerArguments(Array(), celebornConf)
     worker = new Worker(celebornConf, workerArgs)
+    worker.metricsSystem.start()
     worker.startHttpServer()
     super.beforeAll()
   }
 
   override def afterAll(): Unit = {
     super.afterAll()
+    worker.metricsSystem.stop()
     worker.rpcEnv.shutdown()
     worker.stop(CelebornExitKind.EXIT_IMMEDIATELY)
   }

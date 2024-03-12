@@ -43,7 +43,6 @@ class ApiMasterResourceSuite extends ApiBaseResourceSuite {
     celebornConf.set(CelebornConf.HA_ENABLED.key, "false")
     celebornConf.set(CelebornConf.HA_MASTER_RATIS_STORAGE_DIR.key, getTmpDir())
     celebornConf.set(CelebornConf.WORKER_STORAGE_DIRS.key, getTmpDir())
-    celebornConf.set(CelebornConf.METRICS_ENABLED.key, "true")
     celebornConf.set(CelebornConf.MASTER_HTTP_HOST.key, "127.0.0.1")
     celebornConf.set(CelebornConf.MASTER_HTTP_PORT.key, randomHttpPort.toString)
 
