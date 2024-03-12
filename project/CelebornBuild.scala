@@ -66,6 +66,7 @@ object Dependencies {
   val hikaricpVersion = "4.0.3"
   val h2Version = "2.2.224"
   val swaggerVersion = "2.2.1"
+  val swaggerUiVersion = "4.9.1"
   val jerseyVersion = "2.39.1"
   val jettyVersion = "9.4.52.v20230823"
   val jakartaServeletApiVersion = "4.0.4"
@@ -145,6 +146,7 @@ object Dependencies {
   val swaggerJaxrs2 = "io.swagger.core.v3" % "swagger-jaxrs2" %swaggerVersion excludeAll(
     ExclusionRule("com.sun.activation", "jakarta.activation"),
     ExclusionRule("org.javassist", "javassist"))
+  val swaggerUi = "org.webjars" % "swagger-ui" % swaggerUiVersion
 
   // Test dependencies
   // https://www.scala-sbt.org/1.x/docs/Testing.html
@@ -472,6 +474,7 @@ object CelebornService {
         Dependencies.mybatis,
         Dependencies.hikaricp,
         Dependencies.swaggerJaxrs2,
+        Dependencies.swaggerUi,
         Dependencies.jakartaServletApi,
         Dependencies.jerseyServer,
         Dependencies.jerseyContainerServletCore,
