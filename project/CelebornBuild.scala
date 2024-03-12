@@ -412,8 +412,6 @@ object CelebornCommon {
         Dependencies.jacksonCore,
         Dependencies.jacksonDatabind,
         Dependencies.jacksonAnnotations,
-        Dependencies.jettyServlet,
-        Dependencies.jakartaServletApi,
         Dependencies.log4jSlf4jImpl % "test",
         Dependencies.log4j12Api % "test"
       ) ++ commonUnitTestDependencies,

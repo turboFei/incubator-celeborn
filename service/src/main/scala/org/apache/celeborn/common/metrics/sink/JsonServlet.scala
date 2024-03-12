@@ -17,18 +17,17 @@
 
 package org.apache.celeborn.common.metrics.sink
 
-import java.util.Properties
-
-import scala.collection.mutable.ArrayBuffer
-
 import com.codahale.metrics.MetricRegistry
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import org.apache.celeborn.common.metrics.source._
+import org.apache.celeborn.common.metrics.{CelebornHistogram, CelebornTimer, ResettableSlidingWindowReservoir}
+import org.apache.celeborn.server.common.http.HttpUtils
+import org.apache.celeborn.server.common.http.HttpUtils.ServletParams
 import org.eclipse.jetty.servlet.ServletContextHandler
 
-import org.apache.celeborn.common.metrics.{CelebornHistogram, CelebornTimer, ResettableSlidingWindowReservoir}
-import org.apache.celeborn.common.metrics.sink.ServletUtils.ServletParams
-import org.apache.celeborn.common.metrics.source.{AbstractSource, NamedCounter, NamedGauge, NamedHistogram, NamedTimer, Source}
+import java.util.Properties
+import scala.collection.mutable.ArrayBuffer
 
 object JsonConverter {
   val mapper = new ObjectMapper() with ClassTagExtensions
@@ -74,7 +73,7 @@ class JsonServlet(
   }
 
   override def createServletHandler(): ServletContextHandler = {
-    ServletUtils.createServletHandler(
+    HttpUtils.createServletHandler(
       servletPath,
       new ServletParams(_ => getMetricsSnapshot, "text/json"))
   }
