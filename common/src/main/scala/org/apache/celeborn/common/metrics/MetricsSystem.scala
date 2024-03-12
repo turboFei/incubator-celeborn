@@ -140,7 +140,7 @@ class MetricsSystem(
             prometheusServlet = Some(servlet.newInstance(
               kv._2,
               registry,
-              sources.asScala,
+              sources.asScala.toSeq,
               prometheusServletPath).asInstanceOf[PrometheusServlet])
           } else if (kv._1 == "jsonServlet") {
             val servlet = Utils.classForName(classPath)
@@ -153,7 +153,7 @@ class MetricsSystem(
             jsonServlet = Some(servlet.newInstance(
               kv._2,
               registry,
-              sources.asScala,
+              sources.asScala.toSeq,
               jsonServletPath,
               conf.metricsJsonPrettyEnabled.asInstanceOf[Object]).asInstanceOf[JsonServlet])
           } else {
