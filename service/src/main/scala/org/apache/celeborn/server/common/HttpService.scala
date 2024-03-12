@@ -232,6 +232,7 @@ abstract class HttpService extends Service with Logging {
 
   protected def startInternal(): Unit = {
     httpServer.addHandler(ApiRootResource.getServletHandler(this))
+    httpServer.addStaticHandler("META-INF/resources/webjars/swagger-ui/4.9.1/", "/swagger-static/")
     httpServer.addStaticHandler("org/apache/celeborn/swagger", "/swagger")
     httpServer.addRedirectHandler("/help", "/swagger")
     httpServer.addRedirectHandler("/docs", "/swagger")
