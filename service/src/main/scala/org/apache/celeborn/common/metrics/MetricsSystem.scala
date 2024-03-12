@@ -17,20 +17,22 @@
 
 package org.apache.celeborn.common.metrics
 
+import java.util.Properties
+import java.util.concurrent.{CopyOnWriteArrayList, TimeUnit}
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.util.matching.Regex
+
 import com.codahale.metrics.{Metric, MetricFilter, MetricRegistry}
+import org.eclipse.jetty.servlet.ServletContextHandler
+
 import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.CelebornConf.{METRICS_JSON_PATH, METRICS_PROMETHEUS_PATH}
 import org.apache.celeborn.common.internal.Logging
 import org.apache.celeborn.common.metrics.sink.{JsonServlet, PrometheusServlet, Sink}
 import org.apache.celeborn.common.metrics.source.Source
 import org.apache.celeborn.common.util.Utils
-import org.eclipse.jetty.servlet.ServletContextHandler
-
-import java.util.Properties
-import java.util.concurrent.{CopyOnWriteArrayList, TimeUnit}
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.util.matching.Regex
 
 class MetricsSystem(
     val instance: String,

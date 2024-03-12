@@ -19,7 +19,9 @@ package org.apache.celeborn.server.common.http
 
 import java.net.URL
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+
 import org.eclipse.jetty.servlet.{DefaultServlet, ServletContextHandler, ServletHolder}
+
 import org.apache.celeborn.common.exception.CelebornException
 import org.apache.celeborn.common.internal.Logging
 
@@ -29,14 +31,14 @@ private[celeborn] object HttpUtils extends Logging {
   type Responder[T] = HttpServletRequest => T
 
   class ServletParams[T <: AnyRef](
-                                    val responder: Responder[T],
-                                    val contentType: String,
-                                    val extractFn: T => String = (in: Any) => in.toString) {}
+      val responder: Responder[T],
+      val contentType: String,
+      val extractFn: T => String = (in: Any) => in.toString) {}
 
   /** Create a context handler that responds to a request with the given path prefix */
   def createServletHandler[T <: AnyRef](
-                                         path: String,
-                                         servletParams: ServletParams[T]): ServletContextHandler = {
+      path: String,
+      servletParams: ServletParams[T]): ServletContextHandler = {
     createServletHandler(path, createServlet(servletParams))
   }
 

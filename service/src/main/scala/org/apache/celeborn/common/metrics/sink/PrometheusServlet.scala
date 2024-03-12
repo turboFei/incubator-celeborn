@@ -17,13 +17,14 @@
 
 package org.apache.celeborn.common.metrics.sink
 
+import java.util.Properties
+
 import com.codahale.metrics.MetricRegistry
+import org.eclipse.jetty.servlet.ServletContextHandler
+
 import org.apache.celeborn.common.metrics.source.Source
 import org.apache.celeborn.server.common.http.HttpUtils
 import org.apache.celeborn.server.common.http.HttpUtils.ServletParams
-import org.eclipse.jetty.servlet.ServletContextHandler
-
-import java.util.Properties
 
 class PrometheusServlet(
     val property: Properties,
