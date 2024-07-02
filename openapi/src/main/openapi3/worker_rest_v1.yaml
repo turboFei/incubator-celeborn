@@ -206,7 +206,7 @@ paths:
 
 components:
   schemas:
-    Config:
+    ConfigData:
       type: object
       properties:
         name:
@@ -226,9 +226,9 @@ components:
           type: array
           default: [ ]
           items:
-            $ref: '#/components/schemas/Config'
+            $ref: '#/components/schemas/ConfigData'
 
-    DynamicConfigResponse:
+    DynamicConfig:
       type: object
       properties:
         level:
@@ -246,7 +246,16 @@ components:
           description: the config items.
           default: [ ]
           items:
-            $ref: '#/components/schemas/Config'
+            $ref: '#/components/schemas/ConfigData'
+
+    DynamicConfigResponse:
+      type: object
+      properties:
+        configs:
+          type: array
+          default: [ ]
+          items:
+            $ref: '#/components/schemas/DynamicConfig'
 
     ThreadStack:
       type: object
@@ -318,7 +327,7 @@ components:
       required:
         - applications
 
-    AppDiskUsage:
+    AppDiskUsageData:
       type: object
       properties:
         appId:
@@ -344,7 +353,7 @@ components:
           default: [ ]
           description: The application disk usages.
           items:
-            $ref: '#/components/schemas/AppDiskUsage'
+            $ref: '#/components/schemas/AppDiskUsageData'
 
     WorkerInfoResponse:
       type: object
@@ -376,7 +385,7 @@ components:
           type: integer
           format: int32
           description: The slot used of the worker.
-        lastHeartbeat:
+        lastHeartbeatTimestamp:
           type: integer
           format: int64
           description: The last heartbeat timestamp of the worker.

@@ -237,7 +237,7 @@ paths:
 
 components:
   schemas:
-    Config:
+    ConfigData:
       type: object
       properties:
         name:
@@ -257,9 +257,9 @@ components:
           type: array
           default: [ ]
           items:
-            $ref: '#/components/schemas/Config'
+            $ref: '#/components/schemas/ConfigData'
 
-    DynamicConfigResponse:
+    DynamicConfig:
       type: object
       properties:
         level:
@@ -277,7 +277,16 @@ components:
           description: the config items.
           default: [ ]
           items:
-            $ref: '#/components/schemas/Config'
+            $ref: '#/components/schemas/ConfigData'
+
+    DynamicConfigResponse:
+      type: object
+      properties:
+        configs:
+          type: array
+          default: [ ]
+          items:
+            $ref: '#/components/schemas/DynamicConfig'
 
     ThreadStack:
       type: object
@@ -337,19 +346,19 @@ components:
           items:
             type: string
 
-    ApplicationHeartbeat:
+    ApplicationHeartbeatData:
       type: object
       properties:
         appId:
           type: string
           description: The id of the application.
-        lastHeartbeat:
+        lastHeartbeatTimestamp:
           type: integer
           format: int64
           description: The last heartbeat timestamp of the application.
       required:
         - appId
-        - lastHeartbeat
+        - lastHeartbeatTimestamp
 
     ApplicationsInfoResponse:
       type: object
@@ -359,7 +368,7 @@ components:
           default: [ ]
           description: The applications information.
           items:
-            $ref: '#/components/schemas/ApplicationHeartbeat'
+            $ref: '#/components/schemas/ApplicationHeartbeatData'
       required:
         - applications
 
@@ -375,23 +384,23 @@ components:
       required:
         - hostnames
 
-    AppDiskUsage:
+    AppDiskUsageData:
       type: object
       properties:
         appId:
           type: string
           description: The id of the application.
-        diskUsage:
+        estimatedUsage:
           type: integer
           format: int64
           description: The application disk usage.
-        diskUsageStr:
+        estimatedUsageStr:
           type: string
           description: The application disk usage in string type.
       required:
         - appId
-        - diskUsage
-        - diskUsageStr
+        - estimatedUsage
+        - estimatedUsageStr
 
     AppDiskUsageSnapshotResponse:
       type: object
@@ -408,7 +417,7 @@ components:
           type: array
           description: The top N snapshots.
           items:
-            $ref: '#/components/schemas/AppDiskUsage'
+            $ref: '#/components/schemas/AppDiskUsageData'
 
     MasterLeader:
       type: object
@@ -424,7 +433,7 @@ components:
         - id
         - address
 
-    MasterCommitInfo:
+    MasterCommitData:
       type: object
       properties:
         commitIndex:
@@ -462,7 +471,7 @@ components:
           default: [ ]
           description: The raft commit info of the master.
           items:
-            $ref: '#/components/schemas/MasterCommitInfo'
+            $ref: '#/components/schemas/MasterCommitData'
       required:
         - groupId
 
@@ -496,7 +505,7 @@ components:
           type: integer
           format: int32
           description: The slot used of the worker.
-        lastHeartbeat:
+        lastHeartbeatTimestamp:
           type: integer
           format: int64
           description: The last heartbeat timestamp of the worker.
@@ -565,10 +574,10 @@ components:
           description: The shutdown workers.
           items:
             $ref: '#/components/schemas/WorkerInfo'
-        decommissionWorkers:
+        decommissioningWorkers:
           type: array
           default: [ ]
-          description: The decommission workers.
+          description: The decommissioning workers.
           items:
             $ref: '#/components/schemas/WorkerInfo'
       required:
@@ -580,10 +589,13 @@ components:
         eventType:
           type: string
           description: The type of the event.
-        eventStartTime:
+        eventTime:
           type: integer
           format: int64
           description: The start time of the event.
+      required:
+        - eventType
+        - eventTime
 
     WorkerEvent:
       type: object
