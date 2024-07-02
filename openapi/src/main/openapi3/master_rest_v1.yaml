@@ -156,7 +156,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HandlerResponse'
+                $ref: '#/components/schemas/HandleResponse'
 
   /api/v1/workers/events:
     get:
@@ -189,7 +189,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HandlerResponse'
+                $ref: '#/components/schemas/HandleResponse'
 
   /api/v1/applications:
     get:
@@ -539,7 +539,6 @@ components:
         - pushPort
         - fetchPort
         - replicatePort
-        - internalPort
 
     WorkersResponse:
       type: object
@@ -653,19 +652,6 @@ components:
           items:
             $ref: '#/components/schemas/WorkerId'
 
-    HandlerResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: The result of the request.
-        message:
-          type: string
-          description: The message of the request.
-      required:
-        - success
-        - message
-
     SendWorkerEventRequest:
       type: object
       properties:
@@ -689,6 +675,18 @@ components:
       required:
         - eventType
         - worker
+
+    HandleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: The result of the request.
+        message:
+          type: string
+          description: The message of the request.
+      required:
+        - success
 
   securitySchemes:
     basic:

@@ -170,7 +170,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkerExitResponse'
+                $ref: '#/components/schemas/HandleResponse'
 
   /api/v1/applications:
     get:
@@ -433,28 +433,92 @@ components:
         - isShutdown
         - isDecommissioning
 
-    UnAvailablePeerWorker:
+    WorkerData:
       type: object
       properties:
-        peer:
-          $ref: '#/components/schemas/WorkerId'
-        unavailableTime:
+        host:
+          type: string
+          description: The host of the worker.
+        rpcPort:
+          type: integer
+          format: int32
+          description: The rpc port of the worker.
+        pushPort:
+          type: integer
+          format: int32
+          description: The push port of the worker.
+        fetchPort:
+          type: integer
+          format: int32
+          description: The fetch port of the worker.
+        replicatePort:
+          type: integer
+          format: int32
+          description: The replicate port of the worker.
+        internalPort:
+          type: integer
+          format: int32
+          description: The internal port of the worker.
+        slotUsed:
+          type: integer
+          format: int32
+          description: The slot used of the worker.
+        lastHeartbeatTimestamp:
           type: integer
           format: int64
-          description: The time when the peer is unavailable.
+          description: The last heartbeat timestamp of the worker.
+        heartbeatElapsedSeconds:
+          type: integer
+          format: int64
+          description: The elapsed seconds since the last heartbeat of the worker.
+        diskInfos:
+          type: object
+          description: A map of disk name and disk info.
+          additionalProperties:
+            type: string
+        resourceConsumption:
+          type: object
+          description: A map of identifier and resource consumption.
+          additionalProperties:
+            type: string
+        workerRef:
+          type: string
+          description: The reference of the worker.
+        workerState:
+          type: string
+          description: The state of the worker.
+        workerStateStartTime:
+          type: integer
+          format: int64
+          description: The start time of the worker state.
       required:
-        - peer
-        - unavailableTime
+        - host
+        - rpcPort
+        - pushPort
+        - fetchPort
+        - replicatePort
+
+    WorkerTimestampData:
+      type: object
+      properties:
+        worker:
+          $ref: '#/components/schemas/WorkerData'
+        timestamp:
+          type: integer
+          format: int64
+      required:
+        - worker
+        - timestamp
 
     UnAvailablePeersResponse:
       type: object
       properties:
-        unavailablePeers:
+        peers:
           type: array
           default: [ ]
           description: The unavailable peers.
           items:
-            $ref: '#/components/schemas/UnAvailablePeerWorker'
+            $ref: '#/components/schemas/WorkerTimestampData'
 
     PartitionLocationData:
       type: object
@@ -553,15 +617,15 @@ components:
       required:
         - type
 
-    WorkerExitResponse:
+    HandleResponse:
       type: object
       properties:
         success:
           type: boolean
-          description: The result of the worker exit request.
+          description: The result of the request.
         message:
           type: string
-          description: The message of the worker exit request.
+          description: The message of the request.
       required:
         - success
 
