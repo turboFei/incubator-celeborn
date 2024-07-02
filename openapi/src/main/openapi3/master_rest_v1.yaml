@@ -103,7 +103,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShuffleResponse'
+                $ref: '#/components/schemas/ShufflesResponse'
 
   /api/v1/masters:
     get:
@@ -156,7 +156,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExcludeWorkerResponse'
+                $ref: '#/components/schemas/HandlerResponse'
 
   /api/v1/workers/events:
     get:
@@ -170,7 +170,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkerEvent'
+                $ref: '#/components/schemas/WorkerEventData'
     post:
       tags:
         - Worker
@@ -189,7 +189,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SendWorkerEventResponse'
+                $ref: '#/components/schemas/HandlerResponse'
 
   /api/v1/applications:
     get:
@@ -203,7 +203,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApplicationsInfoResponse'
+                $ref: '#/components/schemas/ApplicationsHeartbeatResponse'
 
   /api/v1/applications/top_disk_usages:
     get:
@@ -219,7 +219,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppDiskUsageSnapshotResponse'
+                $ref: '#/components/schemas/AppDiskUsageSnapshotsResponse'
 
   /api/v1/applications/hostnames:
     get:
@@ -233,7 +233,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApplicationHostnameResponse'
+                $ref: '#/components/schemas/HostnamesResponse'
 
 components:
   schemas:
@@ -336,7 +336,7 @@ components:
       required:
         - threadStacks
 
-    ShuffleResponse:
+    ShufflesResponse:
       type: object
       properties:
         shuffleIds:
@@ -360,7 +360,7 @@ components:
         - appId
         - lastHeartbeatTimestamp
 
-    ApplicationsInfoResponse:
+    ApplicationsHeartbeatResponse:
       type: object
       properties:
         applications:
@@ -372,7 +372,7 @@ components:
       required:
         - applications
 
-    ApplicationHostnameResponse:
+    HostnamesResponse:
       type: object
       properties:
         hostnames:
@@ -402,7 +402,7 @@ components:
         - estimatedUsage
         - estimatedUsageStr
 
-    AppDiskUsageSnapshotResponse:
+    AppDiskUsageSnapshotsResponse:
       type: object
       properties:
         start:
@@ -475,7 +475,7 @@ components:
       required:
         - groupId
 
-    WorkerInfo:
+    WorkerData:
       type: object
       properties:
         host:
@@ -549,41 +549,41 @@ components:
           default: [ ]
           description: The registered workers.
           items:
-            $ref: '#/components/schemas/WorkerInfo'
+            $ref: '#/components/schemas/WorkerData'
         lostWorkers:
           type: array
           default: [ ]
           description: The lost workers.
           items:
-            $ref: '#/components/schemas/WorkerInfo'
+            $ref: '#/components/schemas/WorkerData'
         excludedWorkers:
           type: array
           default: [ ]
           description: The excluded workers.
           items:
-            $ref: '#/components/schemas/WorkerInfo'
+            $ref: '#/components/schemas/WorkerData'
         manualExcludedWorkers:
           type: array
           default: [ ]
           description: The manual excluded workers.
           items:
-            $ref: '#/components/schemas/WorkerInfo'
+            $ref: '#/components/schemas/WorkerData'
         shutdownWorkers:
           type: array
           default: [ ]
           description: The shutdown workers.
           items:
-            $ref: '#/components/schemas/WorkerInfo'
+            $ref: '#/components/schemas/WorkerData'
         decommissioningWorkers:
           type: array
           default: [ ]
           description: The decommissioning workers.
           items:
-            $ref: '#/components/schemas/WorkerInfo'
+            $ref: '#/components/schemas/WorkerData'
       required:
         - workers
 
-    WorkerEventInfo:
+    WorkerEventInfoData:
       type: object
       properties:
         eventType:
@@ -597,13 +597,13 @@ components:
         - eventType
         - eventTime
 
-    WorkerEvent:
+    WorkerEventData:
       type: object
       properties:
         worker:
-          $ref: '#/components/schemas/WorkerInfo'
+          $ref: '#/components/schemas/WorkerData'
         event:
-          $ref: '#/components/schemas/WorkerEventInfo'
+          $ref: '#/components/schemas/WorkerEventInfoData'
       required:
         - worker
         - event
@@ -653,17 +653,18 @@ components:
           items:
             $ref: '#/components/schemas/WorkerId'
 
-    ExcludeWorkerResponse:
+    HandlerResponse:
       type: object
       properties:
         success:
           type: boolean
-          description: The result of the exclude worker request.
+          description: The result of the request.
         message:
           type: string
-          description: The message of the exclude worker request.
+          description: The message of the request.
       required:
         - success
+        - message
 
     SendWorkerEventRequest:
       type: object
@@ -688,18 +689,6 @@ components:
       required:
         - eventType
         - worker
-
-    SendWorkerEventResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: The result of the worker event request.
-        message:
-          type: string
-          description: The message of the worker event request.
-      required:
-        - success
 
   securitySchemes:
     basic:
