@@ -31,8 +31,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -103,7 +112,8 @@
                             <inputSpec>${project.basedir}/src/main/openapi3/master_rest_v1.yaml</inputSpec>
                             <output>${project.build.directory}/generated-sources/java</output>
                             <apiPackage>org.apache.celeborn.rest.v1.master</apiPackage>
-                            <modelPackage>org.apache.celeborn.rest.v1.master.model</modelPackage>
+<!--                            <modelPackage>org.apache.celeborn.rest.v1.master.model</modelPackage>-->
+                            <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
                             <invokerPackage>org.apache.celeborn.rest.v1.master.invoker</invokerPackage>
                             <generatorName>java</generatorName>
                             <groupId>org.apache.celeborn</groupId>
@@ -118,6 +128,10 @@
                                 <dateLibrary>java8</dateLibrary>
                                 <useGzipFeature>true</useGzipFeature>
                                 <annotationLibrary>swagger2</annotationLibrary>
+                                <!--
+                                When use jdk11+, use the following line to generate native java code.
+                                <library>native</library>
+                                -->
                                 <library>jersey2</library>
                             </configOptions>
                         </configuration>
@@ -132,7 +146,8 @@
                             <inputSpec>${project.basedir}/src/main/openapi3/worker_rest_v1.yaml</inputSpec>
                             <output>${project.build.directory}/generated-sources/java</output>
                             <apiPackage>org.apache.celeborn.rest.v1.worker</apiPackage>
-                            <modelPackage>org.apache.celeborn.rest.v1.worker.model</modelPackage>
+<!--                            <modelPackage>org.apache.celeborn.rest.v1.worker.model</modelPackage>-->
+                            <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
                             <invokerPackage>org.apache.celeborn.rest.v1.worker.invoker</invokerPackage>
                             <generatorName>java</generatorName>
                             <groupId>org.apache.celeborn</groupId>
@@ -147,6 +162,10 @@
                                 <dateLibrary>java8</dateLibrary>
                                 <useGzipFeature>true</useGzipFeature>
                                 <annotationLibrary>swagger2</annotationLibrary>
+                                <!--
+                                When use jdk11+, use the following line to generate native java code.
+                                <library>native</library>
+                                -->
                                 <library>jersey2</library>
                             </configOptions>
                         </configuration>
