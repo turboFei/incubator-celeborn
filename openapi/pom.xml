@@ -99,6 +99,11 @@
                                 <library>native</library>
                                 -->
                                 <library>jersey2</library>
+                                <!--
+                                When upgrading openapi-generator to 7.x+, which does not support JDK8,
+                                use the following line to annotations with io.swagger.core.v3:swagger-annotations.
+                                <annotationLibrary>swagger2</annotationLibrary>
+                                -->
                                 <annotationLibrary>none</annotationLibrary>
                             </configOptions>
                         </configuration>
@@ -132,6 +137,11 @@
                                 <library>native</library>
                                 -->
                                 <library>jersey2</library>
+                                <!--
+                                When upgrading openapi-generator to 7.x+, which does not support JDK8,
+                                use the following line to annotations with io.swagger.core.v3:swagger-annotations.
+                                <annotationLibrary>swagger2</annotationLibrary>
+                                -->
                                 <annotationLibrary>none</annotationLibrary>
                             </configOptions>
                         </configuration>
