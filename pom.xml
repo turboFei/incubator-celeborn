@@ -119,6 +119,7 @@
     <jakarta.servlet-api.version>4.0.4</jakarta.servlet-api.version>
     <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
     <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
+    <openapitools.jackson-databind-nullable.version>0.2.6</openapitools.jackson-databind-nullable.version>
 
     <!-- org.fusesource.leveldbjni will be used except on arm64 platform. -->
     <leveldbjni.group>org.fusesource.leveldbjni</leveldbjni.group>
@@ -501,6 +502,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.openapitools</groupId>
+        <artifactId>jackson-databind-nullable</artifactId>
+        <version>${openapitools.jackson-databind-nullable.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-server</artifactId>
         <version>${jersey.version}</version>
@@ -510,6 +517,12 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-client</artifactId>
+        <version>${jersey.version}</version>
       </dependency>
 
       <dependency>
