@@ -503,7 +503,7 @@ components:
           description: The internal port of the worker.
         slotUsed:
           type: integer
-          format: int32
+          format: int64
           description: The slot used of the worker.
         lastHeartbeatTimestamp:
           type: integer

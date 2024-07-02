@@ -87,6 +87,7 @@
               <artifactId>${artifactId}</artifactId>
               <artifactVersion>${project.version}</artifactVersion>
               <addCompileSourceRoot>true</addCompileSourceRoot>
+              <cleanupOutput>true</cleanupOutput>
               <configOptions>
                 <licenseName>Apache License 2.0</licenseName>
                 <groupId>${groupId}</groupId>
