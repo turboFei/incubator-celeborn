@@ -585,12 +585,6 @@
         <version>${swagger.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-models</artifactId>
-        <version>${swagger.version}</version>
-      </dependency>
-
       <!--
       1. This library only contains swagger-ui static resource (.html/.css/.js/.png), for more detail, see
       https://github.com/swagger-api/swagger-ui/blob/master/dist/
