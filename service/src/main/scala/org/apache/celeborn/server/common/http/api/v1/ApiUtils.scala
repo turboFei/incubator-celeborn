@@ -21,8 +21,11 @@ import java.util.concurrent.TimeUnit
 
 import scala.collection.JavaConverters._
 
-import org.apache.celeborn.common.meta.WorkerInfo
+import org.apache.celeborn.common.meta.{WorkerInfo, WorkerStatus}
+import org.apache.celeborn.common.protocol.PartitionLocation
+import org.apache.celeborn.common.protocol.PbWorkerStatus.State
 import org.apache.celeborn.rest.v1.model._
+import org.apache.celeborn.rest.v1.model.PartitionLocationData.{ModeEnum, StorageEnum}
 
 object ApiUtils {
   def workerData(workerInfo: WorkerInfo): WorkerData = {
@@ -59,5 +62,44 @@ object ApiUtils {
       .workerRef(Option(workerInfo.endpoint).map(_.toString).orNull)
       .workerState(workerInfo.workerStatus.getState.toString)
       .workerStateStartTime(workerInfo.workerStatus.getStateStartTime)
+  }
+
+  def workerInfoResponse(
+      workerInfo: WorkerInfo,
+      currentStatus: WorkerStatus,
+      isShutdown: Boolean,
+      isRegistered: Boolean): WorkerInfoResponse = {
+    val workerData = ApiUtils.workerData(workerInfo)
+    new WorkerInfoResponse()
+      .host(workerData.getHost)
+      .rpcPort(workerData.getRpcPort)
+      .pushPort(workerData.getPushPort)
+      .fetchPort(workerData.getFetchPort)
+      .replicatePort(workerData.getReplicatePort)
+      .internalPort(workerData.getInternalPort)
+      .slotUsed(workerData.getSlotUsed)
+      .lastHeartbeatTimestamp(workerData.getLastHeartbeatTimestamp)
+      .heartbeatElapsedSeconds(workerData.getHeartbeatElapsedSeconds)
+      .diskInfos(workerData.getDiskInfos)
+      .resourceConsumption(workerData.getResourceConsumption)
+      .workerRef(workerData.getWorkerRef)
+      .workerState(currentStatus.getState.toString)
+      .workerStateStartTime(currentStatus.getStateStartTime)
+      .isShutdown(isShutdown)
+      .isRegistered(isRegistered)
+      .isDecommissioning(
+        isShutdown && (
+          currentStatus.getState == State.InDecommission ||
+            currentStatus.getState == State.InDecommissionThenIdle))
+  }
+
+  def partitionLocationData(partitionLocation: PartitionLocation): PartitionLocationData = {
+    new PartitionLocationData()
+      .idEpoch(partitionLocation.getId + "-" + partitionLocation.getEpoch)
+      .hostAndPorts(partitionLocation.hostAndPorts())
+      .mode(ModeEnum.fromValue(partitionLocation.getMode.toString))
+      .peer(Option(partitionLocation.getPeer).map(_.hostAndPorts()).orNull)
+      .storage(StorageEnum.fromValue(partitionLocation.getStorageInfo.toString))
+      .mapIdBitMap(partitionLocation.getMapIdBitMap.toString)
   }
 }

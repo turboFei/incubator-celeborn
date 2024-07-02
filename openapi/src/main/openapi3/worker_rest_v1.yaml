@@ -524,8 +524,7 @@ components:
       type: object
       properties:
         idEpoch:
-          type: integer
-          format: int64
+          type: string
           description: The id and epoch.
         hostAndPorts:
           type: string
