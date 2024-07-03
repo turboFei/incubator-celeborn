@@ -95,7 +95,7 @@
               <inputSpec>${project.basedir}/src/main/openapi3/master_rest_v1.yaml</inputSpec>
               <output>${project.build.directory}/generated-sources/java</output>
               <apiPackage>org.apache.celeborn.rest.v1.master</apiPackage>
-              <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
+              <modelPackage>org.apache.celeborn.rest.v1.master.model</modelPackage>
               <invokerPackage>org.apache.celeborn.rest.v1.master.invoker</invokerPackage>
               <generatorName>java</generatorName>
               <generateApiTests>false</generateApiTests>
@@ -136,7 +136,7 @@
               <inputSpec>${project.basedir}/src/main/openapi3/worker_rest_v1.yaml</inputSpec>
               <output>${project.build.directory}/generated-sources/java</output>
               <apiPackage>org.apache.celeborn.rest.v1.worker</apiPackage>
-              <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
+              <modelPackage>org.apache.celeborn.rest.v1.worker.model</modelPackage>
               <invokerPackage>org.apache.celeborn.rest.v1.worker.invoker</invokerPackage>
               <generatorName>java</generatorName>
               <generateApiTests>false</generateApiTests>
@@ -167,13 +167,13 @@
             </configuration>
           </execution>
           <execution>
-            <id>generate-java-master-service-model</id>
+            <id>generate-java-service-model-rest-v1</id>
             <goals>
               <goal>generate</goal>
             </goals>
             <phase>generate-sources</phase>
             <configuration>
-              <inputSpec>${project.basedir}/src/main/openapi3/master_rest_v1.yaml</inputSpec>
+              <inputSpec>${project.basedir}/src/main/openapi3/schemas_rest_v1.yaml</inputSpec>
               <output>${project.build.directory}/generated-sources/service/java</output>
               <modelPackage>org.apache.celeborn.server.common.http.v1.model</modelPackage>
               <generatorName>java</generatorName>
@@ -183,42 +183,7 @@
               <artifactId>${artifactId}</artifactId>
               <artifactVersion>${project.version}</artifactVersion>
               <addCompileSourceRoot>false</addCompileSourceRoot>
-              <globalProperties>
-                <models></models>
-              </globalProperties>
-              <configOptions>
-                <licenseName>Apache License 2.0</licenseName>
-                <groupId>${groupId}</groupId>
-                <artifactId>${artifactId}</artifactId>
-                <artifactVersion>${project.version}</artifactVersion>
-                <dateLibrary>java8</dateLibrary>
-                <useGzipFeature>true</useGzipFeature>
-                <library>jersey2</library>
-                <annotationLibrary>none</annotationLibrary>
-                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-              </configOptions>
-            </configuration>
-          </execution>
-          <execution>
-            <id>generate-java-worker-service-model</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <inputSpec>${project.basedir}/src/main/openapi3/worker_rest_v1.yaml</inputSpec>
-              <output>${project.build.directory}/generated-sources/service/java</output>
-              <modelPackage>org.apache.celeborn.server.common.http.v1.model</modelPackage>
-              <generatorName>java</generatorName>
-              <generateApiTests>false</generateApiTests>
-              <generateModelTests>false</generateModelTests>
-              <groupId>${groupId}</groupId>
-              <artifactId>${artifactId}</artifactId>
-              <artifactVersion>${project.version}</artifactVersion>
-              <addCompileSourceRoot>false</addCompileSourceRoot>
-              <globalProperties>
-                <models></models>
-              </globalProperties>
+              <skipValidateSpec>true</skipValidateSpec>
               <configOptions>
                 <licenseName>Apache License 2.0</licenseName>
                 <groupId>${groupId}</groupId>
