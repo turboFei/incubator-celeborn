@@ -227,7 +227,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <sources>
-                <source>${project.basedir}/target/generated-sources/java/src/gen/java</source>
+                <source>${project.basedir}/target/generated-sources/java/src/main/java</source>
               </sources>
             </configuration>
           </execution>
