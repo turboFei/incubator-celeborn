@@ -87,7 +87,7 @@
               <groupId>${groupId}</groupId>
               <artifactId>celeborn-openapi-master</artifactId>
               <artifactVersion>${project.version}</artifactVersion>
-              <addCompileSourceRoot>true</addCompileSourceRoot>
+              <addCompileSourceRoot>false</addCompileSourceRoot>
               <cleanupOutput>true</cleanupOutput>
               <configOptions>
                 <licenseName>Apache License 2.0</licenseName>
@@ -127,7 +127,7 @@
               <groupId>${groupId}</groupId>
               <artifactId>celeborn-openapi-worker</artifactId>
               <artifactVersion>${project.version}</artifactVersion>
-              <addCompileSourceRoot>true</addCompileSourceRoot>
+              <addCompileSourceRoot>false</addCompileSourceRoot>
               <configOptions>
                 <licenseName>Apache License 2.0</licenseName>
                 <groupId>${groupId}</groupId>
@@ -146,6 +146,70 @@
                 <annotationLibrary>swagger2</annotationLibrary>
                 -->
                 <annotationLibrary>none</annotationLibrary>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-java-master-service-model</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <inputSpec>${project.basedir}/src/main/openapi3/master_rest_v1.yaml</inputSpec>
+              <output>${project.build.directory}/generated-sources/service/java</output>
+              <modelPackage>org.apache.celeborn.server.common.http.v1.model</modelPackage>
+              <generatorName>java</generatorName>
+              <generateApiTests>false</generateApiTests>
+              <groupId>${groupId}</groupId>
+              <artifactId>celeborn-openapi-worker</artifactId>
+              <artifactVersion>${project.version}</artifactVersion>
+              <addCompileSourceRoot>false</addCompileSourceRoot>
+              <globalProperties>
+                <models></models>
+              </globalProperties>
+              <configOptions>
+                <licenseName>Apache License 2.0</licenseName>
+                <groupId>${groupId}</groupId>
+                <artifactId>celeborn-openapi-worker</artifactId>
+                <artifactVersion>${project.version}</artifactVersion>
+                <dateLibrary>java8</dateLibrary>
+                <useGzipFeature>true</useGzipFeature>
+                <library>jersey2</library>
+                <annotationLibrary>none</annotationLibrary>
+                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-java-worker-service-model</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <inputSpec>${project.basedir}/src/main/openapi3/worker_rest_v1.yaml</inputSpec>
+              <output>${project.build.directory}/generated-sources/service/java</output>
+              <modelPackage>org.apache.celeborn.server.common.http.v1.model</modelPackage>
+              <generatorName>java</generatorName>
+              <generateApiTests>false</generateApiTests>
+              <groupId>${groupId}</groupId>
+              <artifactId>celeborn-openapi-worker</artifactId>
+              <artifactVersion>${project.version}</artifactVersion>
+              <addCompileSourceRoot>false</addCompileSourceRoot>
+              <globalProperties>
+                <models></models>
+              </globalProperties>
+              <configOptions>
+                <licenseName>Apache License 2.0</licenseName>
+                <groupId>${groupId}</groupId>
+                <artifactId>celeborn-openapi-worker</artifactId>
+                <artifactVersion>${project.version}</artifactVersion>
+                <dateLibrary>java8</dateLibrary>
+                <useGzipFeature>true</useGzipFeature>
+                <library>jersey2</library>
+                <annotationLibrary>none</annotationLibrary>
+                <hideGenerationTimestamp>true</hideGenerationTimestamp>
               </configOptions>
             </configuration>
           </execution>
@@ -175,15 +239,21 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            <phase>generate-resources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
-              <outputDirectory>${project.basedir}/../service/src/main/java/org/apache/celeborn/rest/v1/model</outputDirectory>
+              <outputDirectory>${project.basedir}/../service/src/main/java/org/apache/celeborn/server/common/http/v1</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.basedir}/target/generated-sources/java/src/main/java/org/apache/celeborn/rest/v1/model</directory>
+                  <directory>${project.basedir}/target/generated-sources/service/java/src/main/java/org/apache/celeborn/server/common/http/v1</directory>
+                  <includes>
+                    <include>JSON.java</include>
+                    <include>ApiException.java</include>
+                    <include>RFC3339DateFormat.java</include>
+                    <include>model/**</include>
+                  </includes>
                 </resource>
               </resources>
             </configuration>

@@ -1038,6 +1038,12 @@
                 <include>src/main/java/**/*.java</include>
                 <include>src/test/java/**/*.java</include>
               </includes>
+              <excludes>
+                <exclude>src/main/java/org/apache/celeborn/server/common/http/v1/model/*.java</exclude>
+                <exclude>src/main/java/org/apache/celeborn/server/common/http/v1/ApiException.java</exclude>
+                <exclude>src/main/java/org/apache/celeborn/server/common/http/v1/JSON.java</exclude>
+                <exclude>src/main/java/org/apache/celeborn/server/common/http/v1/RFC3339DateFormat.java</exclude>
+              </excludes>
               <googleJavaFormat>
                 <version>1.7</version>
                 <style>GOOGLE</style>
