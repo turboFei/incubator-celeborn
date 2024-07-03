@@ -404,22 +404,33 @@ components:
         - estimatedUsage
         - estimatedUsageStr
 
-    AppDiskUsageSnapshotsResponse:
+
+    AppDiskUsageSnapshotData:
       type: object
       properties:
         start:
           type: integer
           format: int64
-          description: The start timestamp of the snapshots.
+          description: The start timestamp of the snapshot.
         end:
           type: integer
           format: int64
-          description: The end timestamp of the snapshots.
+          description: The end timestamp of the snapshot.
         topNItems:
           type: array
-          description: The top N snapshots.
+          description: The top N app disk usages.
           items:
             $ref: '#/components/schemas/AppDiskUsageData'
+
+    AppDiskUsageSnapshotsResponse:
+      type: object
+      properties:
+        snapshots:
+          type: array
+          default: [ ]
+          description: The disk usage snapshots.
+          items:
+            $ref: '#/components/schemas/AppDiskUsageSnapshotData'
 
     MasterLeader:
       type: object
