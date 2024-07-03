@@ -28,8 +28,8 @@ import org.apache.celeborn.common.protocol.PartitionLocation
 class ShufflePartitionLocationInfo {
   type PartitionInfo = ConcurrentHashMap[Int, util.Set[PartitionLocation]]
 
-  private val primaryPartitionLocations = new PartitionInfo
-  private val replicaPartitionLocations = new PartitionInfo
+  private[celeborn] val primaryPartitionLocations = new PartitionInfo
+  private[celeborn] val replicaPartitionLocations = new PartitionInfo
 
   def addPrimaryPartitions(primaryLocations: util.List[PartitionLocation]) = {
     addPartitions(primaryPartitionLocations, primaryLocations)

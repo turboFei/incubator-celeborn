@@ -292,7 +292,8 @@ components:
       type: object
       properties:
         threadId:
-          type: string
+          type: integer
+          format: int64
           description: The id of the thread.
         threadName:
           type: string
@@ -308,6 +309,7 @@ components:
             type: string
         blockedByThreadId:
           type: integer
+          format: int64
           description: The id of the thread that the current thread is blocked by.
         blockedByLock:
           type: string
