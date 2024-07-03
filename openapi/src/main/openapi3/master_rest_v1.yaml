@@ -78,6 +78,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DynamicConfigResponse'
+        "503":
+          description: Dynamic configuration is disabled.
 
   /api/v1/thread_dump:
     get:
@@ -120,6 +122,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MasterInfoResponse'
+        "400":
+          description: HA is not enabled.
 
   /api/v1/workers:
     get:
