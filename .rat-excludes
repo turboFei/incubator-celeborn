@@ -37,3 +37,7 @@ build/scala-*/**
 build/sbt-config/**
 **/benchmarks/**
 **/node_modules/**
+**/http/v1/model/*
+**/http/v1/ApiException.java
+**/http/v1/JSON.java
+**/http/v1/RFC3339DateFormat.java
