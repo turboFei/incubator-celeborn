@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType
 
 import scala.collection.JavaConverters._
 
-import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
+import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 

@@ -560,21 +560,27 @@ components:
         - storage
         - mapIdBitMap
 
+    PartitionLocations:
+      type: object
+      default: {}
+      additionalProperties:
+        $ref: '#/components/schemas/PartitionLocationData'
+
+    ShufflePartitionLocations:
+      type: object
+      default: {}
+      additionalProperties:
+        $ref: '#/components/schemas/PartitionLocations'
+
     ShufflePartitionsResponse:
       type: object
       properties:
         primaryPartitions:
-          type: array
-          default: [ ]
-          description: The primary partition location data.
-          items:
-            $ref: '#/components/schemas/PartitionLocationData'
+          $ref: '#/components/schemas/ShufflePartitionLocations'
+          default: { }
         replicaPartitions:
-          type: array
-          default: [ ]
-          description: The replica partition location data.
-          items:
-            $ref: '#/components/schemas/PartitionLocationData'
+          $ref: '#/components/schemas/ShufflePartitionLocations'
+          default: { }
 
     WorkerId:
       type: object
@@ -610,11 +616,13 @@ components:
       properties:
         type:
           type: string
+          default: None
           description: The type of the worker exit request.
           enum:
             - Decommission
             - Graceful
             - Immediately
+            - None
       required:
         - type
 
