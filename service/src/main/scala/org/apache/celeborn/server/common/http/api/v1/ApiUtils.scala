@@ -93,6 +93,15 @@ object ApiUtils {
             currentStatus.getState == State.InDecommissionThenIdle))
   }
 
+  def toWorkerInfo(workerId: WorkerId): WorkerInfo = {
+    new WorkerInfo(
+      workerId.getHost,
+      workerId.getRpcPort,
+      workerId.getPushPort,
+      workerId.getFetchPort,
+      workerId.getReplicatePort)
+  }
+
   def partitionLocationData(partitionLocation: PartitionLocation): PartitionLocationData = {
     new PartitionLocationData()
       .idEpoch(partitionLocation.getId + "-" + partitionLocation.getEpoch)

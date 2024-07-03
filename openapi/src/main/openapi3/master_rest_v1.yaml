@@ -553,6 +553,18 @@ components:
         - fetchPort
         - replicatePort
 
+    WorkerTimestampData:
+      type: object
+      properties:
+        worker:
+          $ref: '#/components/schemas/WorkerData'
+        timestamp:
+          type: integer
+          format: int64
+      required:
+        - worker
+        - timestamp
+
     WorkersResponse:
       type: object
       properties:
@@ -567,7 +579,7 @@ components:
           default: [ ]
           description: The lost workers.
           items:
-            $ref: '#/components/schemas/WorkerData'
+            $ref: '#/components/schemas/WorkerTimestampData'
         excludedWorkers:
           type: array
           default: [ ]
@@ -619,6 +631,16 @@ components:
       required:
         - worker
         - event
+
+    WorkerEventsResponse:
+      type: object
+      properties:
+        workerEvents:
+          type: array
+          default: [ ]
+          description: The worker events.
+          items:
+            $ref: '#/components/schemas/WorkerEventData'
 
     WorkerId:
       type: object

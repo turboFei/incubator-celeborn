@@ -19,10 +19,13 @@ package org.apache.celeborn.service.deploy.master.http.api.v1
 
 import javax.ws.rs.{Consumes, GET, Path, Produces}
 import javax.ws.rs.core.MediaType
+
 import scala.collection.JavaConverters._
+
 import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+
 import org.apache.celeborn.common.util.Utils
 import org.apache.celeborn.rest.v1.model.{AppDiskUsageData, AppDiskUsageSnapshotData, AppDiskUsageSnapshotsResponse, ApplicationHeartbeatData, ApplicationsHeartbeatResponse, HostnamesResponse}
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
@@ -44,10 +47,10 @@ class ApplicationResource extends ApiRequestContext {
   def applications(): ApplicationsHeartbeatResponse = {
     new ApplicationsHeartbeatResponse()
       .applications(
-    statusSystem.appHeartbeatTime.asScala.map { case (appId, heartbeat) =>
-      new ApplicationHeartbeatData().appId(appId)
-      .lastHeartbeatTimestamp(heartbeat)
-    }.toSeq.asJava)
+        statusSystem.appHeartbeatTime.asScala.map { case (appId, heartbeat) =>
+          new ApplicationHeartbeatData().appId(appId)
+            .lastHeartbeatTimestamp(heartbeat)
+        }.toSeq.asJava)
   }
 
   @ApiResponse(
@@ -62,20 +65,20 @@ class ApplicationResource extends ApiRequestContext {
   def topDiskUsedApplications(): AppDiskUsageSnapshotsResponse = {
     new AppDiskUsageSnapshotsResponse()
       .snapshots(
-    statusSystem.appDiskUsageMetric.topSnapshots().map { snapshot =>
-      new AppDiskUsageSnapshotData()
-      .start(
-        snapshot.startSnapShotTime)
-        .end(
-        snapshot.endSnapShotTime)
-        .topNItems(
-        snapshot.topNItems.map { usage =>
-          new AppDiskUsageData()
-            .appId(usage.appId)
-            .estimatedUsage(usage.estimatedUsage)
-            .estimatedUsageStr(Utils.bytesToString(usage.estimatedUsage))
-        }.toSeq.asJava)
-    }.asJava)
+        statusSystem.appDiskUsageMetric.topSnapshots().map { snapshot =>
+          new AppDiskUsageSnapshotData()
+            .start(
+              snapshot.startSnapShotTime)
+            .end(
+              snapshot.endSnapShotTime)
+            .topNItems(
+              snapshot.topNItems.map { usage =>
+                new AppDiskUsageData()
+                  .appId(usage.appId)
+                  .estimatedUsage(usage.estimatedUsage)
+                  .estimatedUsageStr(Utils.bytesToString(usage.estimatedUsage))
+              }.toSeq.asJava)
+        }.asJava)
   }
 
   @ApiResponse(

@@ -17,19 +17,18 @@
 
 package org.apache.celeborn.service.deploy.master.http.api.v1
 
-import javax.ws.rs.{BadRequestException, Consumes, GET, Path, POST, Produces, QueryParam}
+import javax.ws.rs.{BadRequestException, Consumes, GET, Path, POST, Produces}
 import javax.ws.rs.core.MediaType
 
 import scala.collection.JavaConverters._
 
-import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
+import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.apache.commons.lang3.StringUtils
 
+import org.apache.celeborn.rest.v1.model.{ExcludeWorkerRequest, HandleResponse, SendWorkerEventRequest, WorkerEventData, WorkerEventInfoData, WorkerEventsResponse, WorkersResponse, WorkerTimestampData}
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
 import org.apache.celeborn.server.common.http.api.v1.ApiUtils
-import org.apache.celeborn.server.common.http.api.v1.dto.{ExcludeWorkerRequest, HandleResponse, SendWorkerEventRequest, WorkerData, WorkerEventData, WorkerEventInfoData, WorkerTimestampData}
 import org.apache.celeborn.service.deploy.master.Master
 
 @Tag(name = "Worker")
@@ -42,71 +41,23 @@ class WorkerResource extends ApiRequestContext {
     responseCode = "200",
     content = Array(new Content(
       mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[WorkerData])))),
+      schema = new Schema(implementation = classOf[WorkersResponse]))),
     description =
       "List worker information of the service. It will list all registered workers' information.")
   @GET
-  def workers(@QueryParam("hostname") hostname: String = ""): Seq[WorkerData] = {
-    if (StringUtils.isEmpty(hostname)) {
-      statusSystem.workers.asScala.map(ApiUtils.workerData).toSeq
-    } else {
-      statusSystem.workers.asScala.filter(_.host == hostname).map(ApiUtils.workerData).toSeq
-    }
-  }
-
-  @ApiResponse(
-    responseCode = "200",
-    content = Array(new Content(
-      mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[WorkerTimestampData])))),
-    description = "List all lost workers of the master.")
-  @Path("/lost")
-  @GET
-  def lostWorkers(): Seq[WorkerTimestampData] = {
-    statusSystem.lostWorkers.asScala.toSeq.sortBy(_._2)
-      .map(kv => new WorkerTimestampData(ApiUtils.workerData(kv._1), kv._2))
-  }
-
-  @ApiResponse(
-    responseCode = "200",
-    content = Array(new Content(
-      mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[WorkerData])))),
-    description = "List all excluded workers of the master.")
-  @Path("/excluded")
-  @GET
-  def excludedWorkers(): Seq[WorkerData] = {
-    (statusSystem.excludedWorkers.asScala ++ statusSystem.manuallyExcludedWorkers.asScala)
-      .map(ApiUtils.workerData).toSeq
-  }
-
-  @ApiResponse(
-    responseCode = "200",
-    content = Array(new Content(
-      mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[WorkerData])))),
-    description = "List all shutdown workers of the master.")
-  @Path("/shutdown")
-  @GET
-  def shutdownWorkers(): Seq[WorkerData] = {
-    statusSystem.shutdownWorkers.asScala.map(ApiUtils.workerData).toSeq
-  }
-
-  @ApiResponse(
-    responseCode = "200",
-    content = Array(new Content(
-      mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[WorkerData])))),
-    description = "List all decommissioned workers of the master.")
-  @Path("/decommissioned")
-  @GET
-  def decommissionWorkers(): Seq[WorkerData] = {
-    statusSystem.decommissionWorkers.asScala.map(ApiUtils.workerData).toSeq
+  def workers: WorkersResponse = {
+    new WorkersResponse()
+      .workers(statusSystem.workers.asScala.map(ApiUtils.workerData).toSeq.asJava)
+      .lostWorkers(statusSystem.lostWorkers.asScala.toSeq.sortBy(_._2)
+        .map(kv =>
+          new WorkerTimestampData().worker(ApiUtils.workerData(kv._1)).timestamp(kv._2)).asJava)
+      .excludedWorkers(
+        (statusSystem.excludedWorkers.asScala ++ statusSystem.manuallyExcludedWorkers.asScala)
+          .map(ApiUtils.workerData).toSeq.asJava)
+      .shutdownWorkers(statusSystem.decommissionWorkers.asScala.map(
+        ApiUtils.workerData).toSeq.asJava)
+      .decommissioningWorkers(statusSystem.decommissionWorkers.asScala.map(
+        ApiUtils.workerData).toSeq.asJava)
   }
 
   @ApiResponse(
@@ -120,26 +71,30 @@ class WorkerResource extends ApiRequestContext {
   @POST
   def excludeWorker(request: ExcludeWorkerRequest): HandleResponse = {
     val (success, msg) = httpService.exclude(
-      request.getAdd.asScala.map(_.toWorkerInfo).toSeq,
-      request.getRemove.asScala.map(_.toWorkerInfo).toSeq)
-    new HandleResponse(success, msg)
+      request.getAdd.asScala.map(ApiUtils.toWorkerInfo).toSeq,
+      request.getRemove.asScala.map(ApiUtils.toWorkerInfo).toSeq)
+    new HandleResponse().success(success).message(msg)
   }
 
   @ApiResponse(
     responseCode = "200",
     content = Array(new Content(
       mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[WorkerEventData])))),
+      schema = new Schema(
+        implementation = classOf[WorkerEventsResponse]))),
     description = "List all worker event infos of the master.")
   @Path("/events")
   @GET
-  def workerEvents(): Seq[WorkerEventData] = {
-    statusSystem.workerEventInfos.asScala.map { case (worker, event) =>
-      new WorkerEventData(
-        ApiUtils.workerData(worker),
-        new WorkerEventInfoData(event.getEventType.toString, event.getEventStartTime))
-    }.toSeq
+  def workerEvents(): WorkerEventsResponse = {
+    new WorkerEventsResponse().workerEvents(
+      statusSystem.workerEventInfos.asScala.map { case (worker, event) =>
+        new WorkerEventData()
+          .worker(
+            ApiUtils.workerData(worker)).event(
+            new WorkerEventInfoData()
+              .eventType(event.getEventType.toString)
+              .eventTime(event.getEventStartTime))
+      }.toSeq.asJava)
   }
 
   @ApiResponse(
@@ -152,23 +107,23 @@ class WorkerResource extends ApiRequestContext {
   @Path("/events")
   @POST
   def sendWorkerEvents(request: SendWorkerEventRequest): HandleResponse = {
-    if (StringUtils.isEmpty(request.getEventType) || request.getWorkers.isEmpty) {
+    if (request.getEventType == SendWorkerEventRequest.EventTypeEnum.NONE || request.getWorkers.isEmpty) {
       throw new BadRequestException(
         s"eventType(${request.getEventType}) and workers(${request.getWorkers}) are required")
     }
-    val workers = request.getWorkers.asScala.map(_.toWorkerInfo).toSeq
+    val workers = request.getWorkers.asScala.map(ApiUtils.toWorkerInfo).toSeq
     val (filteredWorkers, unknownWorkers) = workers.partition(statusSystem.workers.contains)
     if (filteredWorkers.isEmpty) {
       throw new BadRequestException(
         s"None of the workers are known: ${unknownWorkers.map(_.readableAddress).mkString(", ")}")
     }
-    val (success, msg) = httpService.handleWorkerEvent(request.getEventType, workers)
+    val (success, msg) = httpService.handleWorkerEvent(request.getEventType.toString, workers)
     val finalMsg =
       if (unknownWorkers.isEmpty) {
         msg
       } else {
         s"${msg}\n(Unknown workers: ${unknownWorkers.map(_.readableAddress).mkString(", ")})"
       }
-    new HandleResponse(success, finalMsg)
+    new HandleResponse().success(success).message(finalMsg)
   }
 }

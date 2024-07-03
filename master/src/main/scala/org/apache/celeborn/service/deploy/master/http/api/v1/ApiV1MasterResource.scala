@@ -17,17 +17,9 @@
 
 package org.apache.celeborn.service.deploy.master.http.api.v1
 
-import javax.ws.rs.{GET, Path}
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.Path
 
-import scala.collection.JavaConverters._
-
-import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-
-import org.apache.celeborn.common.util.ThreadStackTrace
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
-import org.apache.celeborn.service.deploy.master.Master
 
 @Path("/api/v1")
 class ApiV1MasterResource extends ApiRequestContext {
