@@ -25,10 +25,11 @@ import scala.collection.JavaConverters._
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 
-import org.apache.celeborn.common.util.{ThreadStackTrace, Utils}
+import org.apache.celeborn.common.util.Utils
 import org.apache.celeborn.rest.v1.model.{ThreadStack, ThreadStackResponse}
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
 
+@Path("/api/v1")
 class ApiV1BaseResource extends ApiRequestContext {
   @Path("conf")
   def conf: Class[ConfResource] = classOf[ConfResource]

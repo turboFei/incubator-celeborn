@@ -72,22 +72,22 @@ class ApiV1MasterResourceSuite extends ApiV1BaseResourceSuite {
   test("shuffle resource") {
     val response = webTarget.path("shuffles").request(MediaType.APPLICATION_JSON).get()
     assert(HttpServletResponse.SC_OK == response.getStatus)
-    assert(!response.readEntity(classOf[ShufflesResponse]).getShuffleIds.isEmpty)
+    assert(response.readEntity(classOf[ShufflesResponse]).getShuffleIds.isEmpty)
   }
 
   test("application resource") {
     var response = webTarget.path("applications").request(MediaType.APPLICATION_JSON).get()
     assert(HttpServletResponse.SC_OK == response.getStatus)
-    assert(!response.readEntity(classOf[ApplicationsResponse]).getApplications.isEmpty)
+    assert(response.readEntity(classOf[ApplicationsResponse]).getApplications.isEmpty)
 
     response =
       webTarget.path("applications/top_disk_usages").request(MediaType.APPLICATION_JSON).get()
     assert(HttpServletResponse.SC_OK == response.getStatus)
-    assert(!response.readEntity(classOf[AppDiskUsageSnapshotsResponse]).getSnapshots.isEmpty)
+    assert(response.readEntity(classOf[AppDiskUsageSnapshotsResponse]).getSnapshots.isEmpty)
 
     response = webTarget.path("applications/hostnames").request(MediaType.APPLICATION_JSON).get()
     assert(HttpServletResponse.SC_OK == response.getStatus)
-    assert(!response.readEntity(classOf[HostnamesResponse]).getHostnames.isEmpty)
+    assert(response.readEntity(classOf[HostnamesResponse]).getHostnames.isEmpty)
   }
 
   test("master resource") {
