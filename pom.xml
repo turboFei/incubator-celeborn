@@ -140,6 +140,7 @@
     <maven.plugin.spotless.version>2.24.1</maven.plugin.spotless.version>
     <maven.plugin.surefire.version>3.0.0-M7</maven.plugin.surefire.version>
     <maven.plugin.silencer.version>1.7.13</maven.plugin.silencer.version>
+    <maven.plugin.resources.version>3.3.1</maven.plugin.resources.version>
     <!-- This was the last version to support Java 8 -->
     <openapi.generator.version>6.6.0</openapi.generator.version>
 
@@ -1180,6 +1181,11 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven.plugin.resources.version}</version>
       </plugin>
     </plugins>
   </build>
