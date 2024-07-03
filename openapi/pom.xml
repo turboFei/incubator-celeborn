@@ -213,7 +213,7 @@
               <outputDirectory>${project.basedir}/../service/src/main/java/org/apache/celeborn/server/common/http/v1</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.basedir}/target/generated-sources/service/java/src/main/java/org/apache/celeborn/server/common/http/v1</directory>
+                  <directory>${project.build.directory}/generated-sources/service/java/src/main/java/org/apache/celeborn/server/common/http/v1</directory>
                   <includes>
                     <include>model/*.java</include>
                     <!-- referenced by model classes -->
@@ -239,7 +239,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <sources>
-                <source>${project.basedir}/target/generated-sources/java/src/main/java</source>
+                <source>${project.build.directory}/generated-sources/java/src/main/java</source>
               </sources>
             </configuration>
           </execution>
