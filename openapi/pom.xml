@@ -29,6 +29,10 @@
   <packaging>jar</packaging>
   <name>Celeborn Open API</name>
 
+  <properties>
+    <project.service.baseDir>${project.basedir}/../service</project.service.baseDir>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -210,13 +214,13 @@
             </goals>
             <phase>generate-resources</phase>
             <configuration>
-              <outputDirectory>${project.basedir}/../service/src/main/java/org/apache/celeborn/server/common/http/v1</outputDirectory>
+              <outputDirectory>${project.service.baseDir}/src/main/java/org/apache/celeborn/server/common/http/v1</outputDirectory>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/generated-sources/service/java/src/main/java/org/apache/celeborn/server/common/http/v1</directory>
                   <includes>
                     <include>model/*.java</include>
-                    <!-- referenced by model classes -->
+                    <!-- referenced by model java files in unused imports -->
                     <include>ApiException.java</include>
                     <include>JSON.java</include>
                     <include>RFC3339DateFormat.java</include>
