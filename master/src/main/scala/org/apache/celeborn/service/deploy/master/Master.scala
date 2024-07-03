@@ -1185,7 +1185,7 @@ private[celeborn] class Master(
 
   override def handleWorkerEvent(
       workerEventType: String,
-      workers: Seq[WorkerInfo]): (Boolean, String) = {
+      workers: Seq[WorkerInfo]): HandleResponse = {
     val sb = new StringBuilder()
     try {
       val workerEventResponse = self.askSync[PbWorkerEventResponse](WorkerEventRequest(
@@ -1289,7 +1289,7 @@ private[celeborn] class Master(
 
   override def exclude(
       addWorkers: Seq[WorkerInfo],
-      removeWorkers: Seq[WorkerInfo]): (Boolean, String) = {
+      removeWorkers: Seq[WorkerInfo]): HandleResponse = {
     val sb = new StringBuilder
     val workerExcludeResponse = self.askSync[PbWorkerExcludeResponse](WorkerExclude(
       addWorkers.asJava,

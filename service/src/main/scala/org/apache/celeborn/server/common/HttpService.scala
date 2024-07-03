@@ -34,6 +34,7 @@ import org.apache.celeborn.server.common.http.authentication.{AuthenticationFilt
 import org.apache.celeborn.server.common.service.config.ConfigLevel
 
 abstract class HttpService extends Service with Logging {
+  type HandleResponse = (Boolean, String)
 
   private var httpServer: HttpServer = _
 
@@ -170,7 +171,7 @@ abstract class HttpService extends Service with Logging {
 
   def getHostnameList: String = throw new UnsupportedOperationException()
 
-  def exclude(addWorkers: Seq[WorkerInfo], removeWorkers: Seq[WorkerInfo]): (Boolean, String) =
+  def exclude(addWorkers: Seq[WorkerInfo], removeWorkers: Seq[WorkerInfo]): HandleResponse =
     throw new UnsupportedOperationException()
 
   def listPartitionLocationInfo: String = throw new UnsupportedOperationException()
@@ -185,7 +186,7 @@ abstract class HttpService extends Service with Logging {
 
   def exit(exitType: String): String = throw new UnsupportedOperationException()
 
-  def handleWorkerEvent(workerEventType: String, workers: Seq[WorkerInfo]): (Boolean, String) =
+  def handleWorkerEvent(workerEventType: String, workers: Seq[WorkerInfo]): HandleResponse =
     throw new UnsupportedOperationException()
 
   def getWorkerEventInfo(): String = throw new UnsupportedOperationException()
