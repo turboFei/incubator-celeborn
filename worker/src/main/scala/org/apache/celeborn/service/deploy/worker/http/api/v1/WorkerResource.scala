@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 
-import org.apache.celeborn.rest.v1.model.{UnAvailablePeersResponse, WorkerInfoResponse, WorkerTimestampData}
+import org.apache.celeborn.server.common.http.v1.model.{UnAvailablePeersResponse, WorkerInfoResponse, WorkerTimestampData}
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
 import org.apache.celeborn.server.common.http.api.v1.ApiUtils
 import org.apache.celeborn.service.deploy.worker.Worker
