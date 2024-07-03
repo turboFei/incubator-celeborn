@@ -83,15 +83,16 @@
               <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
               <invokerPackage>org.apache.celeborn.rest.v1.master.invoker</invokerPackage>
               <generatorName>java</generatorName>
+              <generateApiTests>false</generateApiTests>
               <groupId>${groupId}</groupId>
-              <artifactId>${artifactId}</artifactId>
+              <artifactId>celeborn-openapi-master</artifactId>
               <artifactVersion>${project.version}</artifactVersion>
               <addCompileSourceRoot>true</addCompileSourceRoot>
               <cleanupOutput>true</cleanupOutput>
               <configOptions>
                 <licenseName>Apache License 2.0</licenseName>
                 <groupId>${groupId}</groupId>
-                <artifactId>${artifactId}</artifactId>
+                <artifactId>celeborn-openapi-master</artifactId>
                 <artifactVersion>${project.version}</artifactVersion>
                 <dateLibrary>java8</dateLibrary>
                 <useGzipFeature>true</useGzipFeature>
@@ -122,14 +123,15 @@
               <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
               <invokerPackage>org.apache.celeborn.rest.v1.worker.invoker</invokerPackage>
               <generatorName>java</generatorName>
+              <generateApiTests>false</generateApiTests>
               <groupId>${groupId}</groupId>
-              <artifactId>${artifactId}</artifactId>
+              <artifactId>celeborn-openapi-worker</artifactId>
               <artifactVersion>${project.version}</artifactVersion>
               <addCompileSourceRoot>true</addCompileSourceRoot>
               <configOptions>
                 <licenseName>Apache License 2.0</licenseName>
                 <groupId>${groupId}</groupId>
-                <artifactId>${artifactId}</artifactId>
+                <artifactId>celeborn-openapi-worker</artifactId>
                 <artifactVersion>${project.version}</artifactVersion>
                 <dateLibrary>java8</dateLibrary>
                 <useGzipFeature>true</useGzipFeature>
