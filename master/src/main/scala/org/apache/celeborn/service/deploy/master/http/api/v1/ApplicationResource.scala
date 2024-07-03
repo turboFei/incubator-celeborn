@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.apache.celeborn.common.util.Utils
-import org.apache.celeborn.rest.v1.model.{AppDiskUsageData, AppDiskUsageSnapshotData, AppDiskUsageSnapshotsResponse, ApplicationHeartbeatData, ApplicationsHeartbeatResponse}
+import org.apache.celeborn.rest.v1.model.{AppDiskUsageData, AppDiskUsageSnapshotData, AppDiskUsageSnapshotsResponse, ApplicationHeartbeatData, ApplicationsHeartbeatResponse, HostnamesResponse}
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
 import org.apache.celeborn.service.deploy.master.Master
 
@@ -82,13 +82,12 @@ class ApplicationResource extends ApiRequestContext {
     responseCode = "200",
     content = Array(new Content(
       mediaType = MediaType.APPLICATION_JSON,
-      array = new ArraySchema(schema = new Schema(
-        implementation = classOf[String])))),
+      schema = new Schema(implementation = classOf[HostnamesResponse]))),
     description =
       "List all running application's LifecycleManager's hostnames of the cluster.")
   @Path("/hostnames")
   @GET
-  def hostnames(): Seq[String] = {
-    statusSystem.hostnameSet.asScala.toSeq
+  def hostnames(): HostnamesResponse = {
+    new HostnamesResponse().hostnames(statusSystem.hostnameSet.asScala.toSeq.asJava)
   }
 }

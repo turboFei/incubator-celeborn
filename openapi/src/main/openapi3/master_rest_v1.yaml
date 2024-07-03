@@ -436,8 +436,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
           description: The id of the master leader raft peer.
         address:
           type: string
@@ -450,7 +449,8 @@ components:
       type: object
       properties:
         commitIndex:
-          type: string
+          type: integer
+          format: int64
           description: The raft commit index of the master.
         id:
           type: string
