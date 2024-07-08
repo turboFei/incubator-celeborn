@@ -1270,6 +1270,7 @@ object CelebornOpenApi {
       openApiGenerateModelTests := SettingDisabled,
       openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
       openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
+      Compile / unmanagedSourceDirectories += baseDirectory.value / "target/generated-sources/java/src/main/java",
       (Compile / compile) := ((Compile / compile) dependsOn Def.task {
         val _ = openApiGenerate.value
       }).value
