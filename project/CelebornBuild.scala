@@ -1278,10 +1278,7 @@ object CelebornOpenApi {
       generate := {
         val _ = openApiGenerate.value
       },
-      Compile / sourceGenerators += Def.task {
-        openApiGenerate.value
-        Seq(file(openApiOutputDir.value))
-      },
+      (Compile / compile) := ((Compile / compile) dependsOn generate).value
     )
 
 }
