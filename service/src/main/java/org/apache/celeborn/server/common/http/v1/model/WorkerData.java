@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -104,6 +106,7 @@ public class WorkerData {
    * @return host
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The host of the worker.")
   @JsonProperty(JSON_PROPERTY_HOST)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -129,6 +132,7 @@ public class WorkerData {
    * @return rpcPort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The rpc port of the worker.")
   @JsonProperty(JSON_PROPERTY_RPC_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -154,6 +158,7 @@ public class WorkerData {
    * @return pushPort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The push port of the worker.")
   @JsonProperty(JSON_PROPERTY_PUSH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -179,6 +184,7 @@ public class WorkerData {
    * @return fetchPort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The fetch port of the worker.")
   @JsonProperty(JSON_PROPERTY_FETCH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -204,6 +210,7 @@ public class WorkerData {
    * @return replicatePort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The replicate port of the worker.")
   @JsonProperty(JSON_PROPERTY_REPLICATE_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -229,6 +236,7 @@ public class WorkerData {
    * @return internalPort
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The internal port of the worker.")
   @JsonProperty(JSON_PROPERTY_INTERNAL_PORT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -254,6 +262,7 @@ public class WorkerData {
    * @return slotUsed
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The slot used of the worker.")
   @JsonProperty(JSON_PROPERTY_SLOT_USED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -279,6 +288,7 @@ public class WorkerData {
    * @return lastHeartbeatTimestamp
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The last heartbeat timestamp of the worker.")
   @JsonProperty(JSON_PROPERTY_LAST_HEARTBEAT_TIMESTAMP)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -304,6 +314,7 @@ public class WorkerData {
    * @return heartbeatElapsedSeconds
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The elapsed seconds since the last heartbeat of the worker.")
   @JsonProperty(JSON_PROPERTY_HEARTBEAT_ELAPSED_SECONDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -337,6 +348,7 @@ public class WorkerData {
    * @return diskInfos
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "A map of disk name and disk info.")
   @JsonProperty(JSON_PROPERTY_DISK_INFOS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -370,6 +382,7 @@ public class WorkerData {
    * @return resourceConsumption
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "A map of identifier and resource consumption.")
   @JsonProperty(JSON_PROPERTY_RESOURCE_CONSUMPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -395,6 +408,7 @@ public class WorkerData {
    * @return workerRef
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The reference of the worker.")
   @JsonProperty(JSON_PROPERTY_WORKER_REF)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -420,6 +434,7 @@ public class WorkerData {
    * @return workerState
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The state of the worker.")
   @JsonProperty(JSON_PROPERTY_WORKER_STATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -445,6 +460,7 @@ public class WorkerData {
    * @return workerStateStartTime
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The start time of the worker state.")
   @JsonProperty(JSON_PROPERTY_WORKER_STATE_START_TIME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -66,6 +68,7 @@ public class MasterCommitData {
    * @return commitIndex
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The raft commit index of the master.")
   @JsonProperty(JSON_PROPERTY_COMMIT_INDEX)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -91,6 +94,7 @@ public class MasterCommitData {
    * @return id
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The id of the raft peer.")
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -116,6 +120,7 @@ public class MasterCommitData {
    * @return address
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The raft RPC address of the peer for server-server communication.")
   @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -141,6 +146,7 @@ public class MasterCommitData {
    * @return clientAddress
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The raft RPC address of the peer for client operations.")
   @JsonProperty(JSON_PROPERTY_CLIENT_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -166,6 +172,7 @@ public class MasterCommitData {
    * @return startUpRole
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The raft start up role of the master.")
   @JsonProperty(JSON_PROPERTY_START_UP_ROLE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

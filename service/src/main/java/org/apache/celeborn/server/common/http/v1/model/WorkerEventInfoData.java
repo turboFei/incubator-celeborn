@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -54,6 +56,7 @@ public class WorkerEventInfoData {
    * @return eventType
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The type of the event.")
   @JsonProperty(JSON_PROPERTY_EVENT_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -79,6 +82,7 @@ public class WorkerEventInfoData {
    * @return eventTime
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The start time of the event.")
   @JsonProperty(JSON_PROPERTY_EVENT_TIME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

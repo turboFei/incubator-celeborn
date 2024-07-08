@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.ConfigData;
@@ -98,6 +100,7 @@ public class DynamicConfig {
    * @return level
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "the config level of dynamic configs.")
   @JsonProperty(JSON_PROPERTY_LEVEL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -123,6 +126,7 @@ public class DynamicConfig {
    * @return desc
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "additional description of the dynamic config, such as tenantId and user identifier.")
   @JsonProperty(JSON_PROPERTY_DESC)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -156,6 +160,7 @@ public class DynamicConfig {
    * @return configs
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "the config items.")
   @JsonProperty(JSON_PROPERTY_CONFIGS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

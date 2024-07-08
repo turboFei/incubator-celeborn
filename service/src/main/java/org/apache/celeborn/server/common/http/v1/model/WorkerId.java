@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -66,6 +68,7 @@ public class WorkerId {
    * @return host
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The host of the worker.")
   @JsonProperty(JSON_PROPERTY_HOST)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -91,6 +94,7 @@ public class WorkerId {
    * @return rpcPort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The rpc port of the worker.")
   @JsonProperty(JSON_PROPERTY_RPC_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -116,6 +120,7 @@ public class WorkerId {
    * @return pushPort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The push port of the worker.")
   @JsonProperty(JSON_PROPERTY_PUSH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -141,6 +146,7 @@ public class WorkerId {
    * @return fetchPort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The fetch port of the worker.")
   @JsonProperty(JSON_PROPERTY_FETCH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -166,6 +172,7 @@ public class WorkerId {
    * @return replicatePort
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The replicate port of the worker.")
   @JsonProperty(JSON_PROPERTY_REPLICATE_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

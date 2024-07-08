@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.MasterCommitData;
@@ -62,6 +64,7 @@ public class MasterInfoResponse {
    * @return groupId
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The group id of the master raft server.")
   @JsonProperty(JSON_PROPERTY_GROUP_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -87,6 +90,7 @@ public class MasterInfoResponse {
    * @return leader
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
   @JsonProperty(JSON_PROPERTY_LEADER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -120,6 +124,7 @@ public class MasterInfoResponse {
    * @return masterCommitInfo
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The raft commit info of the master.")
   @JsonProperty(JSON_PROPERTY_MASTER_COMMIT_INFO)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

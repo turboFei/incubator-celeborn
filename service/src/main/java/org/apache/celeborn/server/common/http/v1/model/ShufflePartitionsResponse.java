@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.celeborn.server.common.http.v1.model.PartitionLocationData;
@@ -65,6 +67,7 @@ public class ShufflePartitionsResponse {
    * @return primaryPartitions
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
   @JsonProperty(JSON_PROPERTY_PRIMARY_PARTITIONS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -98,6 +101,7 @@ public class ShufflePartitionsResponse {
    * @return replicaPartitions
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
   @JsonProperty(JSON_PROPERTY_REPLICA_PARTITIONS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

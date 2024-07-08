@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -54,6 +56,7 @@ public class MasterLeader {
    * @return id
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The id of the master leader raft peer.")
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -79,6 +82,7 @@ public class MasterLeader {
    * @return address
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The raft RPC address of the master leader.")
   @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

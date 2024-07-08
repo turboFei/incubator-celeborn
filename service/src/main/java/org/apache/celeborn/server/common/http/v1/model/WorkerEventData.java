@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.celeborn.server.common.http.v1.model.WorkerData;
 import org.apache.celeborn.server.common.http.v1.model.WorkerEventInfoData;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -56,6 +58,7 @@ public class WorkerEventData {
    * @return worker
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "")
   @JsonProperty(JSON_PROPERTY_WORKER)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -81,6 +84,7 @@ public class WorkerEventData {
    * @return event
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "")
   @JsonProperty(JSON_PROPERTY_EVENT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

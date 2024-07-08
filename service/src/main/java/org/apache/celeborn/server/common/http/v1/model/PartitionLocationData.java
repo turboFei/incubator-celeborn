@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -145,9 +147,10 @@ public class PartitionLocationData {
    * The id and epoch.
    * @return idEpoch
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "The id and epoch.")
   @JsonProperty(JSON_PROPERTY_ID_EPOCH)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getIdEpoch() {
     return idEpoch;
@@ -155,7 +158,7 @@ public class PartitionLocationData {
 
 
   @JsonProperty(JSON_PROPERTY_ID_EPOCH)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setIdEpoch(String idEpoch) {
     this.idEpoch = idEpoch;
   }
@@ -170,9 +173,10 @@ public class PartitionLocationData {
    * The host-rpcPort-pushPort-fetchPort-replicatePort.
    * @return hostAndPorts
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "The host-rpcPort-pushPort-fetchPort-replicatePort.")
   @JsonProperty(JSON_PROPERTY_HOST_AND_PORTS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getHostAndPorts() {
     return hostAndPorts;
@@ -180,7 +184,7 @@ public class PartitionLocationData {
 
 
   @JsonProperty(JSON_PROPERTY_HOST_AND_PORTS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setHostAndPorts(String hostAndPorts) {
     this.hostAndPorts = hostAndPorts;
   }
@@ -195,9 +199,10 @@ public class PartitionLocationData {
    * partition mode.
    * @return mode
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "partition mode.")
   @JsonProperty(JSON_PROPERTY_MODE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public ModeEnum getMode() {
     return mode;
@@ -205,7 +210,7 @@ public class PartitionLocationData {
 
 
   @JsonProperty(JSON_PROPERTY_MODE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setMode(ModeEnum mode) {
     this.mode = mode;
   }
@@ -220,9 +225,10 @@ public class PartitionLocationData {
    * The peer address.
    * @return peer
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "The peer address.")
   @JsonProperty(JSON_PROPERTY_PEER)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getPeer() {
     return peer;
@@ -230,7 +236,7 @@ public class PartitionLocationData {
 
 
   @JsonProperty(JSON_PROPERTY_PEER)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setPeer(String peer) {
     this.peer = peer;
   }
@@ -245,9 +251,10 @@ public class PartitionLocationData {
    * The storage hint.
    * @return storage
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "The storage hint.")
   @JsonProperty(JSON_PROPERTY_STORAGE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public StorageEnum getStorage() {
     return storage;
@@ -255,7 +262,7 @@ public class PartitionLocationData {
 
 
   @JsonProperty(JSON_PROPERTY_STORAGE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setStorage(StorageEnum storage) {
     this.storage = storage;
   }
@@ -270,9 +277,10 @@ public class PartitionLocationData {
    * The map id bitmap hint.
    * @return mapIdBitMap
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "The map id bitmap hint.")
   @JsonProperty(JSON_PROPERTY_MAP_ID_BIT_MAP)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getMapIdBitMap() {
     return mapIdBitMap;
@@ -280,7 +288,7 @@ public class PartitionLocationData {
 
 
   @JsonProperty(JSON_PROPERTY_MAP_ID_BIT_MAP)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setMapIdBitMap(String mapIdBitMap) {
     this.mapIdBitMap = mapIdBitMap;
   }

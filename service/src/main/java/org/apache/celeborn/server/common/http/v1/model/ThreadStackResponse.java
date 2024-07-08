@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.ThreadStack;
@@ -61,6 +63,7 @@ public class ThreadStackResponse {
    * @return threadStacks
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The thread stacks.")
   @JsonProperty(JSON_PROPERTY_THREAD_STACKS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

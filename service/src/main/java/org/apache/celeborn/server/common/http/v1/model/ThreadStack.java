@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -76,6 +78,7 @@ public class ThreadStack {
    * @return threadId
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The id of the thread.")
   @JsonProperty(JSON_PROPERTY_THREAD_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -101,6 +104,7 @@ public class ThreadStack {
    * @return threadName
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The name of the thread.")
   @JsonProperty(JSON_PROPERTY_THREAD_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -126,6 +130,7 @@ public class ThreadStack {
    * @return threadState
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The state of the thread.")
   @JsonProperty(JSON_PROPERTY_THREAD_STATE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -159,6 +164,7 @@ public class ThreadStack {
    * @return stackTrace
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The stacktrace of the thread.")
   @JsonProperty(JSON_PROPERTY_STACK_TRACE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -184,6 +190,7 @@ public class ThreadStack {
    * @return blockedByThreadId
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The id of the thread that the current thread is blocked by.")
   @JsonProperty(JSON_PROPERTY_BLOCKED_BY_THREAD_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -209,6 +216,7 @@ public class ThreadStack {
    * @return blockedByLock
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The lock that the current thread is blocked by.")
   @JsonProperty(JSON_PROPERTY_BLOCKED_BY_LOCK)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -242,6 +250,7 @@ public class ThreadStack {
    * @return holdingLocks
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The locks that the current thread is holding.")
   @JsonProperty(JSON_PROPERTY_HOLDING_LOCKS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

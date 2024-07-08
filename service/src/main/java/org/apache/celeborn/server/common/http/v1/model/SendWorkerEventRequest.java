@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.WorkerId;
@@ -100,6 +102,7 @@ public class SendWorkerEventRequest {
    * @return eventType
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The type of the event.")
   @JsonProperty(JSON_PROPERTY_EVENT_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -133,6 +136,7 @@ public class SendWorkerEventRequest {
    * @return workers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The workers to send the event.")
   @JsonProperty(JSON_PROPERTY_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -54,6 +56,7 @@ public class HandleResponse {
    * @return success
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The result of the request.")
   @JsonProperty(JSON_PROPERTY_SUCCESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -79,6 +82,7 @@ public class HandleResponse {
    * @return message
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The message of the request.")
   @JsonProperty(JSON_PROPERTY_MESSAGE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

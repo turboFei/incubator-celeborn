@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.celeborn.server.common.http.v1.JSON;
 
@@ -58,6 +60,7 @@ public class AppDiskUsageData {
    * @return appId
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The id of the application.")
   @JsonProperty(JSON_PROPERTY_APP_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -83,6 +86,7 @@ public class AppDiskUsageData {
    * @return estimatedUsage
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The application disk usage.")
   @JsonProperty(JSON_PROPERTY_ESTIMATED_USAGE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -108,6 +112,7 @@ public class AppDiskUsageData {
    * @return estimatedUsageStr
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The application disk usage in string type.")
   @JsonProperty(JSON_PROPERTY_ESTIMATED_USAGE_STR)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

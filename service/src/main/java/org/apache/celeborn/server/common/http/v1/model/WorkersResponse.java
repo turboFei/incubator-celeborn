@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.WorkerData;
@@ -82,6 +84,7 @@ public class WorkersResponse {
    * @return workers
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The registered workers.")
   @JsonProperty(JSON_PROPERTY_WORKERS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -115,6 +118,7 @@ public class WorkersResponse {
    * @return lostWorkers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The lost workers.")
   @JsonProperty(JSON_PROPERTY_LOST_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -148,6 +152,7 @@ public class WorkersResponse {
    * @return excludedWorkers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The excluded workers.")
   @JsonProperty(JSON_PROPERTY_EXCLUDED_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -181,6 +186,7 @@ public class WorkersResponse {
    * @return manualExcludedWorkers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The manual excluded workers.")
   @JsonProperty(JSON_PROPERTY_MANUAL_EXCLUDED_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -214,6 +220,7 @@ public class WorkersResponse {
    * @return shutdownWorkers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The shutdown workers.")
   @JsonProperty(JSON_PROPERTY_SHUTDOWN_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -247,6 +254,7 @@ public class WorkersResponse {
    * @return decommissioningWorkers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The decommissioning workers.")
   @JsonProperty(JSON_PROPERTY_DECOMMISSIONING_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

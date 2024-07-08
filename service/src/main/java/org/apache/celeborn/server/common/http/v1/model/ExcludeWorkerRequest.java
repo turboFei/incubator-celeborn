@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.WorkerId;
@@ -65,6 +67,7 @@ public class ExcludeWorkerRequest {
    * @return add
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The workers to be added to the excluded workers.")
   @JsonProperty(JSON_PROPERTY_ADD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -98,6 +101,7 @@ public class ExcludeWorkerRequest {
    * @return remove
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The workers to be removed from the excluded workers.")
   @JsonProperty(JSON_PROPERTY_REMOVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

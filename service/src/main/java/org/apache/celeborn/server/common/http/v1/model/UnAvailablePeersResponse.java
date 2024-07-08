@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.WorkerTimestampData;
@@ -61,6 +63,7 @@ public class UnAvailablePeersResponse {
    * @return peers
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The unavailable peers.")
   @JsonProperty(JSON_PROPERTY_PEERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 

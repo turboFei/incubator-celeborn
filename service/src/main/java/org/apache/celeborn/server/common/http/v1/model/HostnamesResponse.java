@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -60,6 +62,7 @@ public class HostnamesResponse {
    * @return hostnames
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "The hostnames of the applications.")
   @JsonProperty(JSON_PROPERTY_HOSTNAMES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 

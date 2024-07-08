@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.celeborn.server.common.http.v1.model.AppDiskUsageData;
@@ -61,6 +63,7 @@ public class AppDiskUsageSnapshotData {
    * @return start
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The start timestamp of the snapshot.")
   @JsonProperty(JSON_PROPERTY_START)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -86,6 +89,7 @@ public class AppDiskUsageSnapshotData {
    * @return end
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The end timestamp of the snapshot.")
   @JsonProperty(JSON_PROPERTY_END)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -119,6 +123,7 @@ public class AppDiskUsageSnapshotData {
    * @return topNItems
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "The top N app disk usages.")
   @JsonProperty(JSON_PROPERTY_TOP_N_ITEMS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
