@@ -354,8 +354,6 @@ object CelebornBuild extends sbt.internal.BuildDef {
 
   // load user-defined Profiles
   // loadProfiles()
-
-  CelebornOpenApi.generate
 }
 
 object Utils {
@@ -1247,8 +1245,6 @@ object MRClientProjects {
 }
 
 object CelebornOpenApi {
-  val generate = taskKey[Unit]("generate code from APIs")
-
   lazy val openapiModel = Project("celeborn-openapi-model", file("openapi/openapi-model"))
     .enablePlugins(OpenApiGeneratorPlugin)
     .settings(
@@ -1274,11 +1270,9 @@ object CelebornOpenApi {
       openApiGenerateModelTests := SettingDisabled,
       openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
       openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
-      // Define the simple generate command to generate full client codes
-      generate := {
+      (Compile / compile) := ((Compile / compile) dependsOn Def.task {
         val _ = openApiGenerate.value
-      },
-      (Compile / compile) := ((Compile / compile) dependsOn generate).value
+      }).value
     )
 
 }
