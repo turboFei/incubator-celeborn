@@ -18,5 +18,4 @@
 package org.apache.celeborn.rest.v1;
 
 // placeholder for JSON class
-public class JSON {
-}
+public class JSON {}

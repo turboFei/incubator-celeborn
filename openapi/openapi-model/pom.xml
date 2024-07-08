@@ -125,7 +125,7 @@
         -->
         <executions>
           <execution>
-            <id>generate-java-service-worker-model-rest-v1</id>
+            <id>generate-java-service-model-rest-v1</id>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -135,6 +135,7 @@
               <output>${project.build.directory}/generated-sources/java</output>
               <modelPackage>org.apache.celeborn.rest.v1.model</modelPackage>
               <generatorName>java</generatorName>
+              <skipValidateSpec>true</skipValidateSpec>
               <generateApis>false</generateApis>
               <generateApiTests>false</generateApiTests>
               <generateModelTests>false</generateModelTests>
