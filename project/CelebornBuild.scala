@@ -143,7 +143,6 @@ object Dependencies {
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion
   val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
-  val jacksonDataTypeJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % projectScalaVersion
   val slf4jApi = "org.slf4j" % "slf4j-api" % slf4jVersion
   val slf4jJulToSlf4j = "org.slf4j" % "jul-to-slf4j" % slf4jVersion
@@ -161,7 +160,6 @@ object Dependencies {
   val jakartaServletApi = "jakarta.servlet" % "jakarta.servlet-api" % jakartaServeletApiVersion
   val jerseyServer = "org.glassfish.jersey.core" % "jersey-server" % jerseyVersion excludeAll(
     ExclusionRule("jakarta.xml.bind", "jakarta.xml.bind-api"))
-  val jerseryClient = "org.glassfish.jersey.core" % "jersey-client" % jerseyVersion
   val jerseyContainerServletCore = "org.glassfish.jersey.containers" % "jersey-container-servlet-core" % jerseyVersion
   val jerseyHk2 = "org.glassfish.jersey.inject" % "jersey-hk2" % jerseyVersion
   val jerseyMediaJsonJackson = "org.glassfish.jersey.media" % "jersey-media-json-jackson" % jerseyVersion
@@ -1297,11 +1295,9 @@ object CelebornOpenApi {
         Dependencies.swaggerModels,
         Dependencies.openApiToolsJacksonBindNullable,
         Dependencies.findbugsJsr305,
-        Dependencies.jerseryClient,
         Dependencies.jerseyMediaJsonJackson,
         Dependencies.jacksonAnnotations,
         Dependencies.jacksonDatabind,
-        Dependencies.jacksonDataTypeJsr310,
         Dependencies.jerseyMediaMultipart
       ),
       Compile / unmanagedSourceDirectories += file(openApiModelOutputDir)
