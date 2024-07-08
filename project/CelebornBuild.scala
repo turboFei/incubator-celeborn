@@ -1272,7 +1272,7 @@ object CelebornOpenApi {
       openApiModelPackage := "org.apache.celeborn.rest.v1.model",
       openApiGenerateApiTests := SettingDisabled,
       openApiGenerateModelTests := SettingDisabled,
-      openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1", "supportingFiles" -> "false", "apis" -> "false"),
+      openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
       openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
       // Define the simple generate command to generate full client codes
       generate := {
