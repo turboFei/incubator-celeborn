@@ -31,7 +31,8 @@
   <name>Celeborn Project Parent POM</name>
 
   <modules>
-    <module>openapi</module>
+    <module>openapi/client</module>
+    <module>openapi/model</module>
     <module>common</module>
     <module>client</module>
     <module>service</module>
@@ -142,7 +143,7 @@
     <maven.plugin.silencer.version>1.7.13</maven.plugin.silencer.version>
     <maven.plugin.resources.version>3.3.1</maven.plugin.resources.version>
     <!-- This was the last version to support Java 8 -->
-    <openapi.generator.version>6.6.0</openapi.generator.version>
+    <openapi.generator.version>5.0.1</openapi.generator.version>
 
     <!-- Allow modules to enable / disable certain build plugins easily. -->
     <testJarPhase>prepare-package</testJarPhase>
