@@ -336,9 +336,7 @@ object CelebornCommonSettings {
 object CelebornBuild extends sbt.internal.BuildDef {
   override def projectDefinitions(baseDirectory: File): Seq[Project] = {
     Seq(
-      CelebornOpenApi.openApiMaster,
-      CelebornOpenApi.openApiWorker,
-      CelebornOpenApi.openApi,
+      CelebornOpenApi.openapiModel,
       CelebornCommon.common,
       CelebornClient.client,
       CelebornService.service,
@@ -517,7 +515,7 @@ object CelebornClient {
 object CelebornService {
   lazy val service = Project("celeborn-service", file("service"))
     .dependsOn(CelebornCommon.common)
-    .dependsOn(CelebornOpenApi.openApi)
+    .dependsOn(CelebornOpenApi.openapiModel)
     .settings (
       commonSettings,
       libraryDependencies ++= Seq(
@@ -552,7 +550,6 @@ object CelebornService {
 object CelebornMaster {
   lazy val master = Project("celeborn-master", file("master"))
     .dependsOn(CelebornCommon.common)
-    .dependsOn(CelebornOpenApi.openApi)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
     .settings (
@@ -579,7 +576,6 @@ object CelebornMaster {
 object CelebornWorker {
   lazy val worker = Project("celeborn-worker", file("worker"))
     .dependsOn(CelebornService.service)
-    .dependsOn(CelebornOpenApi.openApi)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
     .dependsOn(CelebornClient.client % "test->compile")
@@ -1254,6 +1250,7 @@ object CelebornOpenApi {
   val generate = taskKey[Unit]("generate code from APIs")
 
   lazy val openapiModel = Project("celeborn-openapi-model", file("openapi/openapi-model"))
+    .enablePlugins(OpenApiGeneratorPlugin)
     .settings(
       commonSettings,
       libraryDependencies ++= Seq(
@@ -1267,7 +1264,24 @@ object CelebornOpenApi {
         Dependencies.jacksonDatabind,
         Dependencies.jacksonDataTypeJsr310,
         Dependencies.jerseyMediaMultipart
-      ) ++ commonUnitTestDependencies
+      ),
+      // OpenAPI generation specs
+      openApiInputSpec := (file(".") / "openapi" / "openapi-client" / "src/main/openapi3" / "master_rest_v1.yaml").toString,
+      openApiGeneratorName := "java",
+      openApiOutputDir := (file("openapi") / "openapi-model" / "target" / "generated-sources"/ "java").toString,
+      openApiModelPackage := "org.apache.celeborn.rest.v1.model",
+      openApiGenerateApiTests := SettingDisabled,
+      openApiGenerateModelTests := SettingDisabled,
+      openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1", "supportingFiles" -> "false", "apis" -> "false"),
+      openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
+      // Define the simple generate command to generate full client codes
+      generate := {
+        val _ = openApiGenerate.value
+      },
+      Compile / sourceGenerators += Def.task {
+        openApiGenerate.value
+        Seq(file(openApiOutputDir.value))
+      },
     )
 
 }
