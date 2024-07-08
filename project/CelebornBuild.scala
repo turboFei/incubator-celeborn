@@ -336,6 +336,8 @@ object CelebornCommonSettings {
 object CelebornBuild extends sbt.internal.BuildDef {
   override def projectDefinitions(baseDirectory: File): Seq[Project] = {
     Seq(
+      CelebornOpenApi.openapiMasterModel,
+      CelebornOpenApi.openapiWorkerModel,
       CelebornOpenApi.openapiModel,
       CelebornCommon.common,
       CelebornClient.client,
@@ -1245,8 +1247,46 @@ object MRClientProjects {
 }
 
 object CelebornOpenApi {
+  lazy val openapiMasterModel = Project("celeborn-openapi-master-model", file("openapi/openapi-model/target/master"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(
+      commonSettings,
+      // OpenAPI generation specs
+      openApiInputSpec := (file(".") / "openapi" / "openapi-client" / "src/main/openapi3" / "master_rest_v1.yaml").toString,
+      openApiGeneratorName := "java",
+      openApiOutputDir := (file("openapi") / "openapi-model" / "target" / "generated-sources"/ "java").toString,
+      openApiModelPackage := "org.apache.celeborn.rest.v1.model",
+      openApiGenerateApiTests := SettingDisabled,
+      openApiGenerateModelTests := SettingDisabled,
+      openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
+      openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
+      (Compile / compile) := ((Compile / compile) dependsOn Def.task {
+        val _ = openApiGenerate.value
+      }).value
+    )
+
+  lazy val openapiWorkerModel = Project("celeborn-openapi-worker-model", file("openapi/openapi-model/target/worker"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(
+      commonSettings,
+      // OpenAPI generation specs
+      openApiInputSpec := (file(".") / "openapi" / "openapi-client" / "src/main/openapi3" / "worker_rest_v1.yaml").toString,
+      openApiGeneratorName := "java",
+      openApiOutputDir := (file("openapi") / "openapi-model" / "target" / "generated-sources"/ "java").toString,
+      openApiModelPackage := "org.apache.celeborn.rest.v1.model",
+      openApiGenerateApiTests := SettingDisabled,
+      openApiGenerateModelTests := SettingDisabled,
+      openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
+      openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
+      (Compile / compile) := ((Compile / compile) dependsOn Def.task {
+        val _ = openApiGenerate.value
+      }).value
+    )
+
   lazy val openapiModel = Project("celeborn-openapi-model", file("openapi/openapi-model"))
     .enablePlugins(OpenApiGeneratorPlugin)
+    .dependsOn(openapiMasterModel)
+    .dependsOn(openapiWorkerModel)
     .settings(
       commonSettings,
       libraryDependencies ++= Seq(
@@ -1270,10 +1310,6 @@ object CelebornOpenApi {
       openApiGenerateModelTests := SettingDisabled,
       openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
       openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
-      Compile / unmanagedSourceDirectories += baseDirectory.value / "target/generated-sources/java/src/main/java",
-      (Compile / compile) := ((Compile / compile) dependsOn Def.task {
-        val _ = openApiGenerate.value
-      }).value
+      Compile / unmanagedSourceDirectories += baseDirectory.value / "target/generated-sources/java/src/main/java"
     )
-
 }
