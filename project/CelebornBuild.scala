@@ -23,6 +23,8 @@ import scala.util.Properties
 import scala.xml._
 import scala.xml.transform._
 
+import org.openapitools.generator.sbt.plugin.OpenApiGeneratorPlugin
+import org.openapitools.generator.sbt.plugin.OpenApiGeneratorPlugin.autoImport._
 import sbtassembly.AssemblyPlugin.autoImport._
 import sbtprotoc.ProtocPlugin.autoImport._
 
@@ -74,6 +76,7 @@ object Dependencies {
   val jettyVersion = "9.4.52.v20230823"
   val jakartaServeletApiVersion = "4.0.4"
   val openApiToolsJacksonBindNullableVersion = "0.2.6"
+  val swagger1Version = "1.6.11"
 
   // For SSL support
   val bouncycastleVersion = "1.77"
@@ -140,6 +143,7 @@ object Dependencies {
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion
   val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
+  val jacksonDataTypeJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % projectScalaVersion
   val slf4jApi = "org.slf4j" % "slf4j-api" % slf4jVersion
   val slf4jJulToSlf4j = "org.slf4j" % "jul-to-slf4j" % slf4jVersion
@@ -157,6 +161,7 @@ object Dependencies {
   val jakartaServletApi = "jakarta.servlet" % "jakarta.servlet-api" % jakartaServeletApiVersion
   val jerseyServer = "org.glassfish.jersey.core" % "jersey-server" % jerseyVersion excludeAll(
     ExclusionRule("jakarta.xml.bind", "jakarta.xml.bind-api"))
+  val jerseryClient = "org.glassfish.jersey.core" % "jersey-client" % jerseyVersion
   val jerseyContainerServletCore = "org.glassfish.jersey.containers" % "jersey-container-servlet-core" % jerseyVersion
   val jerseyHk2 = "org.glassfish.jersey.inject" % "jersey-hk2" % jerseyVersion
   val jerseyMediaJsonJackson = "org.glassfish.jersey.media" % "jersey-media-json-jackson" % jerseyVersion
@@ -167,6 +172,8 @@ object Dependencies {
     ExclusionRule("jakarta.activation", "jakarta.activation-api"))
   val swaggerUi = "org.webjars" % "swagger-ui" % swaggerUiVersion
   val openApiToolsJacksonBindNullable = "org.openapitools" % "jackson-databind-nullable" % openApiToolsJacksonBindNullableVersion
+  val swaggerAnnotations = "io.swagger" % "swagger-annotations" % swagger1Version
+  val swaggerModels = "io.swagger" % "swagger-models" % swagger1Version
 
   // Test dependencies
   // https://www.scala-sbt.org/1.x/docs/Testing.html
@@ -329,6 +336,9 @@ object CelebornCommonSettings {
 object CelebornBuild extends sbt.internal.BuildDef {
   override def projectDefinitions(baseDirectory: File): Seq[Project] = {
     Seq(
+      CelebornOpenApi.openApiMaster,
+      CelebornOpenApi.openApiWorker,
+      CelebornOpenApi.openApi,
       CelebornCommon.common,
       CelebornClient.client,
       CelebornService.service,
@@ -346,6 +356,8 @@ object CelebornBuild extends sbt.internal.BuildDef {
 
   // load user-defined Profiles
   // loadProfiles()
+
+  CelebornOpenApi.generate
 }
 
 object Utils {
@@ -505,6 +517,7 @@ object CelebornClient {
 object CelebornService {
   lazy val service = Project("celeborn-service", file("service"))
     .dependsOn(CelebornCommon.common)
+    .dependsOn(CelebornOpenApi.openApi)
     .settings (
       commonSettings,
       libraryDependencies ++= Seq(
@@ -539,6 +552,7 @@ object CelebornService {
 object CelebornMaster {
   lazy val master = Project("celeborn-master", file("master"))
     .dependsOn(CelebornCommon.common)
+    .dependsOn(CelebornOpenApi.openApi)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
     .settings (
@@ -565,6 +579,7 @@ object CelebornMaster {
 object CelebornWorker {
   lazy val worker = Project("celeborn-worker", file("worker"))
     .dependsOn(CelebornService.service)
+    .dependsOn(CelebornOpenApi.openApi)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
     .dependsOn(CelebornClient.client % "test->compile")
@@ -1233,4 +1248,26 @@ object MRClientProjects {
       (Test / compile).value
     }
   )
+}
+
+object CelebornOpenApi {
+  val generate = taskKey[Unit]("generate code from APIs")
+
+  lazy val openapiModel = Project("celeborn-openapi-model", file("openapi/openapi-model"))
+    .settings(
+      commonSettings,
+      libraryDependencies ++= Seq(
+        Dependencies.swaggerAnnotations,
+        Dependencies.swaggerModels,
+        Dependencies.openApiToolsJacksonBindNullable,
+        Dependencies.findbugsJsr305,
+        Dependencies.jerseryClient,
+        Dependencies.jerseyMediaJsonJackson,
+        Dependencies.jacksonAnnotations,
+        Dependencies.jacksonDatabind,
+        Dependencies.jacksonDataTypeJsr310,
+        Dependencies.jerseyMediaMultipart
+      ) ++ commonUnitTestDependencies
+    )
+
 }

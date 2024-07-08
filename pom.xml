@@ -119,6 +119,7 @@
     <jetty.version>9.4.52.v20230823</jetty.version>
     <jakarta.servlet-api.version>4.0.4</jakarta.servlet-api.version>
     <openapitools.jackson-databind-nullable.version>0.2.6</openapitools.jackson-databind-nullable.version>
+    <swagger1.version>1.6.11</swagger1.version>
 
     <!-- org.fusesource.leveldbjni will be used except on arm64 platform. -->
     <leveldbjni.group>org.fusesource.leveldbjni</leveldbjni.group>

@@ -29,12 +29,6 @@
   <packaging>jar</packaging>
   <name>Celeborn Open API</name>
 
-  <properties>
-    <project.service.baseDir>${project.basedir}/../service</project.service.baseDir>
-    <junit.jupiter.version>5.10.3</junit.jupiter.version>
-    <swagger1.version>1.6.11</swagger1.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -56,13 +50,6 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${jackson.version}</version>
-      </dependency>
-      <!-- test dependencies -->
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.jupiter.version}</version>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -107,11 +94,6 @@
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-multipart</artifactId>
-    </dependency>
-    <!-- test dependencies -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
     </dependency>
   </dependencies>
 
