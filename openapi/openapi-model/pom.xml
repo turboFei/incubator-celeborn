@@ -155,7 +155,6 @@
                 <library>jersey2</library>
                 <annotationLibrary>swagger1</annotationLibrary>
                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                <models></models>
               </configOptions>
             </configuration>
           </execution>

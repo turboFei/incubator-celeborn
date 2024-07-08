@@ -17,5 +17,5 @@
 
 package org.apache.celeborn.rest.v1;
 
-// placeholder for JSON class
+// placeholder for JSON class, referenced in unused imports
 public class JSON {}
