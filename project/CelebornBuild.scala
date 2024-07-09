@@ -1252,7 +1252,6 @@ object CelebornOpenApi {
     .enablePlugins(OpenApiGeneratorPlugin)
     .settings(
       commonSettings,
-      // OpenAPI generation specs
       openApiInputSpec := (file(openApiSpecDir) / "master_rest_v1.yaml").toString,
       openApiGeneratorName := "java",
       openApiOutputDir := openApiModelOutputDir,
@@ -1267,7 +1266,6 @@ object CelebornOpenApi {
     .enablePlugins(OpenApiGeneratorPlugin)
     .settings(
       commonSettings,
-      // OpenAPI generation specs
       openApiInputSpec := (file(openApiSpecDir) / "worker_rest_v1.yaml").toString,
       openApiGeneratorName := "java",
       openApiOutputDir := openApiModelOutputDir,
@@ -1297,6 +1295,7 @@ object CelebornOpenApi {
         (file(openApiModelOutputDir)/ "/src/main/java/org/apache/celeborn/rest/v1/model").listFiles().toSeq
       }.dependsOn(
         openapiInternalMasterModel / Compile / openApiGenerate,
-        openapiInternalWorkerModel / Compile / openApiGenerate)
+        openapiInternalWorkerModel / Compile / openApiGenerate
+      )
     )
 }
