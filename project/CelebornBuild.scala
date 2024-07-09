@@ -337,12 +337,12 @@ object CelebornCommonSettings {
 object CelebornBuild extends sbt.internal.BuildDef {
   override def projectDefinitions(baseDirectory: File): Seq[Project] = {
     Seq(
-      CelebornOpenApi.openapiInternalMasterModel,
-      CelebornOpenApi.openapiInternalWorkerModel,
-      CelebornOpenApi.openapiModel,
       CelebornOpenApi.openapiInternalMasterClient,
       CelebornOpenApi.openapiInternalWorkerClient,
       CelebornOpenApi.openapiClient,
+      CelebornOpenApi.openapiInternalMasterModel,
+      CelebornOpenApi.openapiInternalWorkerModel,
+      CelebornOpenApi.openapiModel,
       CelebornCommon.common,
       CelebornClient.client,
       CelebornService.service,
@@ -1315,6 +1315,10 @@ object CelebornOpenApi {
       Compile / sourceGenerators += Def.task {
         traverseJavaFiles(openApiClientOutputDir)
       }.dependsOn(
+        Def.task {
+          println("Cleaning up openapi client output directory: " + openApiClientOutputDir)
+          file(openApiClientOutputDir).delete()
+        },
         openapiInternalMasterClient / Compile / openApiGenerate,
         openapiInternalWorkerClient / Compile / openApiGenerate
       )
@@ -1365,6 +1369,10 @@ object CelebornOpenApi {
       Compile / sourceGenerators += Def.task {
         traverseJavaFiles(openApiModelOutputDir)
       }.dependsOn(
+        Def.task {
+          println("Cleaning up openapi model output directory: " + openApiModelOutputDir)
+          file(openApiModelOutputDir).delete()
+        },
         openapiInternalMasterModel / Compile / openApiGenerate,
         openapiInternalWorkerModel / Compile / openApiGenerate
       )
