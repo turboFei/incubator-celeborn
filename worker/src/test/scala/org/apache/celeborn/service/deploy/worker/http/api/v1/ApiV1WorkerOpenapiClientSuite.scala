@@ -30,7 +30,7 @@ import org.apache.celeborn.service.deploy.worker.Worker
 abstract class ApiV1WorkerOpenapiClientSuite extends CelebornFunSuite with MiniClusterFeature {
   private val celebornConf = new CelebornConf()
   protected var master: Master = _
-  private var worker: Worker = _
+  protected var worker: Worker = _
   private var apiClient: ApiClient = _
 
   override def beforeAll(): Unit = {

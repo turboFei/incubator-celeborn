@@ -18,9 +18,10 @@
 package org.apache.celeborn.service.deploy.worker.http.api.v1
 
 import javax.servlet.http.HttpServletResponse
-
+import java.util.Collections
 import org.apache.celeborn.rest.v1.master._
 import org.apache.celeborn.rest.v1.master.invoker._
+import org.apache.celeborn.rest.v1.master.model.{ExcludeWorkerRequest, WorkerId}
 
 class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
   private var masterApiClient: ApiClient = _
@@ -64,13 +65,34 @@ class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
 
   test("master: worker api") {
     val api = new WorkerApi(masterApiClient)
-    val workersResponse = api.getWorkers
+    var workersResponse = api.getWorkers
     assert(!workersResponse.getWorkers.isEmpty)
     assert(workersResponse.getLostWorkers.isEmpty)
     assert(workersResponse.getExcludedWorkers.isEmpty)
     assert(workersResponse.getManualExcludedWorkers.isEmpty)
     assert(workersResponse.getShutdownWorkers.isEmpty)
     assert(workersResponse.getDecommissioningWorkers.isEmpty)
+
+    val workerData = workersResponse.getWorkers.get(0)
+    println(workerData.toString)
+    var handleResponse = api.excludeWorker(new ExcludeWorkerRequest().add(
+      Collections.singletonList(
+        new WorkerId()
+          .host(workerData.getHost)
+          .rpcPort(workerData.getRpcPort)
+          .pushPort(workerData.getPushPort)
+          .fetchPort(workerData.getFetchPort)
+          .replicatePort(workerData.getReplicatePort)
+      )
+    ).remove(Collections.emptyList()))
+    assert(handleResponse.getSuccess)
+
+    workersResponse = api.getWorkers
+    assert(workersResponse.getWorkers.isEmpty)
+    assert(!workersResponse.getExcludedWorkers.isEmpty)
+    assert(!workersResponse.getManualExcludedWorkers.isEmpty)
+
+
 
     assert(api.getWorkerEvents.getWorkerEvents.isEmpty)
   }
