@@ -143,6 +143,7 @@ object Dependencies {
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion
   val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
+  val jacksonDataTypeJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % projectScalaVersion
   val slf4jApi = "org.slf4j" % "slf4j-api" % slf4jVersion
   val slf4jJulToSlf4j = "org.slf4j" % "jul-to-slf4j" % slf4jVersion
@@ -160,6 +161,7 @@ object Dependencies {
   val jakartaServletApi = "jakarta.servlet" % "jakarta.servlet-api" % jakartaServeletApiVersion
   val jerseyServer = "org.glassfish.jersey.core" % "jersey-server" % jerseyVersion excludeAll(
     ExclusionRule("jakarta.xml.bind", "jakarta.xml.bind-api"))
+  val jerseyClient = "org.glassfish.jersey.core" % "jersey-client" % jerseyVersion
   val jerseyContainerServletCore = "org.glassfish.jersey.containers" % "jersey-container-servlet-core" % jerseyVersion
   val jerseyHk2 = "org.glassfish.jersey.inject" % "jersey-hk2" % jerseyVersion
   val jerseyMediaJsonJackson = "org.glassfish.jersey.media" % "jersey-media-json-jackson" % jerseyVersion
@@ -169,7 +171,8 @@ object Dependencies {
     ExclusionRule("org.javassist", "javassist"),
     ExclusionRule("jakarta.activation", "jakarta.activation-api"))
   val swaggerUi = "org.webjars" % "swagger-ui" % swaggerUiVersion
-  val openApiToolsJacksonBindNullable = "org.openapitools" % "jackson-databind-nullable" % openApiToolsJacksonBindNullableVersion
+  val openApiToolsJacksonBindNullable = "org.openapitools" % "jackson-databind-nullable" % openApiToolsJacksonBindNullableVersion excludeAll(
+    ExclusionRule("com.fasterxml.jackson.core", "jackson-databind"))
   val openApiToolsSwaggerAnnotations = "io.swagger" % "swagger-annotations" % openApiToolsSwaggerVersion
   val openApiToolsSwaggerModels = "io.swagger" % "swagger-models" % openApiToolsSwaggerVersion
 
@@ -337,6 +340,9 @@ object CelebornBuild extends sbt.internal.BuildDef {
       CelebornOpenApi.openapiInternalMasterModel,
       CelebornOpenApi.openapiInternalWorkerModel,
       CelebornOpenApi.openapiModel,
+      CelebornOpenApi.openapiInternalMasterClient,
+      CelebornOpenApi.openapiInternalWorkerClient,
+      CelebornOpenApi.openapiClient,
       CelebornCommon.common,
       CelebornClient.client,
       CelebornService.service,
@@ -1245,9 +1251,75 @@ object MRClientProjects {
 
 object CelebornOpenApi {
   val openApiSpecDir = "openapi/openapi-client/src/main/openapi3"
+  val openApiClientOutputDir = "openapi/openapi-client/target/generated-sources/java"
   val openApiModelOutputDir = "openapi/openapi-model/target/generated-sources/java"
 
-  val commonOpenApiSettings = Seq(
+  lazy val openapiInternalMasterClient = Project("celeborn-openapi-master-client", file("openapi/openapi-client/target/master"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(
+      commonSettings,
+      openApiInputSpec := (file(openApiSpecDir) / "master_rest_v1.yaml").toString,
+      openApiGeneratorName := "java",
+      openApiOutputDir := openApiClientOutputDir,
+      openApiApiPackage := "org.apache.celeborn.rest.v1.master",
+      openApiModelPackage := "org.apache.celeborn.rest.v1.master.model",
+      openApiInvokerPackage := "org.apache.celeborn.rest.v1.master.invoker",
+      openApiGenerateApiTests := SettingDisabled,
+      openApiGenerateModelTests := SettingDisabled,
+      openApiAdditionalProperties := Map(
+        "dateLibrary" -> "java8",
+        "useGzipFeature" -> "true",
+        "library" -> "jersey2",
+        "annotationLibrary" -> "swagger1")
+    )
+
+  lazy val openapiInternalWorkerClient = Project("celeborn-openapi-worker-client", file("openapi/openapi-client/target/worker"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(
+      commonSettings,
+      openApiInputSpec := (file(openApiSpecDir) / "worker_rest_v1.yaml").toString,
+      openApiGeneratorName := "java",
+      openApiOutputDir := openApiClientOutputDir,
+      openApiApiPackage := "org.apache.celeborn.rest.v1.worker",
+      openApiModelPackage := "org.apache.celeborn.rest.v1.worker.model",
+      openApiInvokerPackage := "org.apache.celeborn.rest.v1.worker.invoker",
+      openApiGenerateApiTests := SettingDisabled,
+      openApiGenerateModelTests := SettingDisabled,
+      openApiAdditionalProperties := Map(
+        "dateLibrary" -> "java8",
+        "useGzipFeature" -> "true",
+        "library" -> "jersey2",
+        "annotationLibrary" -> "swagger1")
+    )
+
+  lazy val openapiClient = Project("celeborn-openapi-client", file("openapi/openapi-client"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .dependsOn(openapiInternalMasterClient, openapiInternalWorkerClient)
+    .settings(
+      commonSettings,
+      libraryDependencies ++= Seq(
+        Dependencies.openApiToolsSwaggerAnnotations,
+        Dependencies.openApiToolsSwaggerModels,
+        Dependencies.openApiToolsJacksonBindNullable,
+        Dependencies.findbugsJsr305,
+        Dependencies.jerseyClient,
+        Dependencies.jerseyMediaJsonJackson,
+        Dependencies.jacksonAnnotations,
+        Dependencies.jacksonDatabind,
+        Dependencies.jacksonDataTypeJsr310,
+        Dependencies.jerseyMediaMultipart
+      ),
+      Compile / sourceGenerators += Def.task {
+        Files.walk((file(openApiClientOutputDir) / "/src/main/java").toPath, Int.MaxValue)
+          .toArray.map(_.asInstanceOf[java.nio.file.Path].toFile)
+          .toSeq.filter(_.isFile)
+      }.dependsOn(
+        openapiInternalMasterClient / Compile / openApiGenerate,
+        openapiInternalWorkerClient / Compile / openApiGenerate
+      )
+    )
+
+  val commonOpenApiModelSettings = Seq(
     openApiGeneratorName := "java",
     openApiOutputDir := openApiModelOutputDir,
     openApiModelPackage := "org.apache.celeborn.rest.v1.model",
@@ -1262,7 +1334,7 @@ object CelebornOpenApi {
     .settings(
       commonSettings,
       openApiInputSpec := (file(openApiSpecDir) / "master_rest_v1.yaml").toString,
-      commonOpenApiSettings
+      commonOpenApiModelSettings
     )
 
   lazy val openapiInternalWorkerModel = Project("celeborn-openapi-worker-model", file("openapi/openapi-model/target/worker"))
@@ -1270,7 +1342,7 @@ object CelebornOpenApi {
     .settings(
       commonSettings,
       openApiInputSpec := (file(openApiSpecDir) / "worker_rest_v1.yaml").toString,
-      commonOpenApiSettings
+      commonOpenApiModelSettings
     )
 
   lazy val openapiModel = Project("celeborn-openapi-model", file("openapi/openapi-model"))
@@ -1286,6 +1358,7 @@ object CelebornOpenApi {
         Dependencies.jerseyMediaJsonJackson,
         Dependencies.jacksonAnnotations,
         Dependencies.jacksonDatabind,
+        Dependencies.jacksonDataTypeJsr310,
         Dependencies.jerseyMediaMultipart
       ),
       Compile / sourceGenerators += Def.task {
