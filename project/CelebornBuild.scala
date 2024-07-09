@@ -1261,9 +1261,6 @@ object CelebornOpenApi {
       openApiGenerateModelTests := SettingDisabled,
       openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
       openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
-      (Compile / compile) := ((Compile / compile) dependsOn Def.task {
-        val _ = openApiGenerate.value
-      }).value
     )
 
   lazy val openapiInternalWorkerModel = Project("celeborn-openapi-worker-model", file("openapi/openapi-model/target/worker"))
@@ -1279,15 +1276,11 @@ object CelebornOpenApi {
       openApiGenerateModelTests := SettingDisabled,
       openApiAdditionalProperties := Map("library" -> "jersey2", "annotationLibrary" -> "swagger1"),
       openApiGlobalProperties := Map("models" -> "", "supportingFiles" -> "false", "apis" -> "false"),
-      (Compile / compile) := ((Compile / compile) dependsOn Def.task {
-        val _ = openApiGenerate.value
-      }).value
     )
 
   lazy val openapiModel = Project("celeborn-openapi-model", file("openapi/openapi-model"))
     .enablePlugins(OpenApiGeneratorPlugin)
-    .dependsOn(openapiInternalMasterModel)
-    .dependsOn(openapiInternalWorkerModel)
+    .dependsOn(openapiInternalMasterModel, openapiInternalWorkerModel)
     .settings(
       commonSettings,
       libraryDependencies ++= Seq(
@@ -1300,6 +1293,10 @@ object CelebornOpenApi {
         Dependencies.jacksonDatabind,
         Dependencies.jerseyMediaMultipart
       ),
-      Compile / unmanagedSourceDirectories += file(openApiModelOutputDir)
+      Compile / sourceGenerators += Def.task {
+        (file(openApiModelOutputDir)/ "/src/main/java/org/apache/celeborn/rest/v1/model").listFiles().toSeq
+      }.dependsOn(
+        openapiInternalMasterModel / Compile / openApiGenerate,
+        openapiInternalWorkerModel / Compile / openApiGenerate)
     )
 }
