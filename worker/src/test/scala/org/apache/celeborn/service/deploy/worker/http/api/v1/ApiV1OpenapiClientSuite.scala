@@ -15,93 +15,55 @@
  * limitations under the License.
  */
 
-package org.apache.celeborn.service.deploy.master.http.api.v1
+package org.apache.celeborn.service.deploy.worker.http.api.v1
 
 import javax.servlet.http.HttpServletResponse
 
-import com.google.common.io.Files
-
-import org.apache.celeborn.common.CelebornConf
-import org.apache.celeborn.common.util.{CelebornExitKind, Utils}
 import org.apache.celeborn.rest.v1.master._
 import org.apache.celeborn.rest.v1.master.invoker._
-import org.apache.celeborn.server.common.HttpService
-import org.apache.celeborn.server.common.http.HttpTestHelper
-import org.apache.celeborn.service.deploy.master.{Master, MasterArguments}
 
-class ApiV1MasterOpenapiClientSuite extends HttpTestHelper {
-  private var master: Master = _
-  override protected def httpService: HttpService = master
-  private var apiClient: ApiClient = _
-
-  def getTmpDir(): String = {
-    val tmpDir = Files.createTempDir()
-    tmpDir.deleteOnExit()
-    tmpDir.getAbsolutePath
-  }
+class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
+  private var masterApiClient: ApiClient = _
 
   override def beforeAll(): Unit = {
-    val randomMasterPort = Utils.selectRandomPort(1024, 65535)
-    val randomHttpPort = randomMasterPort + 1
-    celebornConf.set(CelebornConf.HA_ENABLED.key, "false")
-    celebornConf.set(CelebornConf.HA_MASTER_RATIS_STORAGE_DIR.key, getTmpDir())
-    celebornConf.set(CelebornConf.WORKER_STORAGE_DIRS.key, getTmpDir())
-    celebornConf.set(CelebornConf.MASTER_HTTP_HOST.key, "127.0.0.1")
-    celebornConf.set(CelebornConf.MASTER_HTTP_PORT.key, randomHttpPort.toString)
-
-    val args = Array("-h", "localhost", "-p", randomMasterPort.toString)
-
-    val masterArgs = new MasterArguments(args, celebornConf)
-    master = new Master(celebornConf, masterArgs)
-    new Thread() {
-      override def run(): Unit = {
-        master.initialize()
-      }
-    }.start()
     super.beforeAll()
-    apiClient = new ApiClient().setBasePath(s"http://${httpService.connectionUrl}")
+    masterApiClient = new ApiClient().setBasePath(s"http://${master.connectionUrl}")
   }
 
-  override def afterAll(): Unit = {
-    super.afterAll()
-    master.stop(CelebornExitKind.EXIT_IMMEDIATELY)
-    master.rpcEnv.shutdown()
-  }
-
-  test("default api") {
-    val api = new DefaultApi(apiClient)
+  test("master: default api") {
+    val api = new DefaultApi(masterApiClient)
     assert(!api.getThreadDump.getThreadStacks.isEmpty)
   }
 
-  test("conf api") {
-    val api = new ConfApi(apiClient)
+  test("master: conf api") {
+    val api = new ConfApi(masterApiClient)
     assert(!api.getConf.getConfigs.isEmpty)
     val e = intercept[ApiException](api.getDynamicConf("", "", ""))
     assert(e.getCode == HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     assert(e.getMessage.contains("Dynamic configuration is disabled"))
   }
 
-  test("application api") {
-    val api = new ApplicationApi(apiClient)
+  test("master: application api") {
+    val api = new ApplicationApi(masterApiClient)
     assert(api.getApplications.getApplications.isEmpty)
     assert(api.getApplicationHostNames.getHostnames.isEmpty)
     assert(api.getApplicationsDiskUsageSnapshots.getSnapshots.isEmpty)
   }
 
-  test("master api") {
-    val api = new MasterApi(apiClient)
+  test("master: master api") {
+    val api = new MasterApi(masterApiClient)
     val e = intercept[ApiException](api.getMasterGroupInfo)
     assert(e.getCode == HttpServletResponse.SC_BAD_REQUEST)
     assert(e.getMessage.contains("HA is not enabled"))
   }
 
-  test("shuffle api") {
-    val api = new ShuffleApi(apiClient)
+  test("master: shuffle api") {
+    val api = new ShuffleApi(masterApiClient)
     assert(api.getShuffles.getShuffleIds.isEmpty)
   }
 
-  test("worker api") {
-    val api = new WorkerApi(apiClient)
+  test("master: worker api") {
+    val api = new WorkerApi(masterApiClient)
     val workersResponse = api.getWorkers
     assert(workersResponse.getWorkers.isEmpty)
     assert(workersResponse.getLostWorkers.isEmpty)

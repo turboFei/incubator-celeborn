@@ -19,25 +19,28 @@ package org.apache.celeborn.service.deploy.worker.http.api.v1
 
 import javax.servlet.http.HttpServletResponse
 
+import org.apache.celeborn.CelebornFunSuite
+import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.rest.v1.worker._
 import org.apache.celeborn.rest.v1.worker.invoker.{ApiClient, ApiException}
-import org.apache.celeborn.server.common.HttpService
-import org.apache.celeborn.server.common.http.HttpTestHelper
 import org.apache.celeborn.service.deploy.MiniClusterFeature
+import org.apache.celeborn.service.deploy.master.Master
 import org.apache.celeborn.service.deploy.worker.Worker
 
-class ApiV1WorkerOpenapiClientSuite extends HttpTestHelper with MiniClusterFeature {
+abstract class ApiV1WorkerOpenapiClientSuite extends CelebornFunSuite with MiniClusterFeature {
+  private val celebornConf = new CelebornConf()
+  protected var master: Master = _
   private var worker: Worker = _
-  override protected def httpService: HttpService = worker
   private var apiClient: ApiClient = _
 
   override def beforeAll(): Unit = {
     logInfo("test initialized, setup celeborn mini cluster")
     val (m, w) =
       setupMiniClusterWithRandomPorts(workerConf = celebornConf.getAll.toMap, workerNum = 1)
+    master = m
     worker = w.head
     super.beforeAll()
-    apiClient = new ApiClient().setBasePath(s"http://${httpService.connectionUrl}")
+    apiClient = new ApiClient().setBasePath(s"http://${worker.connectionUrl}")
   }
 
   override def afterAll(): Unit = {
