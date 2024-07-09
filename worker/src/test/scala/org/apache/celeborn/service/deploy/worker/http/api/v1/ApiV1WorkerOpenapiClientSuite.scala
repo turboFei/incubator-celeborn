@@ -17,6 +17,8 @@
 
 package org.apache.celeborn.service.deploy.worker.http.api.v1
 
+import javax.servlet.http.HttpServletResponse
+
 import org.apache.celeborn.rest.v1.worker._
 import org.apache.celeborn.rest.v1.worker.invoker.{ApiClient, ApiException}
 import org.apache.celeborn.rest.v1.worker.model.WorkerExitRequest
@@ -25,9 +27,7 @@ import org.apache.celeborn.server.common.http.HttpTestHelper
 import org.apache.celeborn.service.deploy.MiniClusterFeature
 import org.apache.celeborn.service.deploy.worker.Worker
 
-import javax.servlet.http.HttpServletResponse
-
-class ApiV1WorkerClientSuite extends HttpTestHelper with MiniClusterFeature {
+class ApiV1WorkerOpenapiClientSuite extends HttpTestHelper with MiniClusterFeature {
   private var worker: Worker = _
   override protected def httpService: HttpService = worker
   private var apiClient: ApiClient = _
@@ -79,6 +79,7 @@ class ApiV1WorkerClientSuite extends HttpTestHelper with MiniClusterFeature {
     assert(!workerInfo.getIsShutdown)
     assert(workerInfo.getIsRegistered)
     assert(!workerInfo.getIsDecommissioning)
+
     assert(api.workerExit(new WorkerExitRequest()).getSuccess)
   }
 }

@@ -555,6 +555,7 @@ object CelebornMaster {
     .dependsOn(CelebornCommon.common)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
+    .dependsOn(CelebornOpenApi.openapiClient % Test)
     .settings (
       commonSettings,
       protoSettings,
@@ -579,11 +580,11 @@ object CelebornMaster {
 object CelebornWorker {
   lazy val worker = Project("celeborn-worker", file("worker"))
     .dependsOn(CelebornService.service)
-    .dependsOn(CelebornOpenApi.openapiClient % Test)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
     .dependsOn(CelebornClient.client % "test->compile")
     .dependsOn(CelebornMaster.master % "test->compile")
+    .dependsOn(CelebornOpenApi.openapiClient % Test)
     .settings (
       commonSettings,
       libraryDependencies ++= Seq(
