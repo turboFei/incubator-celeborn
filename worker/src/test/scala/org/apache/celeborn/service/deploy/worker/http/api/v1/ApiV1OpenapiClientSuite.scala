@@ -17,8 +17,9 @@
 
 package org.apache.celeborn.service.deploy.worker.http.api.v1
 
-import javax.servlet.http.HttpServletResponse
 import java.util.Collections
+import javax.servlet.http.HttpServletResponse
+
 import org.apache.celeborn.rest.v1.master._
 import org.apache.celeborn.rest.v1.master.invoker._
 import org.apache.celeborn.rest.v1.master.model.{ExcludeWorkerRequest, WorkerId}
@@ -80,8 +81,7 @@ class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
         .rpcPort(workerData.getRpcPort)
         .pushPort(workerData.getPushPort)
         .fetchPort(workerData.getFetchPort)
-        .replicatePort(workerData.getReplicatePort)
-    ).remove(Collections.emptyList()))
+        .replicatePort(workerData.getReplicatePort)).remove(Collections.emptyList()))
     assert(handleResponse.getSuccess)
 
     workersResponse = api.getWorkers
@@ -95,8 +95,7 @@ class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
         .rpcPort(workerData.getRpcPort)
         .pushPort(workerData.getPushPort)
         .fetchPort(workerData.getFetchPort)
-        .replicatePort(workerData.getReplicatePort)
-    ).add(Collections.emptyList()))
+        .replicatePort(workerData.getReplicatePort)).add(Collections.emptyList()))
     assert(handleResponse.getSuccess)
 
     workersResponse = api.getWorkers
