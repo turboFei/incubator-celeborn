@@ -74,25 +74,35 @@ class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
     assert(workersResponse.getDecommissioningWorkers.isEmpty)
 
     val workerData = workersResponse.getWorkers.get(0)
-    println(workerData.toString)
-    var handleResponse = api.excludeWorker(new ExcludeWorkerRequest().add(
-      Collections.singletonList(
-        new WorkerId()
-          .host(workerData.getHost)
-          .rpcPort(workerData.getRpcPort)
-          .pushPort(workerData.getPushPort)
-          .fetchPort(workerData.getFetchPort)
-          .replicatePort(workerData.getReplicatePort)
-      )
+    var handleResponse = api.excludeWorker(new ExcludeWorkerRequest().addAddItem(
+      new WorkerId()
+        .host(workerData.getHost)
+        .rpcPort(workerData.getRpcPort)
+        .pushPort(workerData.getPushPort)
+        .fetchPort(workerData.getFetchPort)
+        .replicatePort(workerData.getReplicatePort)
     ).remove(Collections.emptyList()))
     assert(handleResponse.getSuccess)
 
     workersResponse = api.getWorkers
-    assert(workersResponse.getWorkers.isEmpty)
+    assert(!workersResponse.getWorkers.isEmpty)
     assert(!workersResponse.getExcludedWorkers.isEmpty)
     assert(!workersResponse.getManualExcludedWorkers.isEmpty)
 
+    handleResponse = api.excludeWorker(new ExcludeWorkerRequest().addRemoveItem(
+      new WorkerId()
+        .host(workerData.getHost)
+        .rpcPort(workerData.getRpcPort)
+        .pushPort(workerData.getPushPort)
+        .fetchPort(workerData.getFetchPort)
+        .replicatePort(workerData.getReplicatePort)
+    ).add(Collections.emptyList()))
+    assert(handleResponse.getSuccess)
 
+    workersResponse = api.getWorkers
+    assert(!workersResponse.getWorkers.isEmpty)
+    assert(workersResponse.getExcludedWorkers.isEmpty)
+    assert(workersResponse.getManualExcludedWorkers.isEmpty)
 
     assert(api.getWorkerEvents.getWorkerEvents.isEmpty)
   }
