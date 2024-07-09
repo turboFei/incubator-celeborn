@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Locale
 
@@ -1254,23 +1254,34 @@ object CelebornOpenApi {
   val openApiClientOutputDir = "openapi/openapi-client/target/generated-sources/java"
   val openApiModelOutputDir = "openapi/openapi-model/target/generated-sources/java"
 
+  def traverseJavaFiles(outputDir: String): Seq[File] = {
+    Files.walk((file(outputDir) / "/src/main/java").toPath, Int.MaxValue)
+      .toArray.map(_.asInstanceOf[Path].toFile)
+      .toSeq.filter(_.isFile)
+  }
+
+  val commonOpenApiClientSettings = Seq(
+    openApiGeneratorName := "java",
+    openApiOutputDir := openApiClientOutputDir,
+    openApiGenerateApiTests := SettingDisabled,
+    openApiGenerateModelTests := SettingDisabled,
+    openApiAdditionalProperties := Map(
+      "dateLibrary" -> "java8",
+      "useGzipFeature" -> "true",
+      "library" -> "jersey2",
+      "annotationLibrary" -> "swagger1"
+    )
+  )
+
   lazy val openapiInternalMasterClient = Project("celeborn-openapi-master-client", file("openapi/openapi-client/target/master"))
     .enablePlugins(OpenApiGeneratorPlugin)
     .settings(
       commonSettings,
       openApiInputSpec := (file(openApiSpecDir) / "master_rest_v1.yaml").toString,
-      openApiGeneratorName := "java",
-      openApiOutputDir := openApiClientOutputDir,
       openApiApiPackage := "org.apache.celeborn.rest.v1.master",
       openApiModelPackage := "org.apache.celeborn.rest.v1.master.model",
       openApiInvokerPackage := "org.apache.celeborn.rest.v1.master.invoker",
-      openApiGenerateApiTests := SettingDisabled,
-      openApiGenerateModelTests := SettingDisabled,
-      openApiAdditionalProperties := Map(
-        "dateLibrary" -> "java8",
-        "useGzipFeature" -> "true",
-        "library" -> "jersey2",
-        "annotationLibrary" -> "swagger1")
+      commonOpenApiClientSettings
     )
 
   lazy val openapiInternalWorkerClient = Project("celeborn-openapi-worker-client", file("openapi/openapi-client/target/worker"))
@@ -1278,18 +1289,10 @@ object CelebornOpenApi {
     .settings(
       commonSettings,
       openApiInputSpec := (file(openApiSpecDir) / "worker_rest_v1.yaml").toString,
-      openApiGeneratorName := "java",
-      openApiOutputDir := openApiClientOutputDir,
       openApiApiPackage := "org.apache.celeborn.rest.v1.worker",
       openApiModelPackage := "org.apache.celeborn.rest.v1.worker.model",
       openApiInvokerPackage := "org.apache.celeborn.rest.v1.worker.invoker",
-      openApiGenerateApiTests := SettingDisabled,
-      openApiGenerateModelTests := SettingDisabled,
-      openApiAdditionalProperties := Map(
-        "dateLibrary" -> "java8",
-        "useGzipFeature" -> "true",
-        "library" -> "jersey2",
-        "annotationLibrary" -> "swagger1")
+      commonOpenApiClientSettings
     )
 
   lazy val openapiClient = Project("celeborn-openapi-client", file("openapi/openapi-client"))
@@ -1310,9 +1313,7 @@ object CelebornOpenApi {
         Dependencies.jerseyMediaMultipart
       ),
       Compile / sourceGenerators += Def.task {
-        Files.walk((file(openApiClientOutputDir) / "/src/main/java").toPath, Int.MaxValue)
-          .toArray.map(_.asInstanceOf[java.nio.file.Path].toFile)
-          .toSeq.filter(_.isFile)
+        traverseJavaFiles(openApiClientOutputDir)
       }.dependsOn(
         openapiInternalMasterClient / Compile / openApiGenerate,
         openapiInternalWorkerClient / Compile / openApiGenerate
@@ -1362,7 +1363,7 @@ object CelebornOpenApi {
         Dependencies.jerseyMediaMultipart
       ),
       Compile / sourceGenerators += Def.task {
-        (file(openApiModelOutputDir) / "/src/main/java/org/apache/celeborn/rest/v1/model").listFiles().toSeq
+        traverseJavaFiles(openApiModelOutputDir)
       }.dependsOn(
         openapiInternalMasterModel / Compile / openApiGenerate,
         openapiInternalWorkerModel / Compile / openApiGenerate
