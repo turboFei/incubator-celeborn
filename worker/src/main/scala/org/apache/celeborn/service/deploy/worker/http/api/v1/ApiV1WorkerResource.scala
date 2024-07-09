@@ -36,20 +36,4 @@ class ApiV1WorkerResource extends ApiRequestContext {
 
   @Path("workers")
   def workers: Class[WorkerResource] = classOf[WorkerResource]
-
-  @ApiResponse(
-    responseCode = "200",
-    content = Array(new Content(
-      mediaType = MediaType.APPLICATION_JSON,
-      schema = new Schema(
-        implementation = classOf[HandleResponse]))),
-    description =
-      "Trigger this worker to exit. Legal exit types are 'Decommission', 'Graceful' and 'Immediately'.")
-  @POST
-  @Path("exit")
-  def exit(request: WorkerExitRequest): HandleResponse = {
-    new HandleResponse()
-      .success(true)
-      .message(httpService.exit(request.getType.toString))
-  }
 }

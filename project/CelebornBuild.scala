@@ -579,6 +579,7 @@ object CelebornMaster {
 object CelebornWorker {
   lazy val worker = Project("celeborn-worker", file("worker"))
     .dependsOn(CelebornService.service)
+    .dependsOn(CelebornOpenApi.openapiClient % Test)
     .dependsOn(CelebornCommon.common % "test->test;compile->compile")
     .dependsOn(CelebornService.service % "test->test;compile->compile")
     .dependsOn(CelebornClient.client % "test->compile")
