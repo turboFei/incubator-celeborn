@@ -29,21 +29,6 @@
   <packaging>jar</packaging>
   <name>Celeborn Open API</name>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>${swagger1.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-models</artifactId>
-        <version>${swagger1.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>io.swagger</groupId>

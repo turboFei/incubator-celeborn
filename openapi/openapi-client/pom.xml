@@ -32,16 +32,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>${swagger1.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-models</artifactId>
-        <version>${swagger1.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-client</artifactId>
         <version>${jersey.version}</version>

@@ -120,7 +120,7 @@
     <jakarta.servlet-api.version>4.0.4</jakarta.servlet-api.version>
     <!-- openapi-generator dependencies -->
     <openapitools.jackson-databind-nullable.version>0.2.6</openapitools.jackson-databind-nullable.version>
-    <swagger1.version>1.6.11</swagger1.version>
+    <openapitools.swagger.version>1.6.11</openapitools.swagger.version>
 
     <!-- org.fusesource.leveldbjni will be used except on arm64 platform. -->
     <leveldbjni.group>org.fusesource.leveldbjni</leveldbjni.group>
@@ -501,6 +501,18 @@
             <artifactId>jackson-databind</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>${openapitools.swagger.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-models</artifactId>
+        <version>${openapitools.swagger.version}</version>
       </dependency>
 
       <dependency>
