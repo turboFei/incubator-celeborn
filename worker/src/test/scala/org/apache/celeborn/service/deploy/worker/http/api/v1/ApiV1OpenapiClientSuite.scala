@@ -65,7 +65,7 @@ class ApiV1OpenapiClientSuite extends ApiV1WorkerOpenapiClientSuite {
   test("master: worker api") {
     val api = new WorkerApi(masterApiClient)
     val workersResponse = api.getWorkers
-    assert(workersResponse.getWorkers.isEmpty)
+    assert(!workersResponse.getWorkers.isEmpty)
     assert(workersResponse.getLostWorkers.isEmpty)
     assert(workersResponse.getExcludedWorkers.isEmpty)
     assert(workersResponse.getManualExcludedWorkers.isEmpty)

@@ -49,12 +49,12 @@ abstract class ApiV1WorkerOpenapiClientSuite extends CelebornFunSuite with MiniC
     shutdownMiniCluster()
   }
 
-  test("default api") {
+  test("worker: default api") {
     val api = new DefaultApi(apiClient)
     assert(!api.getThreadDump.getThreadStacks.isEmpty)
   }
 
-  test("conf api") {
+  test("worker: conf api") {
     val api = new ConfApi(apiClient)
     assert(!api.getConf.getConfigs.isEmpty)
     val e = intercept[ApiException](api.getDynamicConf("", "", ""))
@@ -62,20 +62,20 @@ abstract class ApiV1WorkerOpenapiClientSuite extends CelebornFunSuite with MiniC
     assert(e.getMessage.contains("Dynamic configuration is disabled"))
   }
 
-  test("application api") {
+  test("worker: application api") {
     val api = new ApplicationApi(apiClient)
     assert(api.getApplicationList.getApplications.isEmpty)
     assert(api.getApplicationsDiskUsage.getAppDiskUsages.isEmpty)
   }
 
-  test("shuffle api") {
+  test("worker: shuffle api") {
     val api = new ShuffleApi(apiClient)
     assert(api.getShuffles.getShuffleIds.isEmpty)
     assert(api.getShufflePartitions.getPrimaryPartitions.isEmpty)
     assert(api.getShufflePartitions.getReplicaPartitions.isEmpty)
   }
 
-  test("worker api") {
+  test("worker: worker api") {
     val api = new WorkerApi(apiClient)
     val workerInfo = api.getWorkerInfo
     assert(!workerInfo.getIsShutdown)
