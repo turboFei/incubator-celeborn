@@ -29,6 +29,10 @@
   <packaging>jar</packaging>
   <name>Celeborn OpenApi Client</name>
 
+  <properties>
+    <shading.prefix>org.apache.celeborn.shaded</shading.prefix>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -196,6 +200,62 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <relocations>
+            <relocation>
+              <pattern>io.swagger</pattern>
+              <shadedPattern>${shading.prefix}.io.swagger</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.google</pattern>
+              <shadedPattern>${shading.prefix}.com.google</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.glassfish.jersey</pattern>
+              <shadedPattern>${shading.prefix}.org.glassfish.jersey</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.fasterxml.jackson</pattern>
+              <shadedPattern>${shading.prefix}.com.fasterxml.jackson</shadedPattern>
+            </relocation>
+          </relocations>
+          <artifactSet>
+            <includes>
+              <include>*:*</include>
+            </includes>
+          </artifactSet>
+          <filters>
+            <filter>
+              <artifact>io.swagger:swagger-annotations</artifact>
+              <artifact>org.openapitools:jackson-databind-nullable</artifact>
+              <artifact>com.google.code.findbugs:jsr305</artifact>
+              <artifact>org.glassfish.jersey.core:jersey-client</artifact>
+              <artifact>org.glassfish.jersey.media:jersey-media-json-jackson</artifact>
+              <artifact>com.fasterxml.jackson.core:jackson-annotations</artifact>
+              <artifact>com.fasterxml.jackson.core:jackson-databind</artifact>
+              <artifact>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</artifact>
+              <artifact>org.glassfish.jersey.media:jersey-media-multipart</artifact>
+              <excludes>
+                <exclude>**/*.proto</exclude>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+                <exclude>**/log4j.properties</exclude>
+                <exclude>META-INF/LICENSE.txt</exclude>
+                <exclude>META-INF/NOTICE.txt</exclude>
+                <exclude>LICENSE.txt</exclude>
+                <exclude>NOTICE.txt</exclude>
+              </excludes>
+            </filter>
+          </filters>
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"></transformer>
+          </transformers>
+        </configuration>
       </plugin>
     </plugins>
   </build>
