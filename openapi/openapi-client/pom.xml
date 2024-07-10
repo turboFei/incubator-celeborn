@@ -207,20 +207,20 @@
         <configuration>
           <relocations>
             <relocation>
-              <pattern>org.openapitools</pattern>
-              <shadedPattern>${shading.prefix}.org.openapitools</shadedPattern>
-            </relocation>
-            <relocation>
               <pattern>io.swagger</pattern>
               <shadedPattern>${shading.prefix}.io.swagger</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.openapitools</pattern>
+              <shadedPattern>${shading.prefix}.org.openapitools</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.google</pattern>
               <shadedPattern>${shading.prefix}.com.google</shadedPattern>
             </relocation>
             <relocation>
-                <pattern>javax.annotation</pattern>
-                <shadedPattern>${shading.prefix}.javax.annotation</shadedPattern>
+              <pattern>javax.annotation</pattern>
+              <shadedPattern>${shading.prefix}.javax.annotation</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.glassfish.jersey</pattern>
