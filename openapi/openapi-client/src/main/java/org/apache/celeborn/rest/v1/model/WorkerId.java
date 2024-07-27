@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   WorkerId.JSON_PROPERTY_FETCH_PORT,
   WorkerId.JSON_PROPERTY_REPLICATE_PORT
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class WorkerId {
   public static final String JSON_PROPERTY_HOST = "host";
   private String host;
@@ -59,10 +59,10 @@ public class WorkerId {
     return this;
   }
 
-  /**
+   /**
    * The host of the worker.
    * @return host
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_HOST)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -84,10 +84,10 @@ public class WorkerId {
     return this;
   }
 
-  /**
+   /**
    * The rpc port of the worker.
    * @return rpcPort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_RPC_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -109,10 +109,10 @@ public class WorkerId {
     return this;
   }
 
-  /**
+   /**
    * The push port of the worker.
    * @return pushPort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PUSH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -134,10 +134,10 @@ public class WorkerId {
     return this;
   }
 
-  /**
+   /**
    * The fetch port of the worker.
    * @return fetchPort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_FETCH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -159,10 +159,10 @@ public class WorkerId {
     return this;
   }
 
-  /**
+   /**
    * The replicate port of the worker.
    * @return replicatePort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_REPLICATE_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)

@@ -32,7 +32,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonPropertyOrder({
   HostnamesResponse.JSON_PROPERTY_HOSTNAMES
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class HostnamesResponse {
   public static final String JSON_PROPERTY_HOSTNAMES = "hostnames";
   private List<String> hostnames = new ArrayList<>();
@@ -54,10 +54,10 @@ public class HostnamesResponse {
     return this;
   }
 
-  /**
+   /**
    * The hostnames of the applications.
    * @return hostnames
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_HOSTNAMES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)

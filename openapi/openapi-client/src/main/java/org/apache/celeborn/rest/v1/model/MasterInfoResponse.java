@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   MasterInfoResponse.JSON_PROPERTY_LEADER,
   MasterInfoResponse.JSON_PROPERTY_MASTER_COMMIT_INFO
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class MasterInfoResponse {
   public static final String JSON_PROPERTY_GROUP_ID = "groupId";
   private String groupId;
@@ -56,10 +56,10 @@ public class MasterInfoResponse {
     return this;
   }
 
-  /**
+   /**
    * The group id of the master raft server.
    * @return groupId
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_GROUP_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -81,10 +81,10 @@ public class MasterInfoResponse {
     return this;
   }
 
-  /**
+   /**
    * Get leader
    * @return leader
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LEADER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -114,10 +114,10 @@ public class MasterInfoResponse {
     return this;
   }
 
-  /**
+   /**
    * The raft commit info of the master.
    * @return masterCommitInfo
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_MASTER_COMMIT_INFO)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

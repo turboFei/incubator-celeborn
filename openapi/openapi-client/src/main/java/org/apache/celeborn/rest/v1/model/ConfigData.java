@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   ConfigData.JSON_PROPERTY_NAME,
   ConfigData.JSON_PROPERTY_VALUE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class ConfigData {
   public static final String JSON_PROPERTY_NAME = "name";
   private String name;
@@ -47,10 +47,10 @@ public class ConfigData {
     return this;
   }
 
-  /**
+   /**
    * The config name.
    * @return name
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -72,10 +72,10 @@ public class ConfigData {
     return this;
   }
 
-  /**
+   /**
    * The config value.
    * @return value
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)

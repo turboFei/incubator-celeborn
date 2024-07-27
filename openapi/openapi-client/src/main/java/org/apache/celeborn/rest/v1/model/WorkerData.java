@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   WorkerData.JSON_PROPERTY_WORKER_STATE,
   WorkerData.JSON_PROPERTY_WORKER_STATE_START_TIME
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class WorkerData {
   public static final String JSON_PROPERTY_HOST = "host";
   private String host;
@@ -97,10 +97,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The host of the worker.
    * @return host
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_HOST)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -122,10 +122,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The rpc port of the worker.
    * @return rpcPort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_RPC_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -147,10 +147,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The push port of the worker.
    * @return pushPort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PUSH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -172,10 +172,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The fetch port of the worker.
    * @return fetchPort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_FETCH_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -197,10 +197,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The replicate port of the worker.
    * @return replicatePort
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_REPLICATE_PORT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -222,10 +222,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The internal port of the worker.
    * @return internalPort
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_INTERNAL_PORT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -247,10 +247,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The slot used of the worker.
    * @return slotUsed
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_SLOT_USED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -272,10 +272,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The last heartbeat timestamp of the worker.
    * @return lastHeartbeatTimestamp
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LAST_HEARTBEAT_TIMESTAMP)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -297,10 +297,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The elapsed seconds since the last heartbeat of the worker.
    * @return heartbeatElapsedSeconds
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_HEARTBEAT_ELAPSED_SECONDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -330,10 +330,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * A map of disk name and disk info.
    * @return diskInfos
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_DISK_INFOS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -363,10 +363,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * A map of identifier and resource consumption.
    * @return resourceConsumption
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_RESOURCE_CONSUMPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -388,10 +388,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The reference of the worker.
    * @return workerRef
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_WORKER_REF)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -413,10 +413,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The state of the worker.
    * @return workerState
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_WORKER_STATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -438,10 +438,10 @@ public class WorkerData {
     return this;
   }
 
-  /**
+   /**
    * The start time of the worker state.
    * @return workerStateStartTime
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_WORKER_STATE_START_TIME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonPropertyOrder({
   UnAvailablePeersResponse.JSON_PROPERTY_PEERS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class UnAvailablePeersResponse {
   public static final String JSON_PROPERTY_PEERS = "peers";
   private List<WorkerTimestampData> peers = new ArrayList<>();
@@ -55,10 +55,10 @@ public class UnAvailablePeersResponse {
     return this;
   }
 
-  /**
+   /**
    * The unavailable peers.
    * @return peers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PEERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

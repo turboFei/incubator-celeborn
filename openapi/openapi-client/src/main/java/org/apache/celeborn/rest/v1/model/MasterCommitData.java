@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   MasterCommitData.JSON_PROPERTY_CLIENT_ADDRESS,
   MasterCommitData.JSON_PROPERTY_START_UP_ROLE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class MasterCommitData {
   public static final String JSON_PROPERTY_COMMIT_INDEX = "commitIndex";
   private Long commitIndex;
@@ -59,10 +59,10 @@ public class MasterCommitData {
     return this;
   }
 
-  /**
+   /**
    * The raft commit index of the master.
    * @return commitIndex
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_COMMIT_INDEX)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -84,10 +84,10 @@ public class MasterCommitData {
     return this;
   }
 
-  /**
+   /**
    * The id of the raft peer.
    * @return id
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -109,10 +109,10 @@ public class MasterCommitData {
     return this;
   }
 
-  /**
+   /**
    * The raft RPC address of the peer for server-server communication.
    * @return address
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -134,10 +134,10 @@ public class MasterCommitData {
     return this;
   }
 
-  /**
+   /**
    * The raft RPC address of the peer for client operations.
    * @return clientAddress
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_CLIENT_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -159,10 +159,10 @@ public class MasterCommitData {
     return this;
   }
 
-  /**
+   /**
    * The raft start up role of the master.
    * @return startUpRole
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_START_UP_ROLE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)

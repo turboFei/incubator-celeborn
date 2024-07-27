@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   AppDiskUsageData.JSON_PROPERTY_ESTIMATED_USAGE,
   AppDiskUsageData.JSON_PROPERTY_ESTIMATED_USAGE_STR
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class AppDiskUsageData {
   public static final String JSON_PROPERTY_APP_ID = "appId";
   private String appId;
@@ -51,10 +51,10 @@ public class AppDiskUsageData {
     return this;
   }
 
-  /**
+   /**
    * The id of the application.
    * @return appId
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_APP_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -76,10 +76,10 @@ public class AppDiskUsageData {
     return this;
   }
 
-  /**
+   /**
    * The application disk usage.
    * @return estimatedUsage
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ESTIMATED_USAGE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -101,10 +101,10 @@ public class AppDiskUsageData {
     return this;
   }
 
-  /**
+   /**
    * The application disk usage in string type.
    * @return estimatedUsageStr
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ESTIMATED_USAGE_STR)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)

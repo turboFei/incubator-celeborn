@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   HandleResponse.JSON_PROPERTY_SUCCESS,
   HandleResponse.JSON_PROPERTY_MESSAGE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class HandleResponse {
   public static final String JSON_PROPERTY_SUCCESS = "success";
   private Boolean success;
@@ -47,10 +47,10 @@ public class HandleResponse {
     return this;
   }
 
-  /**
+   /**
    * The result of the request.
    * @return success
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_SUCCESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -72,10 +72,10 @@ public class HandleResponse {
     return this;
   }
 
-  /**
+   /**
    * The message of the request.
    * @return message
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_MESSAGE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

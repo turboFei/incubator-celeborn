@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SendWorkerEventRequest.JSON_PROPERTY_EVENT_TYPE,
   SendWorkerEventRequest.JSON_PROPERTY_WORKERS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class SendWorkerEventRequest {
   /**
    * The type of the event.
@@ -44,7 +44,7 @@ public class SendWorkerEventRequest {
     
     DECOMMISSION("Decommission"),
     
-    DECOMMISSION_THEN_IDLE("DecommissionThenIdle"),
+    DECOMMISSIONTHENIDLE("DecommissionThenIdle"),
     
     GRACEFUL("Graceful"),
     
@@ -94,10 +94,10 @@ public class SendWorkerEventRequest {
     return this;
   }
 
-  /**
+   /**
    * The type of the event.
    * @return eventType
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EVENT_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -127,10 +127,10 @@ public class SendWorkerEventRequest {
     return this;
   }
 
-  /**
+   /**
    * The workers to send the event.
    * @return workers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

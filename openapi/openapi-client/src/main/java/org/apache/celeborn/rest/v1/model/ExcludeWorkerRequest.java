@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   ExcludeWorkerRequest.JSON_PROPERTY_ADD,
   ExcludeWorkerRequest.JSON_PROPERTY_REMOVE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class ExcludeWorkerRequest {
   public static final String JSON_PROPERTY_ADD = "add";
   private List<WorkerId> add = new ArrayList<>();
@@ -59,10 +59,10 @@ public class ExcludeWorkerRequest {
     return this;
   }
 
-  /**
+   /**
    * The workers to be added to the excluded workers.
    * @return add
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_ADD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -92,10 +92,10 @@ public class ExcludeWorkerRequest {
     return this;
   }
 
-  /**
+   /**
    * The workers to be removed from the excluded workers.
    * @return remove
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_REMOVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

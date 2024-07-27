@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PartitionLocationData.JSON_PROPERTY_STORAGE,
   PartitionLocationData.JSON_PROPERTY_MAP_ID_BIT_MAP
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class PartitionLocationData {
   public static final String JSON_PROPERTY_ID_EPOCH = "idEpoch";
   private String idEpoch;
@@ -141,10 +141,10 @@ public class PartitionLocationData {
     return this;
   }
 
-  /**
+   /**
    * The id and epoch.
    * @return idEpoch
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_ID_EPOCH)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -166,10 +166,10 @@ public class PartitionLocationData {
     return this;
   }
 
-  /**
+   /**
    * The host-rpcPort-pushPort-fetchPort-replicatePort.
    * @return hostAndPorts
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_HOST_AND_PORTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -191,10 +191,10 @@ public class PartitionLocationData {
     return this;
   }
 
-  /**
+   /**
    * partition mode.
    * @return mode
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_MODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -216,10 +216,10 @@ public class PartitionLocationData {
     return this;
   }
 
-  /**
+   /**
    * The peer address.
    * @return peer
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PEER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -241,10 +241,10 @@ public class PartitionLocationData {
     return this;
   }
 
-  /**
+   /**
    * The storage hint.
    * @return storage
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_STORAGE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -266,10 +266,10 @@ public class PartitionLocationData {
     return this;
   }
 
-  /**
+   /**
    * The map id bitmap hint.
    * @return mapIdBitMap
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_MAP_ID_BIT_MAP)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

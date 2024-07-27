@@ -79,7 +79,7 @@ import java.text.DateFormat;
 import org.apache.celeborn.rest.v1.worker.invoker.auth.Authentication;
 import org.apache.celeborn.rest.v1.worker.invoker.auth.HttpBasicAuth;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class ApiClient extends JavaTimeFormatter {
   private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
   private Map<String, String> defaultCookieMap = new HashMap<String, String>();
@@ -746,7 +746,7 @@ public class ApiClient extends JavaTimeFormatter {
       }
 
       return objectMapper.readValue(content, valueType);
-    } else if (mimeType.toLowerCase().startsWith("text/")) {
+    } else if ("text/plain".equalsIgnoreCase(mimeType)) {
       // convert input stream to string
       return (T) EntityUtils.toString(entity);
     } else {

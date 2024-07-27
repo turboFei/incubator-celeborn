@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonPropertyOrder({
   ApplicationsHeartbeatResponse.JSON_PROPERTY_APPLICATIONS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class ApplicationsHeartbeatResponse {
   public static final String JSON_PROPERTY_APPLICATIONS = "applications";
   private List<ApplicationHeartbeatData> applications = new ArrayList<>();
@@ -55,10 +55,10 @@ public class ApplicationsHeartbeatResponse {
     return this;
   }
 
-  /**
+   /**
    * The applications information.
    * @return applications
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_APPLICATIONS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)

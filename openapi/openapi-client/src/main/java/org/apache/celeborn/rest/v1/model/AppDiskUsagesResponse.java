@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonPropertyOrder({
   AppDiskUsagesResponse.JSON_PROPERTY_APP_DISK_USAGES
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class AppDiskUsagesResponse {
   public static final String JSON_PROPERTY_APP_DISK_USAGES = "appDiskUsages";
   private List<AppDiskUsageData> appDiskUsages = new ArrayList<>();
@@ -55,10 +55,10 @@ public class AppDiskUsagesResponse {
     return this;
   }
 
-  /**
+   /**
    * The application disk usages.
    * @return appDiskUsages
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_APP_DISK_USAGES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

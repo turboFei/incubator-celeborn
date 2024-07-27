@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   WorkersResponse.JSON_PROPERTY_SHUTDOWN_WORKERS,
   WorkersResponse.JSON_PROPERTY_DECOMMISSIONING_WORKERS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class WorkersResponse {
   public static final String JSON_PROPERTY_WORKERS = "workers";
   private List<WorkerData> workers = new ArrayList<>();
@@ -76,10 +76,10 @@ public class WorkersResponse {
     return this;
   }
 
-  /**
+   /**
    * The registered workers.
    * @return workers
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_WORKERS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -109,10 +109,10 @@ public class WorkersResponse {
     return this;
   }
 
-  /**
+   /**
    * The lost workers.
    * @return lostWorkers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LOST_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -142,10 +142,10 @@ public class WorkersResponse {
     return this;
   }
 
-  /**
+   /**
    * The excluded workers.
    * @return excludedWorkers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXCLUDED_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -175,10 +175,10 @@ public class WorkersResponse {
     return this;
   }
 
-  /**
+   /**
    * The manual excluded workers.
    * @return manualExcludedWorkers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_MANUAL_EXCLUDED_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -208,10 +208,10 @@ public class WorkersResponse {
     return this;
   }
 
-  /**
+   /**
    * The shutdown workers.
    * @return shutdownWorkers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_SHUTDOWN_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -241,10 +241,10 @@ public class WorkersResponse {
     return this;
   }
 
-  /**
+   /**
    * The decommissioning workers.
    * @return decommissioningWorkers
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_DECOMMISSIONING_WORKERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

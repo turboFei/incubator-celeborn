@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   DynamicConfig.JSON_PROPERTY_DESC,
   DynamicConfig.JSON_PROPERTY_CONFIGS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class DynamicConfig {
   /**
    * the config level of dynamic configs.
@@ -92,10 +92,10 @@ public class DynamicConfig {
     return this;
   }
 
-  /**
+   /**
    * the config level of dynamic configs.
    * @return level
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LEVEL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -117,10 +117,10 @@ public class DynamicConfig {
     return this;
   }
 
-  /**
+   /**
    * additional description of the dynamic config, such as tenantId and user identifier.
    * @return desc
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_DESC)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -150,10 +150,10 @@ public class DynamicConfig {
     return this;
   }
 
-  /**
+   /**
    * the config items.
    * @return configs
-   */
+  **/
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_CONFIGS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)

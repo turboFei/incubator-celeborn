@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   ApplicationHeartbeatData.JSON_PROPERTY_APP_ID,
   ApplicationHeartbeatData.JSON_PROPERTY_LAST_HEARTBEAT_TIMESTAMP
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.7.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.6.0")
 public class ApplicationHeartbeatData {
   public static final String JSON_PROPERTY_APP_ID = "appId";
   private String appId;
@@ -47,10 +47,10 @@ public class ApplicationHeartbeatData {
     return this;
   }
 
-  /**
+   /**
    * The id of the application.
    * @return appId
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_APP_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -72,10 +72,10 @@ public class ApplicationHeartbeatData {
     return this;
   }
 
-  /**
+   /**
    * The last heartbeat timestamp of the application.
    * @return lastHeartbeatTimestamp
-   */
+  **/
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_LAST_HEARTBEAT_TIMESTAMP)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
