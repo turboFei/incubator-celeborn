@@ -390,21 +390,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HandleResponse'
 
-  /api/v1/ratis/local/raft_meta_conf:
-    post:
-      tags:
-        - Ratis
-      operationId: localRaftMetaConf
-      description: Generate a new-raft-meta.conf file.
-      responses:
-        "200":
-          description: The request was successful.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-
 components:
   schemas:
     ConfigData:

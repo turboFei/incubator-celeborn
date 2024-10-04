@@ -43,7 +43,4 @@ class ApiV1MasterResource extends ApiRequestContext {
 
   @Path("ratis/snapshot")
   def ratisSnapshot: Class[RatisSnapshotResource] = classOf[RatisSnapshotResource]
-
-  @Path("ratis/local")
-  def ratisLocal: Class[RatisLocalResource] = classOf[RatisLocalResource]
 }
