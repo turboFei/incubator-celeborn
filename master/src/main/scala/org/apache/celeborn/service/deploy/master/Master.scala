@@ -39,7 +39,7 @@ import org.apache.celeborn.common.identity.UserIdentifier
 import org.apache.celeborn.common.internal.Logging
 import org.apache.celeborn.common.meta.{DiskInfo, WorkerInfo, WorkerStatus}
 import org.apache.celeborn.common.metrics.MetricsSystem
-import org.apache.celeborn.common.metrics.source.{JVMCPUSource, JVMSource, ResourceConsumptionSource, SystemMiscSource, ThreadPoolSource}
+import org.apache.celeborn.common.metrics.source.{JVMCPUSource, JVMSource, ResourceConsumptionSource, Role, SystemMiscSource, ThreadPoolSource}
 import org.apache.celeborn.common.network.CelebornRackResolver
 import org.apache.celeborn.common.network.protocol.TransportMessage
 import org.apache.celeborn.common.protocol._
@@ -67,15 +67,15 @@ private[celeborn] class Master(
     MetricsSystem.createMetricsSystem(serviceName, conf)
   // init and register master metrics
   private val resourceConsumptionSource =
-    new ResourceConsumptionSource(conf, MetricsSystem.ROLE_MASTER)
-  private val threadPoolSource = ThreadPoolSource(conf, MetricsSystem.ROLE_MASTER)
+    new ResourceConsumptionSource(conf, Role.MASTER)
+  private val threadPoolSource = ThreadPoolSource(conf, Role.MASTER)
   private val masterSource = new MasterSource(conf)
   metricsSystem.registerSource(resourceConsumptionSource)
   metricsSystem.registerSource(masterSource)
   metricsSystem.registerSource(threadPoolSource)
-  metricsSystem.registerSource(new JVMSource(conf, MetricsSystem.ROLE_MASTER))
-  metricsSystem.registerSource(new JVMCPUSource(conf, MetricsSystem.ROLE_MASTER))
-  metricsSystem.registerSource(new SystemMiscSource(conf, MetricsSystem.ROLE_MASTER))
+  metricsSystem.registerSource(new JVMSource(conf, Role.MASTER))
+  metricsSystem.registerSource(new JVMCPUSource(conf, Role.MASTER))
+  metricsSystem.registerSource(new SystemMiscSource(conf, Role.MASTER))
 
   private val bindPreferIP: Boolean = conf.bindPreferIP
   private val authEnabled = conf.authEnabled
@@ -459,6 +459,16 @@ private[celeborn] class Master(
       logTrace(s"Received RequestSlots request $requestSlots.")
       checkAuth(context, applicationId)
       executeWithLeaderChecker(context, handleRequestSlots(context, requestSlots))
+
+    case pb: PbBatchUnregisterShuffles =>
+      val applicationId = pb.getAppId
+      val shuffleIds = pb.getShuffleIdsList.asScala.toList
+      val requestId = pb.getRequestId
+      logDebug(s"Received BatchUnregisterShuffle request $requestId, $applicationId, $shuffleIds")
+      checkAuth(context, applicationId)
+      executeWithLeaderChecker(
+        context,
+        batchHandleUnregisterShuffles(context, applicationId, shuffleIds, requestId))
 
     case pb: PbUnregisterShuffle =>
       val applicationId = pb.getAppId
@@ -980,6 +990,18 @@ private[celeborn] class Master(
     statusSystem.handleUnRegisterShuffle(shuffleKey, requestId)
     logInfo(s"Unregister shuffle $shuffleKey")
     context.reply(UnregisterShuffleResponse(StatusCode.SUCCESS))
+  }
+
+  def batchHandleUnregisterShuffles(
+      context: RpcCallContext,
+      applicationId: String,
+      shuffleIds: List[Integer],
+      requestId: String): Unit = {
+    val shuffleKeys =
+      shuffleIds.map(shuffleId => Utils.makeShuffleKey(applicationId, shuffleId)).asJava
+    statusSystem.handleBatchUnRegisterShuffles(shuffleKeys, requestId)
+    logInfo(s"BatchUnregister shuffle $shuffleKeys")
+    context.reply(BatchUnregisterShuffleResponse(StatusCode.SUCCESS, shuffleIds.asJava))
   }
 
   private def handleReportNodeUnavailable(

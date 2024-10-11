@@ -233,6 +233,7 @@ These metrics are exposed by Celeborn worker.
     | UserProduceSpeed                            | The speed of user production for congestion control.                                                            |
     | WorkerConsumeSpeed                          | The speed of worker consumption for congestion control.                                                         |
     | IsDecommissioningWorker                     | 1 means worker decommissioning, 0 means not decommissioning.                                                    |
+    | UnreleasedShuffleCount                      | Unreleased shuffle count when worker is decommissioning.                                                        |
     | MemoryStorageFileCount                      | The count of files in Memory Storage of a worker.                                                               |
     | MemoryFileStorageSize                       | The total amount of memory used by Memory Storage.                                                              |
     | EvictedFileCount                            | The count of files evicted from Memory Storage to Disk                                                          |
@@ -411,6 +412,6 @@ scrape_configs:
 
 ## REST API
 
-In addition to viewing the metrics, Celeborn also supports [REST API](webapi.md).
+In addition to viewing the metrics, Celeborn also supports [REST API](restapi.md).
 This gives developers an easy way to create new visualizations and monitoring tools for Celeborn and
 also easy for users to get the running status of the service.
