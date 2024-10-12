@@ -103,6 +103,10 @@ class RatisResource extends ApiRequestContext with Logging {
   @Path("/peer/add")
   def peerAdd(request: RatisPeerAddRequest): HandleResponse =
     ensureLeaderElectionMemberMajorityAddEnabled(master) {
+      if (request.getPeers.isEmpty) {
+        throw new BadRequestException("No peers specified.")
+      }
+
       val groupInfo = ratisServer.getGroupInfo
 
       val remaining = getRaftPeers()
@@ -139,6 +143,10 @@ class RatisResource extends ApiRequestContext with Logging {
   @Path("/peer/remove")
   def peerRemove(request: RatisPeerRemoveRequest): HandleResponse =
     ensureLeaderElectionMemberMajorityAddEnabled(master) {
+      if (request.getPeers.isEmpty) {
+        throw new BadRequestException("No peers specified.")
+      }
+
       val groupInfo = ratisServer.getGroupInfo
 
       val removing = request.getPeers.asScala.map { peer =>
@@ -172,6 +180,10 @@ class RatisResource extends ApiRequestContext with Logging {
   @Path("/peer/set_priority")
   def peerSetPriority(request: RatisPeerSetPriorityRequest): HandleResponse =
     ensureLeaderElectionMemberMajorityAddEnabled(master) {
+      if (request.getAddressPriorities.isEmpty) {
+        throw new BadRequestException("No peer priorities specified.")
+      }
+
       val peers = getRaftPeers().map { peer =>
         val newPriority = request.getAddressPriorities.get(peer.getAddress)
         val priority: Int = if (newPriority != null) newPriority else peer.getPriority
