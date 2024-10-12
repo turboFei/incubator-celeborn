@@ -151,7 +151,7 @@ class RatisResource extends ApiRequestContext with Logging {
 
       val removing = request.getPeers.asScala.map { peer =>
         getRaftPeers().find { raftPeer =>
-          raftPeer.getId.toByteString == peer.getId && raftPeer.getAddress == peer.getAddress
+          raftPeer.getId.toByteString.toStringUtf8 == peer.getId && raftPeer.getAddress == peer.getAddress
         }.getOrElse(throw new IllegalArgumentException(
           s"Peer $peer not found in group $groupInfo."))
       }
