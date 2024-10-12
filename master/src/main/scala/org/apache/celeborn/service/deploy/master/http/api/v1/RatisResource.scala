@@ -102,7 +102,7 @@ class RatisResource extends ApiRequestContext with Logging {
     description = "Add new peers to the raft group.")
   @POST
   @Path("/peer/add")
-  def peerAdd(request: RatisPeerAddRequest): HandleResponse = ensureMasterIsLeader(master) {
+  def peerAdd(request: RatisPeerAddRequest): HandleResponse =
     ensureLeaderElectionMemberMajorityAddEnabled(master) {
       val remaining = getPeersWithRole(RaftPeerRole.FOLLOWER)
       val adding = request.getPeers.asScala.map { peer =>
@@ -129,7 +129,6 @@ class RatisResource extends ApiRequestContext with Logging {
           s"Failed to add peers $adding to group ${ratisServer.getGroupInfo}. $reply")
       }
     }
-  }
 
   @ApiResponse(
     responseCode = "200",
@@ -139,7 +138,7 @@ class RatisResource extends ApiRequestContext with Logging {
     description = "Remove peers from the raft group.")
   @POST
   @Path("/peer/remove")
-  def peerRemove(request: RatisPeerRemoveRequest): HandleResponse = ensureMasterIsLeader(master) {
+  def peerRemove(request: RatisPeerRemoveRequest): HandleResponse =
     ensureLeaderElectionMemberMajorityAddEnabled(master) {
       val removingPeerIds = request.getPeers.asScala.map { peer =>
         val existingPeerId = getRaftPeerId(peer.getAddress)
@@ -169,7 +168,6 @@ class RatisResource extends ApiRequestContext with Logging {
           s"Failed to remove peers $removing from group ${ratisServer.getGroupInfo}. $reply")
       }
     }
-  }
 
   @ApiResponse(
     responseCode = "200",
@@ -180,23 +178,21 @@ class RatisResource extends ApiRequestContext with Logging {
   @POST
   @Path("/peer/set_priority")
   def peerSetPriority(request: RatisPeerSetPriorityRequest): HandleResponse =
-    ensureMasterIsLeader(master) {
-      ensureLeaderElectionMemberMajorityAddEnabled(master) {
-        val peers = getPeersWithRole(RaftPeerRole.FOLLOWER).map { peer =>
-          val newPriority = request.getAddressPriorities.get(peer.getAddress)
-          val priority: Int = if (newPriority != null) newPriority else peer.getPriority
-          RaftPeer.newBuilder(peer).setPriority(priority).build()
-        }
-        val listeners = getPeersWithRole(RaftPeerRole.LISTENER)
+    ensureLeaderElectionMemberMajorityAddEnabled(master) {
+      val peers = getPeersWithRole(RaftPeerRole.FOLLOWER).map { peer =>
+        val newPriority = request.getAddressPriorities.get(peer.getAddress)
+        val priority: Int = if (newPriority != null) newPriority else peer.getPriority
+        RaftPeer.newBuilder(peer).setPriority(priority).build()
+      }
+      val listeners = getPeersWithRole(RaftPeerRole.LISTENER)
 
-        val reply = setConfiguration(peers, listeners)
-        if (reply.isSuccess) {
-          new HandleResponse().success(true).message(
-            s"Successfully set priority of peers $peers in group ${ratisServer.getGroupInfo}.")
-        } else {
-          new HandleResponse().success(false).message(
-            s"Failed to set priority of peers $peers in group ${ratisServer.getGroupInfo}. $reply")
-        }
+      val reply = setConfiguration(peers, listeners)
+      if (reply.isSuccess) {
+        new HandleResponse().success(true).message(
+          s"Successfully set priority of peers $peers in group ${ratisServer.getGroupInfo}.")
+      } else {
+        new HandleResponse().success(false).message(
+          s"Failed to set priority of peers $peers in group ${ratisServer.getGroupInfo}. $reply")
       }
     }
 
@@ -290,10 +286,12 @@ class RatisResource extends ApiRequestContext with Logging {
   }
 
   private def ensureLeaderElectionMemberMajorityAddEnabled[T](master: Master)(f: => T): T = {
-    if (!master.conf.hasMasterRatisLeaderElectionMemeberMajorityAdd) {
-      throw new BadRequestException(s"This operation can only be done when" +
-        s" ${CelebornConf.HA_MASTER_RATIS_LEADER_ELECTION_MEMBER_MAJORITY_ADD.key} is true.")
+    ensureMasterIsLeader(master) {
+      if (!master.conf.hasMasterRatisLeaderElectionMemeberMajorityAdd) {
+        throw new BadRequestException(s"This operation can only be done when" +
+          s" ${CelebornConf.HA_MASTER_RATIS_LEADER_ELECTION_MEMBER_MAJORITY_ADD.key} is true.")
+      }
+      f
     }
-    f
   }
 }
