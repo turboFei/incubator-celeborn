@@ -18,13 +18,14 @@
 package org.apache.celeborn.service.deploy.master.http.api.v1
 
 import javax.ws.rs.{Consumes, Path, POST, Produces}
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{MediaType, Response}
 
 import scala.collection.JavaConverters._
 
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.apache.ratis.proto.RaftProtos.{LogEntryProto, RaftConfigurationProto}
 import org.apache.ratis.protocol.{LeaderElectionManagementRequest, RaftPeerId, TransferLeadershipRequest}
 import org.apache.ratis.rpc.CallId
 
@@ -90,6 +91,25 @@ class RatisResource extends ApiRequestContext with Logging {
   @Path("/election/resume")
   def electionResume(): HandleResponse = ensureMasterHAEnabled(master) {
     applyElectionOp(new LeaderElectionManagementRequest.Resume)
+  }
+
+  @ApiResponse(
+    responseCode = "200",
+    content = Array(new Content(
+      mediaType = MediaType.APPLICATION_OCTET_STREAM,
+      schema = new Schema(implementation = classOf[Response]))),
+    description = "Generate a new-raft-meta.conf file.")
+  @POST
+  @Path("/local/raft_meta_conf")
+  @Produces(Array(MediaType.APPLICATION_OCTET_STREAM))
+  def localRaftMeteConf(): Response = ensureMasterHAEnabled(master) {
+    val generateLogEntryProto = LogEntryProto.newBuilder()
+      .setConfigurationEntry(RaftConfigurationProto.newBuilder()
+        .addAllPeers(null).build())
+      .setIndex(ratisServer.getGroupInfo.getLogIndex + 1).build()
+    Response.ok(generateLogEntryProto.toByteArray)
+      .header("Content-Disposition", "attachment; filename=\"new-raft-meta.conf\"")
+      .build()
   }
 
   private def transferLeadership(peerAddress: String): HandleResponse = {
