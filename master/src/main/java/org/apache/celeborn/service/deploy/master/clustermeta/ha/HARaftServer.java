@@ -296,7 +296,6 @@ public class HARaftServer {
     // Set Ratis storage directory
     String storageDir = conf.haMasterRatisStorageDir();
     RaftServerConfigKeys.setStorageDir(properties, Collections.singletonList(new File(storageDir)));
-    RaftServerConfigKeys.LeaderElection.setMemberMajorityAdd(properties, true);
 
     // Set RAFT segment size
     long raftSegmentSize = conf.haMasterRatisLogSegmentSizeMax();
@@ -364,6 +363,10 @@ public class HARaftServer {
         TimeDuration.valueOf(conf.haMasterRatisFirstElectionTimeoutMax(), TimeUnit.SECONDS);
     RaftServerConfigKeys.Rpc.setFirstElectionTimeoutMin(properties, firstElectionTimeoutMin);
     RaftServerConfigKeys.Rpc.setFirstElectionTimeoutMax(properties, firstElectionTimeoutMax);
+
+    boolean leaderElectionMemberMajorityAdd = conf.hasMasterRatisLeaderElectionMemeberMajorityAdd();
+    RaftServerConfigKeys.LeaderElection.setMemberMajorityAdd(
+        properties, leaderElectionMemberMajorityAdd);
 
     // Set the rpc client timeout
     TimeDuration clientRpcTimeout =
