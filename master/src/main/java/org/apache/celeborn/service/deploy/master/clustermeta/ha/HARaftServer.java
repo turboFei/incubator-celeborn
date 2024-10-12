@@ -296,6 +296,7 @@ public class HARaftServer {
     // Set Ratis storage directory
     String storageDir = conf.haMasterRatisStorageDir();
     RaftServerConfigKeys.setStorageDir(properties, Collections.singletonList(new File(storageDir)));
+    RaftServerConfigKeys.LeaderElection.setMemberMajorityAdd(properties, true);
 
     // Set RAFT segment size
     long raftSegmentSize = conf.haMasterRatisLogSegmentSizeMax();
