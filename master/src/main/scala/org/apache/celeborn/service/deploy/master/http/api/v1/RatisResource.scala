@@ -228,20 +228,20 @@ class RatisResource extends ApiRequestContext with Logging {
   }
 
   private def transferLeadership(peerAddress: String): HandleResponse = {
-    val newLeader = Option(peerAddress).map { addr =>
-      getRaftPeers().find(_.getAddress == addr).getOrElse(
+    val newLeaderId = Option(peerAddress).map { addr =>
+      getRaftPeers().find(_.getAddress == addr).map(_.getId).getOrElse(
         throw new IllegalArgumentException(
           s"Peer $addr not found in group ${ratisServer.getGroupInfo}."))
     }.orNull
     val op =
-      if (newLeader == null) s"step down leader ${ratisServer.getLocalAddress}"
+      if (newLeaderId == null) s"step down leader ${ratisServer.getLocalAddress}"
       else s"transfer leadership from ${ratisServer.getLocalAddress} to $peerAddress"
     val request = new TransferLeadershipRequest(
       ratisServer.getClientId,
       ratisServer.getServer.getId,
       ratisServer.getGroupId,
       CallId.getAndIncrement(),
-      newLeader.getId,
+      newLeaderId,
       HARaftServer.REQUEST_TIMEOUT_MS)
     val reply = ratisServer.getServer.transferLeadership(request)
     if (reply.isSuccess) {
