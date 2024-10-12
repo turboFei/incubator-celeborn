@@ -25,15 +25,13 @@ import scala.collection.JavaConverters._
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.apache.ratis.proto.RaftProtos.RaftPeerRole
-import org.apache.ratis.protocol.{LeaderElectionManagementRequest, RaftClientReply, RaftPeer, RaftPeerId, SetConfigurationRequest, SnapshotManagementRequest, TransferLeadershipRequest}
+import org.apache.ratis.protocol.{LeaderElectionManagementRequest, RaftClientReply, RaftPeer, SetConfigurationRequest, SnapshotManagementRequest, TransferLeadershipRequest}
 import org.apache.ratis.rpc.CallId
 
 import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.internal.Logging
 import org.apache.celeborn.rest.v1.model.{HandleResponse, RatisElectionTransferRequest, RatisPeerAddRequest, RatisPeerRemoveRequest, RatisPeerSetPriorityRequest}
 import org.apache.celeborn.server.common.http.api.ApiRequestContext
-import org.apache.celeborn.server.common.http.authentication.AuthenticationFilter
 import org.apache.celeborn.service.deploy.master.Master
 import org.apache.celeborn.service.deploy.master.clustermeta.ha.{HAMasterMetaManager, HARaftServer}
 import org.apache.celeborn.service.deploy.master.http.api.MasterHttpResourceUtils.{ensureMasterHAEnabled, ensureMasterIsLeader}
@@ -174,7 +172,6 @@ class RatisResource extends ApiRequestContext with Logging {
   @Path("/peer/set_priority")
   def peerSetPriority(request: RatisPeerSetPriorityRequest): HandleResponse =
     ensureLeaderElectionMemberMajorityAddEnabled(master) {
-      val groupInfo = ratisServer.getGroupInfo
       val peers = getRaftPeers().map { peer =>
         val newPriority = request.getAddressPriorities.get(peer.getAddress)
         val priority: Int = if (newPriority != null) newPriority else peer.getPriority
@@ -186,11 +183,10 @@ class RatisResource extends ApiRequestContext with Logging {
 
       val reply = setConfiguration(peers)
       if (reply.isSuccess) {
-        new HandleResponse().success(true).message(
-          s"Successfully set priority of peers $peers in group $groupInfo.")
+        new HandleResponse().success(true).message(s"Successfully set peer priorities: $request.")
       } else {
         new HandleResponse().success(false).message(
-          s"Failed to set priority of peers $peers in group $groupInfo. $reply")
+          s"Failed to set peer priorities: $request. $reply")
       }
     }
 
