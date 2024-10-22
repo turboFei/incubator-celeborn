@@ -668,7 +668,7 @@ private[celeborn] class Master(
       workerStatus: WorkerStatus,
       requestId: String): Unit = {
     val targetWorker = new WorkerInfo(host, rpcPort, pushPort, fetchPort, replicatePort)
-    val registered = statusSystem.workers.asScala.contains(targetWorker)
+    val registered = statusSystem.containsWorker(targetWorker)
     if (!registered) {
       logWarning(s"Received heartbeat from unknown worker " +
         s"$host:$rpcPort:$pushPort:$fetchPort:$replicatePort.")
@@ -759,10 +759,7 @@ private[celeborn] class Master(
       -1,
       new util.HashMap[String, DiskInfo](),
       JavaUtils.newConcurrentHashMap[UserIdentifier, ResourceConsumption]())
-    val worker: WorkerInfo = statusSystem.workers
-      .asScala
-      .find(_ == targetWorker)
-      .orNull
+    val worker: WorkerInfo = statusSystem.getWorker(targetWorker)
     if (worker == null) {
       logWarning(s"Unknown worker $host:$rpcPort:$pushPort:$fetchPort:$replicatePort" +
         s" for WorkerLost handler!")
@@ -807,7 +804,7 @@ private[celeborn] class Master(
       return
     }
 
-    if (statusSystem.workers.contains(workerToRegister)) {
+    if (statusSystem.containsWorker(workerToRegister)) {
       logWarning(s"Receive RegisterWorker while worker" +
         s" ${workerToRegister.toString()} already exists, re-register.")
       statusSystem.handleRegisterWorker(
@@ -909,7 +906,7 @@ private[celeborn] class Master(
     // offer slots
     val slots =
       masterSource.sample(MasterSource.OFFER_SLOTS_TIME, s"offerSlots-${Random.nextInt()}") {
-        statusSystem.workers.synchronized {
+        statusSystem.synchronizedWorkers { () =>
           if (slotsAssignPolicy == SlotsAssignPolicy.LOADAWARE) {
             SlotsAllocator.offerSlotsLoadAware(
               selectedWorkers,
@@ -1403,7 +1400,7 @@ private[celeborn] class Master(
           ",")} and remove ${removeWorkers.map(_.readableAddress).mkString(",")}.\n")
     }
     val unknownExcludedWorkers =
-      (addWorkers ++ removeWorkers).filter(!statusSystem.workers.contains(_))
+      (addWorkers ++ removeWorkers).filter(!statusSystem.containsWorker(_))
     if (unknownExcludedWorkers.nonEmpty) {
       sb.append(
         s"Unknown workers ${unknownExcludedWorkers.map(_.readableAddress).mkString(",")}." +
