@@ -67,6 +67,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       JavaUtils.newConcurrentHashMap();
   public final Set<String> hostnameSet = ConcurrentHashMap.newKeySet();
   private final Map<String, WorkerInfo> workersMap = JavaUtils.newConcurrentHashMap();
+  private final Set<WorkerInfo> availableWorkers = ConcurrentHashMap.newKeySet();
 
   public final ConcurrentHashMap<WorkerInfo, Long> lostWorkers = JavaUtils.newConcurrentHashMap();
   public final ConcurrentHashMap<WorkerInfo, WorkerEventInfo> workerEventInfos =
@@ -187,6 +188,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       List<WorkerInfo> workersToAdd, List<WorkerInfo> workersToRemove) {
     manuallyExcludedWorkers.addAll(workersToAdd);
     workersToRemove.forEach(manuallyExcludedWorkers::remove);
+
+    availableWorkers.removeAll(workersToAdd);
+    workersToRemove.forEach(worker -> updateAvailableWorkers(worker));
   }
 
   public void reviseLostShuffles(String appId, List<Integer> lostShuffles) {
@@ -205,6 +209,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (workersMap) {
       removeWorker(worker);
       lostWorkers.put(worker, System.currentTimeMillis());
+      availableWorkers.remove(worker);
     }
     excludedWorkers.remove(worker);
     workerLostEvents.remove(worker);
@@ -217,6 +222,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (workersMap) {
       removeWorker(worker);
       lostWorkers.put(worker, System.currentTimeMillis());
+      availableWorkers.remove(worker);
     }
     excludedWorkers.remove(worker);
   }
@@ -288,6 +294,8 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       // only unblack if numSlots larger than 0
       excludedWorkers.remove(worker);
     }
+
+    updateAvailableWorkers(worker);
   }
 
   public void updateRegisterWorkerMeta(
@@ -328,6 +336,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       excludedWorkers.remove(workerInfo);
       workerEventInfos.remove(workerInfo);
       decommissionWorkers.remove(workerInfo);
+      updateAvailableWorkers(workerInfo);
     }
   }
 
@@ -463,6 +472,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           .getApplicationMetasMap()
           .forEach(
               (key, value) -> applicationMetas.put(key, PbSerDeUtils.fromPbApplicationMeta(value)));
+
+      availableWorkers.addAll(
+          workersMap.values().stream().filter(this::isWorkerAvailable).collect(Collectors.toSet()));
     } catch (Exception e) {
       throw new IOException(e);
     }
@@ -482,6 +494,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     registeredAppAndShuffles.clear();
     hostnameSet.clear();
     workersMap.clear();
+    availableWorkers.clear();
     lostWorkers.clear();
     appHeartbeatTime.clear();
     excludedWorkers.clear();
@@ -498,6 +511,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public void updateMetaByReportWorkerUnavailable(List<WorkerInfo> failedWorkers) {
     synchronized (this.workersMap) {
       shutdownWorkers.addAll(failedWorkers);
+      availableWorkers.removeAll(failedWorkers);
     }
   }
 
@@ -514,6 +528,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
             workerEventInfos.remove(workerInfo);
           } else {
             workerEventInfos.put(workerInfo, new WorkerEventInfo(eventType.getNumber(), eventTime));
+            availableWorkers.remove(workerInfo);
           }
         }
       }
@@ -560,11 +575,24 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   public boolean isWorkerAvailable(WorkerInfo workerInfo) {
-    return !excludedWorkers.contains(workerInfo)
+    return (workerInfo.getWorkerStatus().getState() == PbWorkerStatus.State.Normal
+            && !workerEventInfos.containsKey(workerInfo))
+        && !excludedWorkers.contains(workerInfo)
         && !shutdownWorkers.contains(workerInfo)
-        && !manuallyExcludedWorkers.contains(workerInfo)
-        && (!workerEventInfos.containsKey(workerInfo)
-            && workerInfo.getWorkerStatus().getState() == PbWorkerStatus.State.Normal);
+        && !manuallyExcludedWorkers.contains(workerInfo);
+  }
+
+  private void updateAvailableWorkers(WorkerInfo workerInfo) {
+    synchronized (workersMap) {
+      availableWorkers.remove(workerInfo);
+      Optional.ofNullable(workersMap.get(workerInfo))
+          .ifPresent(
+              info -> {
+                if (isWorkerAvailable(info)) {
+                  availableWorkers.add(info);
+                }
+              });
+    }
   }
 
   public void updateApplicationMeta(ApplicationMeta applicationMeta) {
