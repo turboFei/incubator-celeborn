@@ -125,8 +125,12 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     workersMap.clear();
   }
 
-  private WorkerInfo getWorkerInfoFromPool(String workerUniqueId) {
+  private WorkerInfo getFromWorkerInfoPool(String workerUniqueId) {
     return workerInfoPool.getOrDefault(workerUniqueId, WorkerInfo.fromUniqueId(workerUniqueId));
+  }
+
+  private void recycleToWorkerInfoPool(WorkerInfo workerInfo) {
+    workerInfoPool.putIfAbsent(workerInfo.toUniqueId(), workerInfo);
   }
 
   public Set<String> getManuallyExcludedWorkerIds() {
@@ -135,7 +139,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
 
   public Set<WorkerInfo> getManuallyExcludedWorkerInfos() {
     return manuallyExcludedWorkers.stream()
-        .map(this::getWorkerInfoFromPool)
+        .map(this::getFromWorkerInfoPool)
         .collect(Collectors.toSet());
   }
 
@@ -144,7 +148,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   public Set<WorkerInfo> getShutdownWorkerInfos() {
-    return shutdownWorkers.stream().map(this::getWorkerInfoFromPool).collect(Collectors.toSet());
+    return shutdownWorkers.stream().map(this::getFromWorkerInfoPool).collect(Collectors.toSet());
   }
 
   public Set<String> getDecommissionWorkerIds() {
@@ -153,7 +157,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
 
   public Set<WorkerInfo> getDecommissionWorkerInfos() {
     return decommissionWorkers.stream()
-        .map(this::getWorkerInfoFromPool)
+        .map(this::getFromWorkerInfoPool)
         .collect(Collectors.toSet());
   }
 
@@ -235,7 +239,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       List<WorkerInfo> workersToAdd, List<WorkerInfo> workersToRemove) {
     workersToAdd.forEach(
         worker -> {
-          workerInfoPool.put(worker.toUniqueId(), worker);
+          recycleToWorkerInfoPool(worker);
           manuallyExcludedWorkers.add(worker.toUniqueId());
         });
     workersToRemove.forEach(worker -> manuallyExcludedWorkers.remove(worker.toUniqueId()));
@@ -252,7 +256,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public void updateWorkerLostMeta(
       String host, int rpcPort, int pushPort, int fetchPort, int replicatePort) {
     WorkerInfo worker = new WorkerInfo(host, rpcPort, pushPort, fetchPort, replicatePort);
-    workerInfoPool.put(worker.toUniqueId(), worker);
+    recycleToWorkerInfoPool(worker);
     workerLostEvents.add(worker.toUniqueId());
     // remove worker from workers
     synchronized (workersMap) {
@@ -266,7 +270,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public void updateWorkerRemoveMeta(
       String host, int rpcPort, int pushPort, int fetchPort, int replicatePort) {
     WorkerInfo worker = new WorkerInfo(host, rpcPort, pushPort, fetchPort, replicatePort);
-    workerInfoPool.put(worker.toUniqueId(), worker);
+    recycleToWorkerInfoPool(worker);
     // remove worker from workers
     synchronized (workersMap) {
       removeWorker(worker);
@@ -400,10 +404,10 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
                 hostnameSet,
                 excludedWorkers,
                 manuallyExcludedWorkers.stream()
-                    .map(this::getWorkerInfoFromPool)
+                    .map(this::getFromWorkerInfoPool)
                     .collect(Collectors.toSet()),
                 workerLostEvents.stream()
-                    .map(this::getWorkerInfoFromPool)
+                    .map(this::getFromWorkerInfoPool)
                     .collect(Collectors.toSet()),
                 appHeartbeatTime,
                 new HashSet(getWorkers()),
@@ -413,12 +417,12 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
                 appDiskUsageMetric.currentSnapShot().get(),
                 lostWorkers,
                 shutdownWorkers.stream()
-                    .map(this::getWorkerInfoFromPool)
+                    .map(this::getFromWorkerInfoPool)
                     .collect(Collectors.toSet()),
                 workerEventInfos,
                 applicationMetas,
                 decommissionWorkers.stream()
-                    .map(this::getWorkerInfoFromPool)
+                    .map(this::getFromWorkerInfoPool)
                     .collect(Collectors.toSet()))
             .toByteArray();
     Files.write(file.toPath(), snapshotBytes);
@@ -585,7 +589,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (this.workersMap) {
       failedWorkers.forEach(
           worker -> {
-            workerInfoPool.put(worker.toUniqueId(), worker);
+            recycleToWorkerInfoPool(worker);
             shutdownWorkers.add(worker.toUniqueId());
           });
     }
@@ -614,7 +618,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (this.workersMap) {
       workers.forEach(
           worker -> {
-            workerInfoPool.put(worker.toUniqueId(), worker);
+            recycleToWorkerInfoPool(worker);
             decommissionWorkers.add(worker.toUniqueId());
           });
     }
