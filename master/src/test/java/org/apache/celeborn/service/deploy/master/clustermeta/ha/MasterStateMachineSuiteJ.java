@@ -239,14 +239,14 @@ public class MasterStateMachineSuiteJ extends RatisBaseSuiteJ {
 
     masterStatusSystem.hostnameSet.clear();
     masterStatusSystem.excludedWorkers.clear();
-    masterStatusSystem.manuallyExcludedWorkers.clear();
+    masterStatusSystem.getManuallyExcludedWorkerIds().clear();
     masterStatusSystem.clearWorkers();
 
     masterStatusSystem.restoreMetaFromFile(tmpFile);
 
     Assert.assertEquals(3, masterStatusSystem.getWorkers().size());
     Assert.assertEquals(3, masterStatusSystem.excludedWorkers.size());
-    Assert.assertEquals(2, masterStatusSystem.manuallyExcludedWorkers.size());
+    Assert.assertEquals(2, masterStatusSystem.getManuallyExcludedWorkerIds().size());
     Assert.assertEquals(3, masterStatusSystem.hostnameSet.size());
     Assert.assertEquals(
         conf.metricsAppTopDiskUsageWindowSize(),

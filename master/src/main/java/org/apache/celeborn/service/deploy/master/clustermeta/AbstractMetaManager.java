@@ -74,11 +74,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
   public final Set<WorkerInfo> excludedWorkers = ConcurrentHashMap.newKeySet();
 
-  public final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
+  private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
       JavaUtils.newConcurrentHashMap();
-  public final Set<String> manuallyExcludedWorkers = ConcurrentHashMap.newKeySet();
-  public final Set<String> shutdownWorkers = ConcurrentHashMap.newKeySet();
-  public final Set<String> decommissionWorkers = ConcurrentHashMap.newKeySet();
+  private final Set<String> manuallyExcludedWorkers = ConcurrentHashMap.newKeySet();
+  private final Set<String> shutdownWorkers = ConcurrentHashMap.newKeySet();
+  private final Set<String> decommissionWorkers = ConcurrentHashMap.newKeySet();
   private final Set<String> workerLostEvents = ConcurrentHashMap.newKeySet();
 
   protected RpcEnv rpcEnv;
@@ -125,10 +125,18 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     workersMap.clear();
   }
 
+  public Set<String> getManuallyExcludedWorkerIds() {
+    return manuallyExcludedWorkers;
+  }
+
   public Set<WorkerInfo> getManuallyExcludedWorkerInfos() {
     return manuallyExcludedWorkers.stream()
         .map(workId -> workerInfoPool.getOrDefault(workId, WorkerInfo.fromUniqueId(workId)))
         .collect(Collectors.toSet());
+  }
+
+  public Set<String> getShutdownWorkerIds() {
+    return shutdownWorkers;
   }
 
   public Set<WorkerInfo> getShutdownWorkerInfos() {
@@ -137,22 +145,26 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         .collect(Collectors.toSet());
   }
 
+  public Set<String> getDecommissionWorkerIds() {
+      return decommissionWorkers;
+  }
+
   public Set<WorkerInfo> getDecommissionWorkerInfos() {
       return decommissionWorkers.stream()
           .map(workId -> workerInfoPool.getOrDefault(workId, WorkerInfo.fromUniqueId(workId)))
           .collect(Collectors.toSet());
   }
 
-  public boolean containsWorkerLostInfo(WorkerInfo workerInfo) {
+  public boolean containsWorkerLostEvent(WorkerInfo workerInfo) {
     return workerLostEvents.contains(workerInfo.toUniqueId());
   }
 
-  public void removeWorkerLostInfo(WorkerInfo workerInfo) {
+  public void removeWorkerLostEvent(WorkerInfo workerInfo) {
     workerLostEvents.remove(workerInfo.toUniqueId());
   }
 
   @VisibleForTesting
-  public void clearWorkerLostInfo() {
+  public void clearWorkerLostEvents() {
     workerLostEvents.clear();
   }
 
