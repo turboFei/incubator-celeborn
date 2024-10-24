@@ -133,6 +133,10 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     workerInfoPool.putIfAbsent(workerInfo.toUniqueId(), workerInfo);
   }
 
+  private void releaseFromWorkerInfoPool(WorkerInfo workerInfo) {
+    workerInfoPool.remove(workerInfo.toUniqueId());
+  }
+
   public Set<String> getManuallyExcludedWorkerIds() {
     return manuallyExcludedWorkers;
   }
@@ -288,6 +292,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           shutdownWorkers.remove(workerId);
           workerEventInfos.remove(workerInfo);
           decommissionWorkers.remove(workerId);
+          releaseFromWorkerInfoPool(workerInfo);
         }
       }
     }
