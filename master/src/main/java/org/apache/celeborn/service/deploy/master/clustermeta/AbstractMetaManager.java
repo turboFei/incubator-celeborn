@@ -79,7 +79,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final Set<String> manuallyExcludedWorkers = ConcurrentHashMap.newKeySet();
   public final Set<String> shutdownWorkers = ConcurrentHashMap.newKeySet();
   public final Set<String> decommissionWorkers = ConcurrentHashMap.newKeySet();
-  public final Set<String> workerLostEvents = ConcurrentHashMap.newKeySet();
+  private final Set<String> workerLostEvents = ConcurrentHashMap.newKeySet();
 
   protected RpcEnv rpcEnv;
   protected CelebornConf conf;
@@ -123,6 +123,37 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   @VisibleForTesting
   public void clearWorkers() {
     workersMap.clear();
+  }
+
+  public Set<WorkerInfo> getManuallyExcludedWorkerInfos() {
+    return manuallyExcludedWorkers.stream()
+        .map(workId -> workerInfoPool.getOrDefault(workId, WorkerInfo.fromUniqueId(workId)))
+        .collect(Collectors.toSet());
+  }
+
+  public Set<WorkerInfo> getShutdownWorkerInfos() {
+    return shutdownWorkers.stream()
+        .map(workId -> workerInfoPool.getOrDefault(workId, WorkerInfo.fromUniqueId(workId)))
+        .collect(Collectors.toSet());
+  }
+
+  public Set<WorkerInfo> getDecommissionWorkerInfos() {
+      return decommissionWorkers.stream()
+          .map(workId -> workerInfoPool.getOrDefault(workId, WorkerInfo.fromUniqueId(workId)))
+          .collect(Collectors.toSet());
+  }
+
+  public boolean containsWorkerLostInfo(WorkerInfo workerInfo) {
+    return workerLostEvents.contains(workerInfo.toUniqueId());
+  }
+
+  public void removeWorkerLostInfo(WorkerInfo workerInfo) {
+    workerLostEvents.remove(workerInfo.toUniqueId());
+  }
+
+  @VisibleForTesting
+  public void clearWorkerLostInfo() {
+    workerLostEvents.clear();
   }
 
   public void updateRequestSlotsMeta(
@@ -213,7 +244,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       removeWorker(worker);
       lostWorkers.put(worker, System.currentTimeMillis());
     }
-    excludedWorkers.remove(worker.toUniqueId());
+    excludedWorkers.remove(worker);
     workerLostEvents.remove(worker.toUniqueId());
   }
 
@@ -226,7 +257,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       removeWorker(worker);
       lostWorkers.put(worker, System.currentTimeMillis());
     }
-    excludedWorkers.remove(worker.toUniqueId());
+    excludedWorkers.remove(worker);
   }
 
   public void removeWorkersUnavailableInfoMeta(List<WorkerInfo> unavailableWorkers) {
@@ -277,7 +308,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         && WorkerStatusUtils.meetFinalState(workerEventInfo, workerStatus)) {
       workerEventInfos.remove(worker);
       if (workerStatus.getState() == PbWorkerStatus.State.Normal) {
-        shutdownWorkers.remove(worker);
+        shutdownWorkers.remove(worker.toUniqueId());
       }
     }
 
@@ -332,11 +363,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       if (!containsWorker(workerInfo)) {
         updateWorker(workerInfo);
       }
-      shutdownWorkers.remove(workerInfo);
+      shutdownWorkers.remove(workerInfo.toUniqueId());
       lostWorkers.remove(workerInfo);
       excludedWorkers.remove(workerInfo);
       workerEventInfos.remove(workerInfo);
-      decommissionWorkers.remove(workerInfo);
+      decommissionWorkers.remove(workerInfo.toUniqueId());
     }
   }
 
@@ -611,14 +642,14 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     getWorkers().stream()
         .filter(
             worker ->
-                !excludedWorkers.contains(worker) && !manuallyExcludedWorkers.contains(worker))
+                !excludedWorkers.contains(worker) && !manuallyExcludedWorkers.contains(worker.toUniqueId()))
         .forEach(workerInfo -> workerInfo.updateDiskMaxSlots(estimatedPartitionSize));
   }
 
   public boolean isWorkerAvailable(WorkerInfo workerInfo) {
     return !excludedWorkers.contains(workerInfo)
-        && !shutdownWorkers.contains(workerInfo)
-        && !manuallyExcludedWorkers.contains(workerInfo)
+        && !shutdownWorkers.contains(workerInfo.toUniqueId())
+        && !manuallyExcludedWorkers.contains(workerInfo.toUniqueId())
         && (!workerEventInfos.containsKey(workerInfo)
             && workerInfo.getWorkerStatus().getState() == PbWorkerStatus.State.Normal);
   }

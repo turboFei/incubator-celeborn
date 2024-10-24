@@ -599,7 +599,7 @@ private[celeborn] class Master(
 
     statusSystem.getWorkers.asScala.foreach { worker =>
       if (worker.lastHeartbeat < currentTime - workerHeartbeatTimeoutMs
-        && !statusSystem.workerLostEvents.contains(worker)) {
+        && !statusSystem.containsWorkerLostInfo(worker)) {
         logWarning(s"Worker ${worker.readableAddress()} timeout! Trigger WorkerLost event.")
         // trigger WorkerLost event
         self.send(WorkerLost(
@@ -819,10 +819,10 @@ private[celeborn] class Master(
         userResourceConsumption,
         requestId)
       context.reply(RegisterWorkerResponse(true, "Worker in snapshot, re-register."))
-    } else if (statusSystem.workerLostEvents.contains(workerToRegister)) {
+    } else if (statusSystem.containsWorkerLostInfo(workerToRegister)) {
       logWarning(s"Receive RegisterWorker while worker $workerToRegister " +
         s"in workerLostEvents.")
-      statusSystem.workerLostEvents.remove(workerToRegister)
+      statusSystem.removeWorkerLostInfo(workerToRegister)
       statusSystem.handleRegisterWorker(
         host,
         rpcPort,
@@ -1133,10 +1133,10 @@ private[celeborn] class Master(
       context.reply(HeartbeatFromApplicationResponse(
         StatusCode.SUCCESS,
         new util.ArrayList(
-          (statusSystem.excludedWorkers.asScala ++ statusSystem.manuallyExcludedWorkers.asScala).asJava),
+          (statusSystem.excludedWorkers.asScala ++ statusSystem.getManuallyExcludedWorkerInfos.asScala).asJava),
         needCheckedWorkerList,
         new util.ArrayList[WorkerInfo](
-          (statusSystem.shutdownWorkers.asScala ++ statusSystem.decommissionWorkers.asScala).asJava),
+          (statusSystem.getShutdownWorkerInfos.asScala ++ statusSystem.getDecommissionWorkerInfos.asScala).asJava),
         new util.ArrayList(appRelatedShuffles)))
     } else {
       context.reply(OneWayMessageResponse)
@@ -1327,7 +1327,7 @@ private[celeborn] class Master(
     val sb = new StringBuilder
     sb.append("===================== Shutdown Workers in Master ======================\n")
     statusSystem.shutdownWorkers.asScala.foreach { worker =>
-      sb.append(s"${worker.toUniqueId()}\n")
+      sb.append(s"$worker\n")
     }
     sb.toString()
   }
@@ -1336,7 +1336,7 @@ private[celeborn] class Master(
     val sb = new StringBuilder
     sb.append("===================== Decommission Workers in Master ======================\n")
     statusSystem.decommissionWorkers.asScala.foreach { worker =>
-      sb.append(s"${worker.toUniqueId()}\n")
+      sb.append(s"$worker\n")
     }
     sb.toString()
   }
@@ -1345,7 +1345,7 @@ private[celeborn] class Master(
     val sb = new StringBuilder
     sb.append("===================== Excluded Workers in Master ======================\n")
     (statusSystem.excludedWorkers.asScala ++ statusSystem.manuallyExcludedWorkers.asScala).foreach {
-      worker => sb.append(s"${worker.toUniqueId()}\n")
+      worker => sb.append(s"$worker\n")
     }
     sb.toString()
   }

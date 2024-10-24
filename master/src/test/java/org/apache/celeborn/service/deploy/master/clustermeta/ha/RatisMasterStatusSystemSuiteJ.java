@@ -1090,21 +1090,21 @@ public class RatisMasterStatusSystemSuiteJ {
     STATUSSYSTEM1.getWorkers().clear();
     STATUSSYSTEM1.appHeartbeatTime.clear();
     STATUSSYSTEM1.excludedWorkers.clear();
-    STATUSSYSTEM1.workerLostEvents.clear();
+    STATUSSYSTEM1.clearWorkerLostInfo();
 
     STATUSSYSTEM2.registeredAppAndShuffles.clear();
     STATUSSYSTEM2.hostnameSet.clear();
     STATUSSYSTEM2.getWorkers().clear();
     STATUSSYSTEM2.appHeartbeatTime.clear();
     STATUSSYSTEM2.excludedWorkers.clear();
-    STATUSSYSTEM2.workerLostEvents.clear();
+    STATUSSYSTEM2.clearWorkerLostInfo();
 
     STATUSSYSTEM3.registeredAppAndShuffles.clear();
     STATUSSYSTEM3.hostnameSet.clear();
     STATUSSYSTEM3.getWorkers().clear();
     STATUSSYSTEM3.appHeartbeatTime.clear();
     STATUSSYSTEM3.excludedWorkers.clear();
-    STATUSSYSTEM3.workerLostEvents.clear();
+    STATUSSYSTEM3.clearWorkerLostInfo();
 
     disks1.clear();
     disks1.put(
