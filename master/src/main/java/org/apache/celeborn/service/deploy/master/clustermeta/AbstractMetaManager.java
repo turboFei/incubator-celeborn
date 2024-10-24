@@ -126,7 +126,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   private WorkerInfo getFromWorkerInfoPool(String workerUniqueId) {
-    return workerInfoPool.getOrDefault(workerUniqueId, WorkerInfo.fromUniqueId(workerUniqueId));
+    return workerInfoPool.computeIfAbsent(workerUniqueId, id -> WorkerInfo.fromUniqueId(id));
   }
 
   private void recycleToWorkerInfoPool(WorkerInfo workerInfo) {
@@ -274,7 +274,6 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public void updateWorkerRemoveMeta(
       String host, int rpcPort, int pushPort, int fetchPort, int replicatePort) {
     WorkerInfo worker = new WorkerInfo(host, rpcPort, pushPort, fetchPort, replicatePort);
-    recycleToWorkerInfoPool(worker);
     // remove worker from workers
     synchronized (workersMap) {
       removeWorker(worker);
