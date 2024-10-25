@@ -636,18 +636,18 @@ private[celeborn] class Master(
     if (HAHelper.getAppTimeoutDeadline(statusSystem) > currentTime) {
       return
     }
-    statusSystem.appHeartbeatTime.keySet().asScala.foreach { key =>
-      if (statusSystem.appHeartbeatTime.get(key) < currentTime - appHeartbeatTimeoutMs) {
-        logWarning(s"Application $key timeout, trigger applicationLost event.")
+    statusSystem.appHeartbeatTime.asScala.foreach { case (appId, heartbeatTime) =>
+      if (heartbeatTime < currentTime - appHeartbeatTimeoutMs) {
+        logWarning(s"Application $appId timeout, trigger applicationLost event.")
         val requestId = MasterClient.genRequestId()
-        var res = self.askSync[ApplicationLostResponse](ApplicationLost(key, requestId))
+        var res = self.askSync[ApplicationLostResponse](ApplicationLost(appId, requestId))
         var retry = 1
         while (res.status != StatusCode.SUCCESS && retry <= 3) {
-          res = self.askSync[ApplicationLostResponse](ApplicationLost(key, requestId))
+          res = self.askSync[ApplicationLostResponse](ApplicationLost(appId, requestId))
           retry += 1
         }
         if (retry > 3) {
-          logWarning(s"Handle ApplicationLost event for $key failed more than 3 times!")
+          logWarning(s"Handle ApplicationLost event for $appId failed more than 3 times!")
         }
       }
     }

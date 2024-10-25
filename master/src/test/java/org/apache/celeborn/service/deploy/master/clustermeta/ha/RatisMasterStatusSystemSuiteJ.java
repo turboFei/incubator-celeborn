@@ -948,21 +948,21 @@ public class RatisMasterStatusSystemSuiteJ {
     long dummy = 1235L;
     statusSystem.handleAppHeartbeat(APPID1, 1, 1, dummy, getNewReqeustId());
     Thread.sleep(3000L);
-    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM1.appHeartbeatTime.get(APPID1));
-    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM2.appHeartbeatTime.get(APPID1));
-    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM3.appHeartbeatTime.get(APPID1));
+    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM1.getAppHeartbeatTime().get(APPID1));
+    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM2.getAppHeartbeatTime().get(APPID1));
+    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM3.getAppHeartbeatTime().get(APPID1));
 
     String appId2 = "app02";
     statusSystem.handleAppHeartbeat(appId2, 1, 1, dummy, getNewReqeustId());
     Thread.sleep(3000L);
 
-    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM1.appHeartbeatTime.get(appId2));
-    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM2.appHeartbeatTime.get(appId2));
-    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM3.appHeartbeatTime.get(appId2));
+    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM1.getAppHeartbeatTime().get(appId2));
+    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM2.getAppHeartbeatTime().get(appId2));
+    Assert.assertEquals(Long.valueOf(dummy), STATUSSYSTEM3.getAppHeartbeatTime().get(appId2));
 
-    Assert.assertEquals(2, STATUSSYSTEM1.appHeartbeatTime.size());
-    Assert.assertEquals(2, STATUSSYSTEM2.appHeartbeatTime.size());
-    Assert.assertEquals(2, STATUSSYSTEM3.appHeartbeatTime.size());
+    Assert.assertEquals(2, STATUSSYSTEM1.getAppHeartbeatTime().size());
+    Assert.assertEquals(2, STATUSSYSTEM2.getAppHeartbeatTime().size());
+    Assert.assertEquals(2, STATUSSYSTEM3.getAppHeartbeatTime().size());
   }
 
   @Test
@@ -1088,21 +1088,21 @@ public class RatisMasterStatusSystemSuiteJ {
     STATUSSYSTEM1.registeredAppAndShuffles.clear();
     STATUSSYSTEM1.hostnameSet.clear();
     STATUSSYSTEM1.getWorkers().clear();
-    STATUSSYSTEM1.appHeartbeatTime.clear();
+    STATUSSYSTEM1.clearAppHeartbeatTime();
     STATUSSYSTEM1.clearExcludedWorkers();
     STATUSSYSTEM1.clearWorkerLostEvents();
 
     STATUSSYSTEM2.registeredAppAndShuffles.clear();
     STATUSSYSTEM2.hostnameSet.clear();
     STATUSSYSTEM2.getWorkers().clear();
-    STATUSSYSTEM2.appHeartbeatTime.clear();
+    STATUSSYSTEM2.clearAppHeartbeatTime();
     STATUSSYSTEM2.clearExcludedWorkers();
     STATUSSYSTEM2.clearWorkerLostEvents();
 
     STATUSSYSTEM3.registeredAppAndShuffles.clear();
     STATUSSYSTEM3.hostnameSet.clear();
     STATUSSYSTEM3.getWorkers().clear();
-    STATUSSYSTEM3.appHeartbeatTime.clear();
+    STATUSSYSTEM3.clearAppHeartbeatTime();
     STATUSSYSTEM3.clearExcludedWorkers();
     STATUSSYSTEM3.clearWorkerLostEvents();
 

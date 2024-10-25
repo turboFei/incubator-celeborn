@@ -71,7 +71,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   private final ConcurrentHashMap<String, Long> lostWorkers = JavaUtils.newConcurrentHashMap();
   private final ConcurrentHashMap<String, WorkerEventInfo> workerEventInfos =
       JavaUtils.newConcurrentHashMap();
-  public final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
+  private final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
   private final Set<String> excludedWorkers = ConcurrentHashMap.newKeySet();
 
   private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
@@ -95,7 +95,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       JavaUtils.newConcurrentHashMap();
 
   public Collection<WorkerInfo> getWorkers() {
-    return workersMap.values();
+    return Collections.unmodifiableCollection(workersMap.values());
   }
 
   public <T> T synchronizedWorkers(Supplier<T> s) {
@@ -145,7 +145,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   public Set<String> getShutdownWorkerIds() {
-    return shutdownWorkers;
+    return Collections.unmodifiableSet(shutdownWorkers);
   }
 
   public Set<WorkerInfo> getShutdownWorkerInfos() {
@@ -176,7 +176,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   public Map<String, Long> getLostWorkerIds() {
-    return lostWorkers;
+    return Collections.unmodifiableMap(lostWorkers);
   }
 
   public Map<WorkerInfo, Long> getLostWorkerInfos() {
@@ -195,8 +195,17 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     return workerEventInfos.get(workerInfo.toUniqueId());
   }
 
+  public Map<String, Long> getAppHeartbeatTime() {
+    return Collections.unmodifiableMap(appHeartbeatTime);
+  }
+
+  @VisibleForTesting
+  public void clearAppHeartbeatTime() {
+    appHeartbeatTime.clear();
+  }
+
   public Set<String> getExcludedWorkerIds() {
-    return excludedWorkers;
+    return Collections.unmodifiableSet(excludedWorkers);
   }
 
   public Set<WorkerInfo> getExcludedWorkerInfos() {
@@ -658,13 +667,13 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (this.workersMap) {
       for (WorkerInfo workerInfo : workerInfoList) {
         String workerId = workerInfo.toUniqueId();
-        recycleToWorkerInfoPool(workerInfo);
         WorkerEventInfo workerEventInfo = workerEventInfos.get(workerId);
         LOG.info("Received worker event: {} for worker: {}", eventType, workerId);
         if (workerEventInfo == null || !workerEventInfo.isSameEvent(eventType.getNumber())) {
           if (eventType == ResourceProtos.WorkerEventType.None) {
             workerEventInfos.remove(workerId);
           } else {
+            recycleToWorkerInfoPool(workerInfo);
             workerEventInfos.put(workerId, new WorkerEventInfo(eventType.getNumber(), eventTime));
           }
         }
