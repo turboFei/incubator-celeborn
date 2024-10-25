@@ -161,6 +161,10 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         .collect(Collectors.toSet());
   }
 
+  public Set<WorkerInfo> getWorkerLostEventWorkerInfos() {
+    return workerLostEvents.stream().map(this::getFromWorkerInfoPool).collect(Collectors.toSet());
+  }
+
   public boolean containsWorkerLostEvent(WorkerInfo workerInfo) {
     return workerLostEvents.contains(workerInfo.toUniqueId());
   }
@@ -447,15 +451,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
                 estimatedPartitionSize,
                 registeredAppAndShuffles,
                 hostnameSet,
-                excludedWorkers.stream()
-                    .map(this::getFromWorkerInfoPool)
-                    .collect(Collectors.toSet()),
-                manuallyExcludedWorkers.stream()
-                    .map(this::getFromWorkerInfoPool)
-                    .collect(Collectors.toSet()),
-                workerLostEvents.stream()
-                    .map(this::getFromWorkerInfoPool)
-                    .collect(Collectors.toSet()),
+                getExcludedWorkerInfos(),
+                getManuallyExcludedWorkerInfos(),
+                getWorkerLostEventWorkerInfos(),
                 appHeartbeatTime,
                 new HashSet(getWorkers()),
                 partitionTotalWritten.sum(),
@@ -463,14 +461,10 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
                 appDiskUsageMetric.snapShots(),
                 appDiskUsageMetric.currentSnapShot().get(),
                 getLostWorkerInfos(),
-                shutdownWorkers.stream()
-                    .map(this::getFromWorkerInfoPool)
-                    .collect(Collectors.toSet()),
+                getShutdownWorkerInfos(),
                 getWorkerEventInfos(),
                 applicationMetas,
-                decommissionWorkers.stream()
-                    .map(this::getFromWorkerInfoPool)
-                    .collect(Collectors.toSet()))
+                getDecommissionWorkerInfos())
             .toByteArray();
     Files.write(file.toPath(), snapshotBytes);
   }
