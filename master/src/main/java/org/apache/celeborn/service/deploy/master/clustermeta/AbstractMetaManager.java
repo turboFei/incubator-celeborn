@@ -358,7 +358,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     AtomicLong availableSlots = new AtomicLong();
     LOG.debug("update worker {}:{} heartbeat {}", host, rpcPort, disks);
     synchronized (workersMap) {
-      Optional<WorkerInfo> workerInfo = Optional.ofNullable(getWorker(worker));
+      Optional<WorkerInfo> workerInfo = Optional.ofNullable(workersMap.get(workerId));
       workerInfo.ifPresent(
           info -> {
             info.updateThenGetDiskInfos(disks, Option.apply(estimatedPartitionSize));
