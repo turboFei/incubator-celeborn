@@ -126,12 +126,12 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     return workerInfoPool.computeIfAbsent(workerUniqueId, id -> WorkerInfo.fromUniqueId(id));
   }
 
-  private void recycleToWorkerInfoPool(WorkerInfo workerInfo) {
-    workerInfoPool.putIfAbsent(workerInfo.toUniqueId(), workerInfo);
+  private void recycleToWorkerInfoPool(String workerUniqueId, WorkerInfo workerInfo) {
+    workerInfoPool.putIfAbsent(workerUniqueId, workerInfo);
   }
 
-  private void releaseFromWorkerInfoPool(WorkerInfo workerInfo) {
-    workerInfoPool.remove(workerInfo.toUniqueId());
+  private void releaseFromWorkerInfoPool(String workerUniqueId) {
+    workerInfoPool.remove(workerUniqueId);
   }
 
   public Set<String> getManuallyExcludedWorkerIds() {
@@ -287,8 +287,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       List<WorkerInfo> workersToAdd, List<WorkerInfo> workersToRemove) {
     workersToAdd.forEach(
         worker -> {
-          recycleToWorkerInfoPool(worker);
-          manuallyExcludedWorkers.add(worker.toUniqueId());
+          String workerId = worker.toUniqueId();
+          recycleToWorkerInfoPool(workerId, worker);
+          manuallyExcludedWorkers.add(workerId);
         });
     workersToRemove.forEach(worker -> manuallyExcludedWorkers.remove(worker.toUniqueId()));
   }
@@ -305,7 +306,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       String host, int rpcPort, int pushPort, int fetchPort, int replicatePort) {
     WorkerInfo worker = new WorkerInfo(host, rpcPort, pushPort, fetchPort, replicatePort);
     String workerId = worker.toUniqueId();
-    recycleToWorkerInfoPool(worker);
+    recycleToWorkerInfoPool(workerId, worker);
     workerLostEvents.add(workerId);
     // remove worker from workers
     synchronized (workersMap) {
@@ -320,7 +321,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       String host, int rpcPort, int pushPort, int fetchPort, int replicatePort) {
     WorkerInfo worker = new WorkerInfo(host, rpcPort, pushPort, fetchPort, replicatePort);
     String workerId = worker.toUniqueId();
-    recycleToWorkerInfoPool(worker);
+    recycleToWorkerInfoPool(workerId, worker);
     // remove worker from workers
     synchronized (workersMap) {
       workersMap.remove(workerId);
@@ -338,7 +339,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           shutdownWorkers.remove(workerId);
           workerEventInfos.remove(workerId);
           decommissionWorkers.remove(workerId);
-          releaseFromWorkerInfoPool(workerInfo);
+          releaseFromWorkerInfoPool(workerId);
         }
       }
     }
@@ -393,7 +394,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
                 && (!conf.hasS3Storage()))
             || highWorkload)) {
       LOG.debug("Worker: {} num total slots is 0, add to excluded list", worker);
-      recycleToWorkerInfoPool(worker);
+      recycleToWorkerInfoPool(workerId, worker);
       excludedWorkers.add(workerId);
     } else if ((availableSlots.get() > 0 || conf.hasHDFSStorage() || conf.hasS3Storage())
         && !highWorkload) {
@@ -654,8 +655,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (this.workersMap) {
       failedWorkers.forEach(
           worker -> {
-            recycleToWorkerInfoPool(worker);
-            shutdownWorkers.add(worker.toUniqueId());
+            String workerId = worker.toUniqueId();
+            recycleToWorkerInfoPool(workerId, worker);
+            shutdownWorkers.add(workerId);
           });
     }
   }
@@ -673,7 +675,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           if (eventType == ResourceProtos.WorkerEventType.None) {
             workerEventInfos.remove(workerId);
           } else {
-            recycleToWorkerInfoPool(workerInfo);
+            recycleToWorkerInfoPool(workerId, workerInfo);
             workerEventInfos.put(workerId, new WorkerEventInfo(eventType.getNumber(), eventTime));
           }
         }
@@ -685,8 +687,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (this.workersMap) {
       workers.forEach(
           worker -> {
-            recycleToWorkerInfoPool(worker);
-            decommissionWorkers.add(worker.toUniqueId());
+            String workerId = worker.toUniqueId();
+            recycleToWorkerInfoPool(workerId, worker);
+            decommissionWorkers.add(workerId);
           });
     }
   }
@@ -719,9 +722,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         Utils.bytesToString(estimatedPartitionSize));
     getWorkers().stream()
         .filter(
-            worker ->
-                !excludedWorkers.contains(worker)
-                    && !manuallyExcludedWorkers.contains(worker.toUniqueId()))
+            worker -> {
+              String workerId = worker.toUniqueId();
+              return !excludedWorkers.contains(workerId)
+                      && !manuallyExcludedWorkers.contains(workerId);
+            })
         .forEach(workerInfo -> workerInfo.updateDiskMaxSlots(estimatedPartitionSize));
   }
 
