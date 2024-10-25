@@ -135,7 +135,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   public Set<String> getManuallyExcludedWorkerIds() {
-    return manuallyExcludedWorkers;
+    return Collections.unmodifiableSet(manuallyExcludedWorkers);
   }
 
   public Set<WorkerInfo> getManuallyExcludedWorkerInfos() {
@@ -153,7 +153,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   }
 
   public Set<String> getDecommissionWorkerIds() {
-    return decommissionWorkers;
+    return Collections.unmodifiableSet(decommissionWorkers);
   }
 
   public Set<WorkerInfo> getDecommissionWorkerInfos() {
@@ -725,7 +725,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
             worker -> {
               String workerId = worker.toUniqueId();
               return !excludedWorkers.contains(workerId)
-                      && !manuallyExcludedWorkers.contains(workerId);
+                  && !manuallyExcludedWorkers.contains(workerId);
             })
         .forEach(workerInfo -> workerInfo.updateDiskMaxSlots(estimatedPartitionSize));
   }
