@@ -66,16 +66,15 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final Map<String, Set<Integer>> registeredAppAndShuffles =
       JavaUtils.newConcurrentHashMap();
   public final Set<String> hostnameSet = ConcurrentHashMap.newKeySet();
-  private final Map<String, WorkerInfo> workersMap = JavaUtils.newConcurrentHashMap();
+  public final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
 
+  private final Map<String, WorkerInfo> workersMap = JavaUtils.newConcurrentHashMap();
+  private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
+      JavaUtils.newConcurrentHashMap();
   private final ConcurrentHashMap<String, Long> lostWorkers = JavaUtils.newConcurrentHashMap();
   private final ConcurrentHashMap<String, WorkerEventInfo> workerEventInfos =
       JavaUtils.newConcurrentHashMap();
-  private final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
   private final Set<String> excludedWorkers = ConcurrentHashMap.newKeySet();
-
-  private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
-      JavaUtils.newConcurrentHashMap();
   private final Set<String> manuallyExcludedWorkers = ConcurrentHashMap.newKeySet();
   private final Set<String> shutdownWorkers = ConcurrentHashMap.newKeySet();
   private final Set<String> decommissionWorkers = ConcurrentHashMap.newKeySet();
@@ -193,15 +192,6 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
 
   public WorkerEventInfo getWorkerEventInfo(WorkerInfo workerInfo) {
     return workerEventInfos.get(workerInfo.toUniqueId());
-  }
-
-  public Map<String, Long> getAppHeartbeatTime() {
-    return Collections.unmodifiableMap(appHeartbeatTime);
-  }
-
-  @VisibleForTesting
-  public void clearAppHeartbeatTime() {
-    appHeartbeatTime.clear();
   }
 
   public Set<String> getExcludedWorkerIds() {

@@ -638,13 +638,13 @@ public class DefaultMetaSystemSuiteJ {
   public void testHandleAppHeartbeat() {
     Long dummy = 1235L;
     statusSystem.handleAppHeartbeat(APPID1, 1, 1, dummy, getNewReqeustId());
-    assertEquals(dummy, statusSystem.getAppHeartbeatTime().get(APPID1));
+    assertEquals(dummy, statusSystem.appHeartbeatTime.get(APPID1));
 
     String appId2 = "app02";
     statusSystem.handleAppHeartbeat(appId2, 1, 1, dummy, getNewReqeustId());
-    assertEquals(dummy, statusSystem.getAppHeartbeatTime().get(appId2));
+    assertEquals(dummy, statusSystem.appHeartbeatTime.get(appId2));
 
-    assertEquals(2, statusSystem.getAppHeartbeatTime().size());
+    assertEquals(2, statusSystem.appHeartbeatTime.size());
   }
 
   @Test

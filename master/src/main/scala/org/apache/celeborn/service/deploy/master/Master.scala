@@ -1362,7 +1362,7 @@ private[celeborn] class Master(
   override def getApplicationList: String = {
     val sb = new StringBuilder
     sb.append("================= LifecycleManager Application List ======================\n")
-    statusSystem.getAppHeartbeatTime.asScala.toSeq.sortBy(_._2).foreach { case (appId, time) =>
+    statusSystem.appHeartbeatTime.asScala.toSeq.sortBy(_._2).foreach { case (appId, time) =>
       sb.append(s"${appId.padTo(40, " ").mkString}${Utils.formatTimestamp(time)}\n")
     }
     sb.toString()
