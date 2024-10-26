@@ -69,6 +69,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
 
   private final Map<String, WorkerInfo> workersMap = JavaUtils.newConcurrentHashMap();
+  private Set<WorkerInfo> availableWorkers = ConcurrentHashMap.newKeySet();
   private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
       JavaUtils.newConcurrentHashMap();
   private final ConcurrentHashMap<String, Long> lostWorkers = JavaUtils.newConcurrentHashMap();
@@ -120,6 +121,20 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   @VisibleForTesting
   public void clearWorkers() {
     workersMap.clear();
+  }
+
+  private void updateAvailableWorkers(String workerId) {
+    synchronized (workersMap) {
+      Optional.ofNullable(workersMap.get(workerId))
+          .ifPresent(
+              worker -> {
+                if (isWorkerAvailable(worker)) {
+                  availableWorkers.add(worker);
+                } else {
+                  availableWorkers.remove(worker);
+                }
+              });
+    }
   }
 
   private WorkerInfo getFromWorkerInfoPool(String workerUniqueId) {
@@ -609,6 +624,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           .getApplicationMetasMap()
           .forEach(
               (key, value) -> applicationMetas.put(key, PbSerDeUtils.fromPbApplicationMeta(value)));
+
+      availableWorkers.addAll(
+          workersMap.values().stream()
+              .filter(worker -> isWorkerAvailable(worker))
+              .collect(Collectors.toSet()));
     } catch (Exception e) {
       throw new IOException(e);
     }
