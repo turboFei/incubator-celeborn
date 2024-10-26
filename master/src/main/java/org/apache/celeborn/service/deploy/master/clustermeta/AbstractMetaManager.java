@@ -69,7 +69,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
 
   private final Map<String, WorkerInfo> workersMap = JavaUtils.newConcurrentHashMap();
-  private Set<WorkerInfo> availableWorkers = ConcurrentHashMap.newKeySet();
+  private final Set<WorkerInfo> availableWorkers = ConcurrentHashMap.newKeySet();
   private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
       JavaUtils.newConcurrentHashMap();
   private final ConcurrentHashMap<String, Long> lostWorkers = JavaUtils.newConcurrentHashMap();
@@ -305,8 +305,13 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           String workerId = worker.toUniqueId();
           recycleToWorkerInfoPool(workerId, worker);
           manuallyExcludedWorkers.add(workerId);
+          availableWorkers.remove(workerId);
         });
-    workersToRemove.forEach(worker -> manuallyExcludedWorkers.remove(worker.toUniqueId()));
+    workersToRemove.forEach(worker -> {
+      String workerId = worker.toUniqueId();
+      manuallyExcludedWorkers.remove(workerId);
+      updateAvailableWorkers(workerId);
+    });
   }
 
   public void reviseLostShuffles(String appId, List<Integer> lostShuffles) {
@@ -327,6 +332,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (workersMap) {
       workersMap.remove(workerId);
       lostWorkers.put(workerId, System.currentTimeMillis());
+      availableWorkers.remove(worker);
     }
     excludedWorkers.remove(workerId);
     workerLostEvents.remove(workerId);
@@ -341,6 +347,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (workersMap) {
       workersMap.remove(workerId);
       lostWorkers.put(workerId, System.currentTimeMillis());
+      availableWorkers.remove(worker);
     }
     excludedWorkers.remove(workerId);
   }
