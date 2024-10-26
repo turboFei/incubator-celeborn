@@ -69,6 +69,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final ConcurrentHashMap<String, Long> appHeartbeatTime = JavaUtils.newConcurrentHashMap();
 
   private final Map<String, WorkerInfo> workersMap = JavaUtils.newConcurrentHashMap();
+  private final Set<WorkerInfo> availableWorkers = ConcurrentHashMap.newKeySet();
   private final ConcurrentHashMap<String, WorkerInfo> workerInfoPool =
       JavaUtils.newConcurrentHashMap();
   private final ConcurrentHashMap<String, Long> lostWorkers = JavaUtils.newConcurrentHashMap();
@@ -120,6 +121,19 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   @VisibleForTesting
   public void clearWorkers() {
     workersMap.clear();
+  }
+
+  public Set<WorkerInfo> getAvailableWorkers() {
+    return Collections.unmodifiableSet(availableWorkers);
+  }
+
+  private void updateAvailableWorkers(String workerId) {
+    synchronized (workersMap) {
+      Optional.ofNullable(workersMap.get(workerId))
+          .filter(this::isWorkerAvailable)
+          .map(availableWorkers::add)
+          .orElse(availableWorkers.remove(WorkerInfo.fromUniqueId(workerId)));
+    }
   }
 
   private WorkerInfo getFromWorkerInfoPool(String workerUniqueId) {
@@ -290,8 +304,14 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           String workerId = worker.toUniqueId();
           recycleToWorkerInfoPool(workerId, worker);
           manuallyExcludedWorkers.add(workerId);
+          availableWorkers.remove(workerId);
         });
-    workersToRemove.forEach(worker -> manuallyExcludedWorkers.remove(worker.toUniqueId()));
+    workersToRemove.forEach(
+        worker -> {
+          String workerId = worker.toUniqueId();
+          manuallyExcludedWorkers.remove(workerId);
+          updateAvailableWorkers(workerId);
+        });
   }
 
   public void reviseLostShuffles(String appId, List<Integer> lostShuffles) {
@@ -312,6 +332,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (workersMap) {
       workersMap.remove(workerId);
       lostWorkers.put(workerId, System.currentTimeMillis());
+      availableWorkers.remove(worker);
     }
     excludedWorkers.remove(workerId);
     workerLostEvents.remove(workerId);
@@ -326,6 +347,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     synchronized (workersMap) {
       workersMap.remove(workerId);
       lostWorkers.put(workerId, System.currentTimeMillis());
+      availableWorkers.remove(worker);
     }
     excludedWorkers.remove(workerId);
   }
@@ -340,6 +362,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           workerEventInfos.remove(workerId);
           decommissionWorkers.remove(workerId);
           releaseFromWorkerInfoPool(workerId);
+          updateAvailableWorkers(workerId);
         }
       }
     }
@@ -401,6 +424,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       // only unblack if numSlots larger than 0
       excludedWorkers.remove(workerId);
     }
+
+    // try to update the available workers if the worker status is Normal
+    if (workerStatus.getState() == PbWorkerStatus.State.Normal) {
+      updateAvailableWorkers(workerId);
+    }
   }
 
   public void updateRegisterWorkerMeta(
@@ -442,6 +470,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       excludedWorkers.remove(workerId);
       workerEventInfos.remove(workerId);
       decommissionWorkers.remove(workerId);
+      updateAvailableWorkers(workerId);
     }
   }
 
@@ -609,6 +638,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           .getApplicationMetasMap()
           .forEach(
               (key, value) -> applicationMetas.put(key, PbSerDeUtils.fromPbApplicationMeta(value)));
+
+      availableWorkers.addAll(
+          workersMap.values().stream()
+              .filter(worker -> isWorkerAvailable(worker))
+              .collect(Collectors.toSet()));
     } catch (Exception e) {
       throw new IOException(e);
     }
@@ -629,6 +663,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     hostnameSet.clear();
     workersMap.clear();
     workerInfoPool.clear();
+    availableWorkers.clear();
     lostWorkers.clear();
     appHeartbeatTime.clear();
     excludedWorkers.clear();
@@ -649,6 +684,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
             String workerId = worker.toUniqueId();
             recycleToWorkerInfoPool(workerId, worker);
             shutdownWorkers.add(workerId);
+            availableWorkers.remove(worker);
           });
     }
   }
@@ -665,9 +701,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         if (workerEventInfo == null || !workerEventInfo.isSameEvent(eventType.getNumber())) {
           if (eventType == ResourceProtos.WorkerEventType.None) {
             workerEventInfos.remove(workerId);
+            updateAvailableWorkers(workerId);
           } else {
             recycleToWorkerInfoPool(workerId, workerInfo);
             workerEventInfos.put(workerId, new WorkerEventInfo(eventType.getNumber(), eventTime));
+            availableWorkers.remove(workerInfo);
           }
         }
       }
@@ -721,7 +759,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         .forEach(workerInfo -> workerInfo.updateDiskMaxSlots(estimatedPartitionSize));
   }
 
-  public boolean isWorkerAvailable(WorkerInfo workerInfo) {
+  private boolean isWorkerAvailable(WorkerInfo workerInfo) {
     String workerId = workerInfo.toUniqueId();
     return (workerInfo.getWorkerStatus().getState() == PbWorkerStatus.State.Normal
             && !workerEventInfos.containsKey(workerId))

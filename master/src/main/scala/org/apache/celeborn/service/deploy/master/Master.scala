@@ -24,6 +24,7 @@ import java.util.{Collections, List => JList, Map => JMap}
 import java.util.concurrent.{ExecutorService, ScheduledFuture, TimeUnit}
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.{Supplier, ToLongFunction}
+import java.util.stream.Collectors
 
 import scala.collection.JavaConverters._
 import scala.util.Random
@@ -233,9 +234,7 @@ private[celeborn] class Master(
     statusSystem.getExcludedWorkerIds.size + statusSystem.getManuallyExcludedWorkerIds().size
   }
   masterSource.addGauge(MasterSource.AVAILABLE_WORKER_COUNT) { () =>
-    statusSystem.getWorkers.asScala.count { w =>
-      statusSystem.isWorkerAvailable(w)
-    }
+    statusSystem.getAvailableWorkers.size()
   }
   masterSource.addGauge(MasterSource.SHUTDOWN_WORKER_COUNT) { () =>
     statusSystem.getShutdownWorkerIds.size
@@ -270,7 +269,7 @@ private[celeborn] class Master(
   }
 
   masterSource.addGauge(MasterSource.DEVICE_CELEBORN_FREE_CAPACITY) { () =>
-    statusSystem.getWorkers.asScala.toList.map(_.totalActualUsableSpace()).sum
+    statusSystem.getAvailableWorkers.asScala.toList.map(_.totalActualUsableSpace()).sum
   }
 
   masterSource.addGauge(MasterSource.IS_ACTIVE_MASTER) { () => isMasterActive }
@@ -1229,7 +1228,7 @@ private[celeborn] class Master(
   }
 
   private def handleCheckWorkersAvailable(context: RpcCallContext): Unit = {
-    context.reply(CheckWorkersAvailableResponse(!workersAvailable().isEmpty))
+    context.reply(CheckWorkersAvailableResponse(!statusSystem.getAvailableWorkers.isEmpty))
   }
 
   private def handleWorkerEvent(
@@ -1243,9 +1242,13 @@ private[celeborn] class Master(
 
   private def workersAvailable(
       tmpExcludedWorkerList: Set[WorkerInfo] = Set.empty): util.List[WorkerInfo] = {
-    statusSystem.getWorkers.asScala.filter { w =>
-      statusSystem.isWorkerAvailable(w) && !tmpExcludedWorkerList.contains(w)
-    }.toList.asJava
+    if (tmpExcludedWorkerList.isEmpty) {
+      statusSystem.getAvailableWorkers.asScala.toList.asJava
+    } else {
+      val availableWorkers = new java.util.HashSet(statusSystem.getAvailableWorkers)
+      tmpExcludedWorkerList.foreach(availableWorkers.remove)
+      availableWorkers.asScala.toList.asJava
+    }
   }
 
   private def handleRequestForApplicationMeta(
