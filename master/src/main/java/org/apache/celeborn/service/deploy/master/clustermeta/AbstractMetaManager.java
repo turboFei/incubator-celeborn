@@ -126,14 +126,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   private void updateAvailableWorkers(String workerId) {
     synchronized (workersMap) {
       Optional.ofNullable(workersMap.get(workerId))
-          .ifPresent(
-              worker -> {
-                if (isWorkerAvailable(worker)) {
-                  availableWorkers.add(worker);
-                } else {
-                  availableWorkers.remove(worker);
-                }
-              });
+          .filter(this::isWorkerAvailable)
+          .map(availableWorkers::add)
+          .orElse(availableWorkers.remove(WorkerInfo.fromUniqueId(workerId)));
     }
   }
 
@@ -307,11 +302,12 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           manuallyExcludedWorkers.add(workerId);
           availableWorkers.remove(workerId);
         });
-    workersToRemove.forEach(worker -> {
-      String workerId = worker.toUniqueId();
-      manuallyExcludedWorkers.remove(workerId);
-      updateAvailableWorkers(workerId);
-    });
+    workersToRemove.forEach(
+        worker -> {
+          String workerId = worker.toUniqueId();
+          manuallyExcludedWorkers.remove(workerId);
+          updateAvailableWorkers(workerId);
+        });
   }
 
   public void reviseLostShuffles(String appId, List<Integer> lostShuffles) {
