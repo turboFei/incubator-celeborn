@@ -355,6 +355,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           workerEventInfos.remove(workerId);
           decommissionWorkers.remove(workerId);
           releaseFromWorkerInfoPool(workerId);
+          updateAvailableWorkers(workerId);
         }
       }
     }
@@ -416,6 +417,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       // only unblack if numSlots larger than 0
       excludedWorkers.remove(workerId);
     }
+
+    // try to update the available workers if the worker status is Normal
+    if (workerStatus.getState() == PbWorkerStatus.State.Normal) {
+      updateAvailableWorkers(workerId);
+    }
   }
 
   public void updateRegisterWorkerMeta(
@@ -457,6 +463,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       excludedWorkers.remove(workerId);
       workerEventInfos.remove(workerId);
       decommissionWorkers.remove(workerId);
+      if (!isWorkerAvailable(workerInfo)) {
+        availableWorkers.add(workerInfo);
+      }
     }
   }
 
@@ -670,6 +679,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
             String workerId = worker.toUniqueId();
             recycleToWorkerInfoPool(workerId, worker);
             shutdownWorkers.add(workerId);
+            availableWorkers.remove(worker);
           });
     }
   }
@@ -686,9 +696,11 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         if (workerEventInfo == null || !workerEventInfo.isSameEvent(eventType.getNumber())) {
           if (eventType == ResourceProtos.WorkerEventType.None) {
             workerEventInfos.remove(workerId);
+            updateAvailableWorkers(workerId);
           } else {
             recycleToWorkerInfoPool(workerId, workerInfo);
             workerEventInfos.put(workerId, new WorkerEventInfo(eventType.getNumber(), eventTime));
+            availableWorkers.remove(workerInfo);
           }
         }
       }
