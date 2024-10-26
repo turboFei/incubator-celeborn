@@ -463,9 +463,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
       excludedWorkers.remove(workerId);
       workerEventInfos.remove(workerId);
       decommissionWorkers.remove(workerId);
-      if (!isWorkerAvailable(workerInfo)) {
-        availableWorkers.add(workerInfo);
-      }
+      updateAvailableWorkers(workerId);
     }
   }
 
