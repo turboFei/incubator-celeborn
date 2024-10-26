@@ -123,6 +123,10 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     workersMap.clear();
   }
 
+  public Set<WorkerInfo> getAvailableWorkers() {
+    return Collections.unmodifiableSet(availableWorkers);
+  }
+
   private void updateAvailableWorkers(String workerId) {
     synchronized (workersMap) {
       Optional.ofNullable(workersMap.get(workerId))
@@ -755,7 +759,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
         .forEach(workerInfo -> workerInfo.updateDiskMaxSlots(estimatedPartitionSize));
   }
 
-  public boolean isWorkerAvailable(WorkerInfo workerInfo) {
+  private boolean isWorkerAvailable(WorkerInfo workerInfo) {
     String workerId = workerInfo.toUniqueId();
     return (workerInfo.getWorkerStatus().getState() == PbWorkerStatus.State.Normal
             && !workerEventInfos.containsKey(workerId))
