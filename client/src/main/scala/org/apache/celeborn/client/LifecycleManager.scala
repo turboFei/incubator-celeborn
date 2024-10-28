@@ -665,6 +665,10 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
         logInfo(s"OfferSlots for $shuffleId failed due to all workers be excluded!")
         replyRegisterShuffle(RegisterShuffleResponse(StatusCode.WORKER_EXCLUDED, Array.empty))
         return
+      case StatusCode.SHUFFLE_PARTITIONS_EXCEEDED =>
+        logInfo(s"OfferSlots for $shuffleId failed due to shuffle partitions exceeded!")
+        replyRegisterShuffle(RegisterShuffleResponse(StatusCode.SHUFFLE_PARTITIONS_EXCEEDED, Array.empty))
+        return
       case _ => // won't happen
         throw new UnsupportedOperationException()
     }

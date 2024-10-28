@@ -877,6 +877,19 @@ private[celeborn] class Master(
     val numReducers = requestSlots.partitionIdList.size()
     val shuffleKey = Utils.makeShuffleKey(requestSlots.applicationId, requestSlots.shuffleId)
 
+    conf.allowMaxShufflePartitions.foreach { maxLimit =>
+      if (numReducers > maxLimit) {
+        logError(s"Request slots for $shuffleKey failed due to numReducers $numReducers" +
+          s" exceeds the limit $maxLimit!")
+        context.reply(RequestSlotsResponse(
+          StatusCode.SHUFFLE_PARTITIONS_EXCEEDED,
+          new WorkerResource(),
+          requestSlots.packed))
+        return
+      }
+    }
+
+
     var availableWorkers = workersAvailable(requestSlots.excludedWorkerSet)
     if (requestSlots.tagsExpr.nonEmpty) {
       availableWorkers = tagsManager.getTaggedWorkers(

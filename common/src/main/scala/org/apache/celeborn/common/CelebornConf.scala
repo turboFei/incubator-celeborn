@@ -813,6 +813,7 @@ class CelebornConf(loadDefaults: Boolean) extends Cloneable with Logging with Se
   def workerUnavailableInfoExpireTimeout: Long = get(WORKER_UNAVAILABLE_INFO_EXPIRE_TIMEOUT)
   def allowWorkerHostPattern: Option[Regex] = get(ALLOW_WORKER_HOST_PATTERN)
   def denyWorkerHostPattern: Option[Regex] = get(DENY_WORKER_HOST_PATTERN)
+  def allowMaxShufflePartitions: Option[Int] = get(ALLOW_MAX_SHUFFLE_PARTITIONS)
 
   def workerReplicateThreads: Int = get(WORKER_REPLICATE_THREADS)
   def workerCommitThreads: Int =
@@ -2266,6 +2267,15 @@ object CelebornConf extends Logging {
       .doc("Pattern of worker host that denied to register with the master." +
         " If not set, no workers are denied to register.")
       .regexConf
+      .createOptional
+
+  val ALLOW_MAX_SHUFFLE_PARTITIONS: OptionalConfigEntry[Int] =
+    buildConf("celeborn.master.allowMaxShufflePartitions")
+      .categories("master")
+      .version("0.6.0")
+      .doc("The maximum number of shuffle partitions allowed to be registered with the master." +
+        " If not set, all shuffle partitions are allowed to register.")
+      .intConf
       .createOptional
 
   val WORKER_UNAVAILABLE_INFO_EXPIRE_TIMEOUT: ConfigEntry[Long] =
