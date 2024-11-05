@@ -121,7 +121,7 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
   def markMeter(name: String, value: Long, labels: Map[String, String] = Map.empty): Unit = {
     namedMeters.computeIfAbsent(
       metricNameWithCustomizedLabels(name, labels),
-      key => NamedMeter(name, metricRegistry.meter(name), labels ++ staticLabels))
+      _ => NamedMeter(name, metricRegistry.meter(name), labels ++ staticLabels))
       .meter.mark(value)
   }
 
