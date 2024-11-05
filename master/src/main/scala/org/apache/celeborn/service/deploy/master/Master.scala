@@ -261,10 +261,6 @@ private[celeborn] class Master(
       }).sum()
   }
 
-  masterSource.addMeter(MasterSource.SHUFFLE_FALLBACK_COUNT) { () =>
-    statusSystem.shuffleTotalFallbackCount.longValue()
-  }
-
   masterSource.addGauge(MasterSource.DEVICE_CELEBORN_TOTAL_CAPACITY) { () =>
     statusSystem.workersMap.values().asScala.toList.map(_.totalSpace()).sum
   }
@@ -1104,7 +1100,9 @@ private[celeborn] class Master(
       needCheckedWorkerList: util.List[WorkerInfo],
       requestId: String,
       shouldResponse: Boolean): Unit = {
-    masterSource.markMeter(MasterSource.SHUFFLE_FALLBACK_COUNT, shuffleFallbackCount)
+    if (shuffleFallbackCount > 0) {
+      masterSource.markMeter(MasterSource.SHUFFLE_FALLBACK_COUNT, shuffleFallbackCount)
+    }
     statusSystem.handleAppHeartbeat(
       appId,
       totalWritten,
