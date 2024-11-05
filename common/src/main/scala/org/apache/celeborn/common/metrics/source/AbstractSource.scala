@@ -39,6 +39,9 @@ case class NamedCounter(name: String, counter: Counter, labels: Map[String, Stri
 case class NamedGauge[T](name: String, gauge: Gauge[T], labels: Map[String, String])
   extends MetricLabels
 
+case class NamedMeter(name: String, meter: Meter, labels: Map[String, String])
+  extends MetricLabels
+
 case class NamedHistogram(name: String, histogram: Histogram, labels: Map[String, String])
   extends MetricLabels
 
@@ -79,6 +82,9 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
   protected val namedGauges: ConcurrentHashMap[String, NamedGauge[_]] =
     JavaUtils.newConcurrentHashMap[String, NamedGauge[_]]()
 
+  protected val namedMeters: ConcurrentHashMap[String, NamedMeter] =
+    JavaUtils.newConcurrentHashMap[String, NamedMeter]()
+
   def addGauge[T](
       name: String,
       labels: Map[String, String],
@@ -110,6 +116,13 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
 
   def addGauge[T](name: String, gauge: Gauge[T]): Unit = {
     addGauge(name, Map.empty[String, String], gauge)
+  }
+
+  def markMeter(name: String, value: Long, labels: Map[String, String] = Map.empty): Unit = {
+    namedMeters.computeIfAbsent(
+      metricNameWithCustomizedLabels(name, labels),
+      key => NamedMeter(name, metricRegistry.meter(name), labels ++ staticLabels))
+      .meter.mark(value)
   }
 
   protected val namedTimers
@@ -152,6 +165,10 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     namedGauges.values().asScala.toList
   }
 
+  def meters(): List[NamedMeter] = {
+    namedMeters.values().asScala.toList
+  }
+
   def histograms(): List[NamedHistogram] = {
     List.empty[NamedHistogram]
   }
@@ -162,6 +179,10 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
 
   def gaugeExists(name: String, labels: Map[String, String]): Boolean = {
     namedGauges.containsKey(metricNameWithCustomizedLabels(name, labels))
+  }
+
+  def meterExists(name: String, labels: Map[String, String]): Boolean = {
+    namedMeters.containsKey(metricNameWithCustomizedLabels(name, labels))
   }
 
   def needSample(): Boolean = {
@@ -180,6 +201,10 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
 
   def removeGauge(name: String, labels: Map[String, String]): Unit = {
     namedGauges.remove(removeMetric(name, labels))
+  }
+
+  def removeMeter(name: String, labels: Map[String, String]): Unit = {
+    namedMeters.remove(removeMetric(name, labels))
   }
 
   def removeMetric(name: String, labels: Map[String, String]): String = {
@@ -321,6 +346,22 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     updateInnerMetrics(sb.toString())
   }
 
+  def recordMeter(nm: NamedMeter): Unit = {
+    val timestamp = System.currentTimeMillis
+    val sb = new StringBuilder
+    val label = nm.labelString
+    sb.append(s"${normalizeKey(nm.name)}Count$label ${nm.meter.getCount} $timestamp\n")
+    sb.append(s"${normalizeKey(nm.name)}MeanRate$label ${nm.meter.getMeanRate} $timestamp\n")
+    sb.append(
+      s"${normalizeKey(nm.name)}OneMinuteRate$label ${nm.meter.getOneMinuteRate} $timestamp\n")
+    sb.append(
+      s"${normalizeKey(nm.name)}FiveMinuteRate$label ${nm.meter.getFiveMinuteRate} $timestamp\n")
+    sb.append(
+      s"${normalizeKey(nm.name)}FifteenMinuteRate$label ${nm.meter.getFifteenMinuteRate} $timestamp\n")
+
+    updateInnerMetrics(sb.toString())
+  }
+
   def recordHistogram(nh: NamedHistogram): Unit = {
     val timestamp = System.currentTimeMillis
     val sb = new mutable.StringBuilder
@@ -377,6 +418,7 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     innerMetrics.synchronized {
       counters().foreach(c => recordCounter(c))
       gauges().foreach(g => recordGauge(g))
+      meters().foreach { case m => recordMeter(m) }
       histograms().foreach(h => {
         recordHistogram(h)
         h.asInstanceOf[CelebornHistogram].reservoir
@@ -400,6 +442,7 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     metricsCleaner.shutdown()
     namedCounters.clear()
     namedGauges.clear()
+    namedMeters.clear()
     namedTimers.clear()
     innerMetrics.clear()
     metricRegistry.removeMatching(new MetricFilter {

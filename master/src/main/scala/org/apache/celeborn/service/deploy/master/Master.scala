@@ -261,7 +261,7 @@ private[celeborn] class Master(
       }).sum()
   }
 
-  masterSource.addGauge(MasterSource.SHUFFLE_FALLBACK_COUNT) { () =>
+  masterSource.addMeter(MasterSource.SHUFFLE_FALLBACK_COUNT) { () =>
     statusSystem.shuffleTotalFallbackCount.longValue()
   }
 
@@ -1104,6 +1104,7 @@ private[celeborn] class Master(
       needCheckedWorkerList: util.List[WorkerInfo],
       requestId: String,
       shouldResponse: Boolean): Unit = {
+    masterSource.markMeter(MasterSource.SHUFFLE_FALLBACK_COUNT, shuffleFallbackCount)
     statusSystem.handleAppHeartbeat(
       appId,
       totalWritten,
