@@ -59,7 +59,6 @@ public class HAMasterMetaManager extends AbstractMetaManager {
     this.unhealthyDiskRatioThreshold = conf.masterExcludeWorkerUnhealthyDiskRatioThreshold();
     this.appDiskUsageMetric = new AppDiskUsageMetric(conf);
     this.rackResolver = rackResolver;
-    this.masterSource = masterSource;
   }
 
   public HARaftServer getRatisServer() {

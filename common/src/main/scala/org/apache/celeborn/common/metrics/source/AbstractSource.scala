@@ -430,7 +430,7 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     innerMetrics.synchronized {
       counters().foreach(c => recordCounter(c))
       gauges().foreach(g => recordGauge(g))
-      meters().foreach { case m => recordMeter(m) }
+      meters().foreach(m => recordMeter(m))
       histograms().foreach(h => {
         recordHistogram(h)
         h.asInstanceOf[CelebornHistogram].reservoir
