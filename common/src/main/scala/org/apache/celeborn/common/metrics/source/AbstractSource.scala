@@ -25,7 +25,6 @@ import scala.collection.mutable
 import scala.util.Random
 
 import com.codahale.metrics._
-import com.codahale.metrics.MetricRegistry.MetricSupplier
 
 import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.internal.Logging
@@ -202,10 +201,6 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     namedGauges.containsKey(metricNameWithCustomizedLabels(name, labels))
   }
 
-  def meterExists(name: String, labels: Map[String, String]): Boolean = {
-    namedMeters.containsKey(metricNameWithCustomizedLabels(name, labels))
-  }
-
   def needSample(): Boolean = {
     if (metricsSampleRate >= 1) {
       true
@@ -222,10 +217,6 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
 
   def removeGauge(name: String, labels: Map[String, String]): Unit = {
     namedGauges.remove(removeMetric(name, labels))
-  }
-
-  def removeMeter(name: String, labels: Map[String, String]): Unit = {
-    namedMeters.remove(removeMetric(name, labels))
   }
 
   def removeMetric(name: String, labels: Map[String, String]): String = {
