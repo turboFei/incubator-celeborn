@@ -261,6 +261,10 @@ private[celeborn] class Master(
       }).sum()
   }
 
+  masterSource.addMeter(MasterSource.SHUFFLE_FALLBACK_COUNT) { () =>
+    statusSystem.shuffleTotalFallbackCount.longValue()
+  }
+
   masterSource.addGauge(MasterSource.DEVICE_CELEBORN_TOTAL_CAPACITY) { () =>
     statusSystem.workersMap.values().asScala.toList.map(_.totalSpace()).sum
   }

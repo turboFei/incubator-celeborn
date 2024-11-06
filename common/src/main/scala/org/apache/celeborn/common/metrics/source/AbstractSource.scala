@@ -25,6 +25,7 @@ import scala.collection.mutable
 import scala.util.Random
 
 import com.codahale.metrics._
+import com.codahale.metrics.MetricRegistry.MetricSupplier
 
 import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.internal.Logging
@@ -118,15 +119,31 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     addGauge(name, Map.empty[String, String], gauge)
   }
 
-  def markMeter(name: String, value: Long, labels: Map[String, String]): Unit = {
-    namedMeters.computeIfAbsent(
+  def addMeter(
+      name: String,
+      labels: Map[String, String],
+      meter: Meter): Unit = {
+    namedMeters.putIfAbsent(
       metricNameWithCustomizedLabels(name, labels),
-      n => NamedMeter(name, metricRegistry.meter(n), labels ++ staticLabels))
-      .meter.mark(value)
+      NamedMeter(name, meter, labels ++ staticLabels))
   }
 
-  def markMeter(name: String, value: Long): Unit = {
-    markMeter(name, value, Map.empty[String, String])
+  def addMeter(
+      name: String,
+      labels: JMap[String, String],
+      meter: Meter): Unit = {
+    addMeter(name, labels.asScala.toMap, meter)
+  }
+
+  def addMeter(name: String, labels: Map[String, String] = Map.empty)(f: () => Long): Unit = {
+    addMeter(
+      name,
+      labels,
+      metricRegistry.meter(metricNameWithCustomizedLabels(name, labels), new MeterSupplier(f)))
+  }
+
+  def addMeter(name: String, meter: Meter): Unit = {
+    addMeter(name, Map.empty[String, String], meter)
   }
 
   protected val namedTimers
@@ -482,4 +499,8 @@ class TimerSupplier(val slidingWindowSize: Int)
 
 class GaugeSupplier[T](f: () => T) extends MetricRegistry.MetricSupplier[Gauge[_]] {
   override def newMetric(): Gauge[T] = new Gauge[T] { override def getValue: T = f() }
+}
+
+class MeterSupplier(f: () => Long) extends MetricRegistry.MetricSupplier[Meter] {
+  override def newMetric(): Meter = new Meter { override def getCount: Long = f() }
 }
