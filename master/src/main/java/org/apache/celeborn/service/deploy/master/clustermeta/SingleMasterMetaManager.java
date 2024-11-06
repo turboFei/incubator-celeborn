@@ -33,16 +33,20 @@ import org.apache.celeborn.common.meta.WorkerStatus;
 import org.apache.celeborn.common.network.CelebornRackResolver;
 import org.apache.celeborn.common.quota.ResourceConsumption;
 import org.apache.celeborn.common.rpc.RpcEnv;
+import org.apache.celeborn.service.deploy.master.MasterSource;
 
 public class SingleMasterMetaManager extends AbstractMetaManager {
   private static final Logger LOG = LoggerFactory.getLogger(SingleMasterMetaManager.class);
 
   public SingleMasterMetaManager(RpcEnv rpcEnv, CelebornConf conf) {
-    this(rpcEnv, conf, new CelebornRackResolver(conf));
+    this(rpcEnv, conf, new CelebornRackResolver(conf), new MasterSource(conf));
   }
 
   public SingleMasterMetaManager(
-      RpcEnv rpcEnv, CelebornConf conf, CelebornRackResolver rackResolver) {
+      RpcEnv rpcEnv,
+      CelebornConf conf,
+      CelebornRackResolver rackResolver,
+      MasterSource masterSource) {
     this.rpcEnv = rpcEnv;
     this.conf = conf;
     this.initialEstimatedPartitionSize = conf.initialEstimatedPartitionSize();
@@ -50,6 +54,7 @@ public class SingleMasterMetaManager extends AbstractMetaManager {
     this.unhealthyDiskRatioThreshold = conf.masterExcludeWorkerUnhealthyDiskRatioThreshold();
     this.appDiskUsageMetric = new AppDiskUsageMetric(conf);
     this.rackResolver = rackResolver;
+    this.masterSource = masterSource;
   }
 
   @Override

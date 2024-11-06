@@ -1100,9 +1100,6 @@ private[celeborn] class Master(
       needCheckedWorkerList: util.List[WorkerInfo],
       requestId: String,
       shouldResponse: Boolean): Unit = {
-    if (shuffleFallbackCount > 0) {
-      masterSource.markMeter(MasterSource.SHUFFLE_FALLBACK_COUNT, shuffleFallbackCount)
-    }
     statusSystem.handleAppHeartbeat(
       appId,
       totalWritten,

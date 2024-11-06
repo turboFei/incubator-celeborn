@@ -36,6 +36,7 @@ import org.apache.celeborn.common.meta.WorkerStatus;
 import org.apache.celeborn.common.network.CelebornRackResolver;
 import org.apache.celeborn.common.quota.ResourceConsumption;
 import org.apache.celeborn.common.rpc.RpcEnv;
+import org.apache.celeborn.service.deploy.master.MasterSource;
 import org.apache.celeborn.service.deploy.master.clustermeta.AbstractMetaManager;
 import org.apache.celeborn.service.deploy.master.clustermeta.MetaUtil;
 import org.apache.celeborn.service.deploy.master.clustermeta.ResourceProtos;
@@ -48,10 +49,14 @@ public class HAMasterMetaManager extends AbstractMetaManager {
   protected HARaftServer ratisServer;
 
   public HAMasterMetaManager(RpcEnv rpcEnv, CelebornConf conf) {
-    this(rpcEnv, conf, new CelebornRackResolver(conf));
+    this(rpcEnv, conf, new CelebornRackResolver(conf), new MasterSource(conf));
   }
 
-  public HAMasterMetaManager(RpcEnv rpcEnv, CelebornConf conf, CelebornRackResolver rackResolver) {
+  public HAMasterMetaManager(
+      RpcEnv rpcEnv,
+      CelebornConf conf,
+      CelebornRackResolver rackResolver,
+      MasterSource masterSource) {
     this.rpcEnv = rpcEnv;
     this.conf = conf;
     this.initialEstimatedPartitionSize = conf.initialEstimatedPartitionSize();
@@ -59,6 +64,7 @@ public class HAMasterMetaManager extends AbstractMetaManager {
     this.unhealthyDiskRatioThreshold = conf.masterExcludeWorkerUnhealthyDiskRatioThreshold();
     this.appDiskUsageMetric = new AppDiskUsageMetric(conf);
     this.rackResolver = rackResolver;
+    this.masterSource = masterSource;
   }
 
   public HARaftServer getRatisServer() {

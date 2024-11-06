@@ -118,11 +118,15 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     addGauge(name, Map.empty[String, String], gauge)
   }
 
-  def markMeter(name: String, value: Long, labels: Map[String, String] = Map.empty): Unit = {
+  def markMeter(name: String, value: Long, labels: Map[String, String]): Unit = {
     namedMeters.computeIfAbsent(
       metricNameWithCustomizedLabels(name, labels),
       n => NamedMeter(name, metricRegistry.meter(n), labels ++ staticLabels))
       .meter.mark(value)
+  }
+
+  def markMeter(name: String, value: Long): Unit = {
+    markMeter(name, value, Map.empty[String, String])
   }
 
   protected val namedTimers

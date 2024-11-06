@@ -56,6 +56,7 @@ import org.apache.celeborn.common.util.JavaUtils;
 import org.apache.celeborn.common.util.PbSerDeUtils;
 import org.apache.celeborn.common.util.Utils;
 import org.apache.celeborn.common.util.WorkerStatusUtils;
+import org.apache.celeborn.service.deploy.master.MasterSource;
 
 public abstract class AbstractMetaManager implements IMetadataHandler {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMetaManager.class);
@@ -79,6 +80,7 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   protected RpcEnv rpcEnv;
   protected CelebornConf conf;
   protected CelebornRackResolver rackResolver;
+  protected MasterSource masterSource;
 
   public long initialEstimatedPartitionSize;
   public long estimatedPartitionSize;
@@ -146,6 +148,9 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     partitionTotalWritten.add(totalWritten);
     partitionTotalFileCount.add(fileCount);
     shuffleTotalFallbackCount.add(shuffleFallbackCount);
+    if (shuffleFallbackCount > 0) {
+      masterSource.markMeter(MasterSource.SHUFFLE_FALLBACK_COUNT(), shuffleFallbackCount);
+    }
   }
 
   public void updateAppLostMeta(String appId) {
