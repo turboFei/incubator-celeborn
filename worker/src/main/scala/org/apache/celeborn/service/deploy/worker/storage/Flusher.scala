@@ -89,7 +89,16 @@ abstract private[worker] class Flusher(
                 }
                 lastBeginFlushTime.set(index, -1)
               }
-              Utils.tryLogNonFatalError(returnBuffer(task.buffer, task.keepBuffer))
+              task match {
+                case localTask: LocalFlushTask =>
+                  if (localTask.fromEvict) {
+                    logInfo(s"fwang12: $localTask release disk buffer size: ${localTask.buffer.readableBytes()}")
+                  }
+                  Utils.tryLogNonFatalError(returnBuffer(task.buffer, task.keepBuffer))
+                case _ =>
+                  Utils.tryLogNonFatalError(returnBuffer(task.buffer, task.keepBuffer))
+
+              }
               task.notifier.numPendingFlushes.decrementAndGet()
             }
           }

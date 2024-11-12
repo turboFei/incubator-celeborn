@@ -232,7 +232,7 @@ public abstract class PartitionDataWriter implements DeviceObserver {
           ByteBuf dupBuf = flushBuffer.retainedDuplicate();
           // flush task will release the buffer of memory shuffle file
           if (channel != null) {
-            task = new LocalFlushTask(flushBuffer, channel, notifier, false);
+            task = new LocalFlushTask(flushBuffer, channel, notifier, false, true);
           } else if (diskFileInfo.isHdfs()) {
             task = new HdfsFlushTask(flushBuffer, diskFileInfo.getDfsPath(), notifier, false);
           } else if (diskFileInfo.isS3()) {
@@ -240,6 +240,7 @@ public abstract class PartitionDataWriter implements DeviceObserver {
           }
           MemoryManager.instance().releaseMemoryFileStorage(numBytes);
           MemoryManager.instance().incrementDiskBuffer(numBytes);
+          logger.info("fwang12: {} increase disk buffer size: {}", task, numBytes);
           // read flush buffer to generate correct chunk offsets
           // data header layout (mapId, attemptId, nextBatchId, length)
           if (numBytes > chunkSize) {
@@ -260,7 +261,7 @@ public abstract class PartitionDataWriter implements DeviceObserver {
           if (!isMemoryShuffleFile.get()) {
             notifier.numPendingFlushes.incrementAndGet();
             if (channel != null) {
-              task = new LocalFlushTask(flushBuffer, channel, notifier, true);
+              task = new LocalFlushTask(flushBuffer, channel, notifier, true, false);
             } else if (diskFileInfo.isHdfs()) {
               task = new HdfsFlushTask(flushBuffer, diskFileInfo.getDfsPath(), notifier, true);
             } else if (diskFileInfo.isS3()) {

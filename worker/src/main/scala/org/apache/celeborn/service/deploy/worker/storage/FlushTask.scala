@@ -36,7 +36,8 @@ private[worker] class LocalFlushTask(
     buffer: CompositeByteBuf,
     fileChannel: FileChannel,
     notifier: FlushNotifier,
-    keepBuffer: Boolean) extends FlushTask(buffer, notifier, keepBuffer) {
+    keepBuffer: Boolean,
+    val fromEvict: Boolean = false) extends FlushTask(buffer, notifier, keepBuffer) {
   override def flush(): Unit = {
     val buffers = buffer.nioBuffers()
     for (buffer <- buffers) {
