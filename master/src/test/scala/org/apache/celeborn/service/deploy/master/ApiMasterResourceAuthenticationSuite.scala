@@ -24,7 +24,8 @@ import org.apache.celeborn.common.util.{CelebornExitKind, ThreadUtils, Utils}
 import org.apache.celeborn.server.common.HttpService
 import org.apache.celeborn.server.common.http.ApiBaseResourceAuthenticationSuite
 
-class ApiMasterResourceAuthenticationSuite extends ApiBaseResourceAuthenticationSuite with MasterClusterFeature {
+class ApiMasterResourceAuthenticationSuite extends ApiBaseResourceAuthenticationSuite
+  with MasterClusterFeature {
   private var master: Master = _
 
   override protected def httpService: HttpService = master

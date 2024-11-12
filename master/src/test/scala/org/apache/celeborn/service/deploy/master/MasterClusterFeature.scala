@@ -45,8 +45,8 @@ trait MasterClusterFeature extends Logging {
         pass = true
       } catch {
         case e: IOException
-          if e.isInstanceOf[BindException] || Option(e.getCause).exists(
-            _.isInstanceOf[BindException]) =>
+            if e.isInstanceOf[BindException] || Option(e.getCause).exists(
+              _.isInstanceOf[BindException]) =>
           logError(s"UT failed to BindException, retrying (retry count: $retryCount)", e)
           retryCount += 1
           if (retryCount == maxRetries) {
@@ -102,6 +102,10 @@ trait MasterClusterFeature extends Logging {
 
     val masterArguments = new MasterArguments(Array(), conf)
     val master = new Master(conf, masterArguments)
+    if (conf.metricsSystemEnable) {
+      logInfo(s"Metrics system enabled.")
+      master.metricsSystem.start()
+    }
     master.startHttpServer()
 
     Thread.sleep(5000L)
