@@ -23,14 +23,12 @@ import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.client.Entity
 import javax.ws.rs.core.MediaType
 
-import org.apache.celeborn.common.CelebornConf
-import org.apache.celeborn.common.util.{CelebornExitKind, ThreadUtils, Utils}
 import org.apache.celeborn.rest.v1.model.{AppDiskUsageSnapshotsResponse, ApplicationsResponse, ExcludeWorkerRequest, HandleResponse, HostnamesResponse, RemoveWorkersUnavailableInfoRequest, SendWorkerEventRequest, ShufflesResponse, WorkerEventsResponse, WorkerId, WorkersResponse}
 import org.apache.celeborn.server.common.HttpService
 import org.apache.celeborn.server.common.http.api.v1.ApiV1BaseResourceSuite
-import org.apache.celeborn.service.deploy.master.{Master, MasterArguments}
+import org.apache.celeborn.service.deploy.master.{Master, MasterClusterFeature}
 
-class ApiV1MasterResourceSuite extends ApiV1BaseResourceSuite {
+class ApiV1MasterResourceSuite extends ApiV1BaseResourceSuite with MasterClusterFeature {
   private var master: Master = _
 
   override protected def httpService: HttpService = master
@@ -42,32 +40,13 @@ class ApiV1MasterResourceSuite extends ApiV1BaseResourceSuite {
   }
 
   override def beforeAll(): Unit = {
-    val randomMasterPort = Utils.selectRandomInt(1024, 65535)
-    val randomHttpPort = randomMasterPort + 1
-    celebornConf.set(CelebornConf.HA_ENABLED.key, "false")
-    celebornConf.set(CelebornConf.HA_MASTER_RATIS_STORAGE_DIR.key, getTmpDir())
-    celebornConf.set(CelebornConf.WORKER_STORAGE_DIRS.key, getTmpDir())
-    celebornConf.set(CelebornConf.MASTER_HTTP_HOST.key, "127.0.0.1")
-    celebornConf.set(CelebornConf.MASTER_HTTP_PORT.key, randomHttpPort.toString)
-
-    val args = Array("-h", "localhost", "-p", randomMasterPort.toString)
-
-    val masterArgs = new MasterArguments(args, celebornConf)
-    master = new Master(celebornConf, masterArgs)
-    ThreadUtils.newThread(
-      new Runnable {
-        override def run(): Unit = {
-          master.initialize()
-        }
-      },
-      "master-init-thread").start()
+    master = setupMasterWithRandomPort(celebornConf.getAll.toMap)
     super.beforeAll()
   }
 
   override def afterAll(): Unit = {
     super.afterAll()
-    master.stop(CelebornExitKind.EXIT_IMMEDIATELY)
-    master.rpcEnv.shutdown()
+    shutdownMaster()
   }
 
   test("shuffle resource") {
