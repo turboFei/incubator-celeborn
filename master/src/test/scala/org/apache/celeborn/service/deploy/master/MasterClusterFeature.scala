@@ -143,6 +143,9 @@ trait MasterClusterFeature extends Logging {
   def shutdownMaster(): Unit = {
     masterInfo._1.stop(CelebornExitKind.EXIT_IMMEDIATELY)
     masterInfo._1.rpcEnv.shutdown()
+    if (masterInfo._1.conf.internalPortEnabled) {
+      masterInfo._1.internalRpcEnvInUse.shutdown()
+    }
     Thread.sleep(3000)
     masterInfo._2.interrupt()
   }

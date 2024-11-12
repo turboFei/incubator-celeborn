@@ -21,11 +21,9 @@ import java.nio.file.Files
 import javax.ws.rs.client.Entity
 import javax.ws.rs.core.{Form, MediaType}
 
-import org.apache.celeborn.common.CelebornConf
-import org.apache.celeborn.common.util.{CelebornExitKind, ThreadUtils, Utils}
 import org.apache.celeborn.server.common.HttpService
 import org.apache.celeborn.server.common.http.ApiBaseResourceSuite
-import org.apache.celeborn.service.deploy.master.{Master, MasterArguments, MasterClusterFeature}
+import org.apache.celeborn.service.deploy.master.{Master, MasterClusterFeature}
 
 class ApiMasterResourceSuite extends ApiBaseResourceSuite with MasterClusterFeature {
   private var master: Master = _
