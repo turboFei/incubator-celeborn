@@ -390,9 +390,7 @@ message PbGetShuffleIdResponse {
 message PbReportShuffleFetchFailure {
   int32 appShuffleId = 1;
   int32 shuffleId = 2;
-  int32 stageId = 3;
-  int32 taskIndex = 4;
-  int32 taskAttempt = 5;
+  int64 taskId = 3;
 }
 
 message PbReportShuffleFetchFailureResponse {

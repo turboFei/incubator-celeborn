@@ -622,30 +622,12 @@ public class ShuffleClientImpl extends ShuffleClient {
   }
 
   @Override
-  public boolean reportShuffleFetchFailure(int appShuffleId, int shuffleId) {
+  public boolean reportShuffleFetchFailure(int appShuffleId, int shuffleId, long taskId) {
     PbReportShuffleFetchFailure pbReportShuffleFetchFailure =
         PbReportShuffleFetchFailure.newBuilder()
             .setAppShuffleId(appShuffleId)
             .setShuffleId(shuffleId)
-            .build();
-    PbReportShuffleFetchFailureResponse pbReportShuffleFetchFailureResponse =
-        lifecycleManagerRef.askSync(
-            pbReportShuffleFetchFailure,
-            conf.clientRpcRegisterShuffleAskTimeout(),
-            ClassTag$.MODULE$.apply(PbReportShuffleFetchFailureResponse.class));
-    return pbReportShuffleFetchFailureResponse.getSuccess();
-  }
-
-  @Override
-  public boolean reportShuffleFetchFailure(
-      int appShuffleId, int shuffleId, int stageId, int taskIndex, int taskAttempt) {
-    PbReportShuffleFetchFailure pbReportShuffleFetchFailure =
-        PbReportShuffleFetchFailure.newBuilder()
-            .setAppShuffleId(appShuffleId)
-            .setShuffleId(shuffleId)
-            .setStageId(stageId)
-            .setTaskIndex(taskIndex)
-            .setTaskAttempt(taskAttempt)
+            .setTaskId(taskId)
             .build();
     PbReportShuffleFetchFailureResponse pbReportShuffleFetchFailureResponse =
         lifecycleManagerRef.askSync(
@@ -1771,6 +1753,7 @@ public class ShuffleClientImpl extends ShuffleClient {
       int appShuffleId,
       int partitionId,
       int attemptNumber,
+      long taskId,
       int startMapIndex,
       int endMapIndex,
       ExceptionMaker exceptionMaker,
@@ -1816,6 +1799,7 @@ public class ShuffleClientImpl extends ShuffleClient {
           appShuffleId,
           shuffleId,
           partitionId,
+          taskId,
           exceptionMaker,
           metricsCallback);
     }

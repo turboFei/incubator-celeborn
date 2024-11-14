@@ -63,6 +63,7 @@ public abstract class CelebornInputStream extends InputStream {
       int appShuffleId,
       int shuffleId,
       int partitionId,
+      long taskId,
       ExceptionMaker exceptionMaker,
       MetricsCallback metricsCallback)
       throws IOException {
@@ -84,6 +85,7 @@ public abstract class CelebornInputStream extends InputStream {
           appShuffleId,
           shuffleId,
           partitionId,
+          taskId,
           exceptionMaker,
           metricsCallback);
     }
@@ -168,6 +170,7 @@ public abstract class CelebornInputStream extends InputStream {
     private int appShuffleId;
     private int shuffleId;
     private int partitionId;
+    private long taskId;
     private ExceptionMaker exceptionMaker;
     private boolean closed = false;
 
@@ -186,6 +189,7 @@ public abstract class CelebornInputStream extends InputStream {
         int appShuffleId,
         int shuffleId,
         int partitionId,
+        long taskId,
         ExceptionMaker exceptionMaker,
         MetricsCallback metricsCallback)
         throws IOException {
@@ -217,6 +221,7 @@ public abstract class CelebornInputStream extends InputStream {
       this.callback = metricsCallback;
       this.exceptionMaker = exceptionMaker;
       this.partitionId = partitionId;
+      this.taskId = taskId;
       this.appShuffleId = appShuffleId;
       this.shuffleId = shuffleId;
       this.shuffleClient = shuffleClient;
@@ -673,7 +678,7 @@ public abstract class CelebornInputStream extends InputStream {
           ioe = new IOException(e);
         }
         if (exceptionMaker != null) {
-          if (shuffleClient.reportShuffleFetchFailure(appShuffleId, shuffleId)) {
+          if (shuffleClient.reportShuffleFetchFailure(appShuffleId, shuffleId, taskId)) {
             /*
              * [[ExceptionMaker.makeException]], for spark applications with celeborn.client.spark.fetch.throwsFetchFailure enabled will result in creating
              * a FetchFailedException; and that will make the TaskContext as failed with shuffle fetch issues - see SPARK-19276 for more.
