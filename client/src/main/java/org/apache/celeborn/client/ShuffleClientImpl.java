@@ -636,6 +636,25 @@ public class ShuffleClientImpl extends ShuffleClient {
     return pbReportShuffleFetchFailureResponse.getSuccess();
   }
 
+  @Override
+  public boolean reportShuffleFetchFailure(
+      int appShuffleId, int shuffleId, int stageId, int taskIndex, int taskAttempt) {
+    PbReportShuffleFetchFailure pbReportShuffleFetchFailure =
+        PbReportShuffleFetchFailure.newBuilder()
+            .setAppShuffleId(appShuffleId)
+            .setShuffleId(shuffleId)
+            .setStageId(stageId)
+            .setTaskIndex(taskIndex)
+            .setTaskAttempt(taskAttempt)
+            .build();
+    PbReportShuffleFetchFailureResponse pbReportShuffleFetchFailureResponse =
+        lifecycleManagerRef.askSync(
+            pbReportShuffleFetchFailure,
+            conf.clientRpcRegisterShuffleAskTimeout(),
+            ClassTag$.MODULE$.apply(PbReportShuffleFetchFailureResponse.class));
+    return pbReportShuffleFetchFailureResponse.getSuccess();
+  }
+
   public boolean reportBarrierTaskFailure(int appShuffleId, String appShuffleIdentifier) {
     PbReportBarrierStageAttemptFailure pbReportBarrierStageAttemptFailure =
         PbReportBarrierStageAttemptFailure.newBuilder()

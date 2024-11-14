@@ -278,6 +278,9 @@ public abstract class ShuffleClient {
    */
   public abstract boolean reportShuffleFetchFailure(int appShuffleId, int shuffleId);
 
+  public abstract boolean reportShuffleFetchFailure(
+      int appShuffleId, int shuffleId, int stageId, int taskIndex, int taskAttempt);
+
   /**
    * Report barrier task failure. When any barrier task fails, all (shuffle) output for that stage
    * attempt is to be discarded, and spark will recompute the entire stage
