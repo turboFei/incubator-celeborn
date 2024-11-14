@@ -342,18 +342,18 @@ public class SparkUtils {
           return taskSetManager.taskAttempts()[taskInfo.index()].exists(
               ti -> {
                 if (ti.running() && ti.attemptNumber() != taskInfo.attemptNumber()) {
-                  LOG.info("Another attempt of task {} is running, {}.", taskInfo, ti);
+                  LOG.info("Another attempt of task {} is running: {}.", taskInfo, ti);
                   return true;
                 } else {
                   return false;
                 }
               });
         } else {
-          LOG.error("Can not get TaskInfo for taskId: " + taskId);
+          LOG.error("Can not get TaskInfo for taskId: {}", taskId);
           return false;
         }
       } else {
-        LOG.error("Can not get TaskSetManager for taskId: " + taskId);
+        LOG.error("Can not get TaskSetManager for taskId: {}", taskId);
         return false;
       }
     } else {
