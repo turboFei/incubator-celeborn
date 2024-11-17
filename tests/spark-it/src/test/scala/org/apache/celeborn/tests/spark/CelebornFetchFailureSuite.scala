@@ -88,15 +88,19 @@ class CelebornFetchFailureSuite extends AnyFunSuite
             val allFiles = workerDirs.map(dir => {
               new File(s"$dir/celeborn-worker/shuffle_data/$appUniqueId/$celebornShuffleId")
             })
-            val datafiles = allFiles.filter(_.exists())
-            if (datafiles.nonEmpty) {
-              if (taskIndex == 0) { // only cleanup the data file in the task with index 0
-                datafiles.foreach(_.delete())
+            val datafile = allFiles.filter(_.exists())
+              .flatMap(_.listFiles().iterator).headOption
+            datafile match {
+              case Some(file) if !speculation =>
+                file.delete()
                 executed.set(true)
-              }
-            } else {
-              throw new RuntimeException("unexpected, there must be some data file" +
-                s" under ${workerDirs.mkString(",")}")
+              case Some(file) if speculation =>
+                if (taskIndex == 0) {
+                  allFiles.filter(_.exists()).foreach(_.delete())
+                  executed.set(true)
+                }
+              case None => throw new RuntimeException("unexpected, there must be some data file" +
+                  s" under ${workerDirs.mkString(",")}")
             }
           }
           case _ => throw new RuntimeException("unexpected, only support RssShuffleHandle here")
@@ -467,15 +471,17 @@ class CelebornFetchFailureSuite extends AnyFunSuite
       .asInstanceOf[TestCelebornShuffleManager]
     var preventUnnecessaryStageRerun = false
     val lifecycleManager = shuffleMgr.getLifecycleManager
+    val reportTaskShuffleFetchFailurePreCheck =
+      lifecycleManager.reportTaskShuffleFetchFailurePreCheck
     lifecycleManager.registerReportTaskShuffleFetchFailurePreCheck(new java.util.function.Function[
       java.lang.Long,
       Boolean] {
       override def apply(taskId: java.lang.Long): Boolean = {
-        val anotherRunningOrSuccessful = SparkUtils.taskAnotherAttemptRunningOrSuccessful(taskId)
-        if (anotherRunningOrSuccessful) {
+        val preCheckResult = reportTaskShuffleFetchFailurePreCheck.get.apply(taskId)
+        if (!preCheckResult) {
           preventUnnecessaryStageRerun = true
         }
-        !anotherRunningOrSuccessful
+        preCheckResult
       }
     })
 
