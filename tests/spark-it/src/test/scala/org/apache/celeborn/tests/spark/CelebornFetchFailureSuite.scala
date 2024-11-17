@@ -463,11 +463,11 @@ class CelebornFetchFailureSuite extends AnyFunSuite
       java.lang.Long,
       Boolean] {
       override def apply(taskId: java.lang.Long): Boolean = {
-        val anotherRunning = SparkUtils.taskAnotherAttemptRunning(taskId)
-        if (anotherRunning) {
+        val anotherRunningOrSuccessful = SparkUtils.taskAnotherAttemptRunningOrSuccessful(taskId)
+        if (anotherRunningOrSuccessful) {
           preventShuffleFetchFailure = true
         }
-        !anotherRunning
+        !anotherRunningOrSuccessful
       }
     })
 
