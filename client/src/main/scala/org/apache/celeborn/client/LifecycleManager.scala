@@ -1788,7 +1788,7 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
     workerStatusTracker.registerWorkerStatusListener(workerStatusListener)
   }
 
-  @volatile private var reportTaskShuffleFetchFailurePreCheck
+  @volatile private[celeborn] var reportTaskShuffleFetchFailurePreCheck
       : Option[java.util.function.Function[java.lang.Long, Boolean]] = None
   def registerReportTaskShuffleFetchFailurePreCheck(preCheck: java.util.function.Function[
     java.lang.Long,

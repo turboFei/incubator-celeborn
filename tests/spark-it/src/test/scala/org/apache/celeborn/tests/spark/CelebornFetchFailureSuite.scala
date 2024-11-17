@@ -467,15 +467,17 @@ class CelebornFetchFailureSuite extends AnyFunSuite
       .asInstanceOf[TestCelebornShuffleManager]
     var preventUnnecessaryStageRerun = false
     val lifecycleManager = shuffleMgr.getLifecycleManager
+    val reportTaskShuffleFetchFailurePreCheck =
+      lifecycleManager.reportTaskShuffleFetchFailurePreCheck
     lifecycleManager.registerReportTaskShuffleFetchFailurePreCheck(new java.util.function.Function[
       java.lang.Long,
       Boolean] {
       override def apply(taskId: java.lang.Long): Boolean = {
-        val anotherRunningOrSuccessful = SparkUtils.taskAnotherAttemptRunningOrSuccessful(taskId)
-        if (anotherRunningOrSuccessful) {
+        val preCheckResult = reportTaskShuffleFetchFailurePreCheck.get.apply(taskId)
+        if (!preCheckResult) {
           preventUnnecessaryStageRerun = true
         }
-        !anotherRunningOrSuccessful
+        preCheckResult
       }
     })
 
