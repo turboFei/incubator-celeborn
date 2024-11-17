@@ -439,6 +439,61 @@ class CelebornFetchFailureSuite extends AnyFunSuite
     }
   }
 
+  test(s"celeborn spark integration test - do not rerun stage if task another attempt is running") {
+    val sparkConf = new SparkConf().setAppName("rss-demo").setMaster("local[2,3]")
+    val sparkSession = SparkSession.builder()
+      .config(updateSparkConf(sparkConf, ShuffleMode.HASH))
+      .config("spark.sql.shuffle.partitions", 2)
+      .config("spark.celeborn.shuffle.forceFallback.partition.enabled", false)
+      .config("spark.celeborn.client.spark.fetch.throwsFetchFailure", "true")
+      .config(
+        "spark.shuffle.manager",
+        "org.apache.spark.shuffle.celeborn.TestCelebornShuffleManager")
+      .config("spark.speculation", "true")
+      .config("spark.speculation.multiplier", "2")
+      .config("spark.speculation.quantile", "0")
+      .getOrCreate()
+
+    val shuffleMgr = SparkContextHelper.env
+      .shuffleManager
+      .asInstanceOf[TestCelebornShuffleManager]
+    var preventShuffleFetchFailure = false
+    val lifecycleManager = shuffleMgr.getLifecycleManager
+    lifecycleManager.registerReportTaskShuffleFetchFailurePreCheck(new java.util.function.Function[
+      java.lang.Long,
+      Boolean] {
+      override def apply(taskId: java.lang.Long): Boolean = {
+        val anotherRunning = SparkUtils.taskAnotherAttemptRunning(taskId)
+        if (anotherRunning) {
+          preventShuffleFetchFailure = true
+        }
+        !anotherRunning
+      }
+    })
+
+    val celebornConf = SparkUtils.fromSparkConf(sparkSession.sparkContext.getConf)
+    val hook = new ShuffleReaderGetHook(celebornConf)
+    TestCelebornShuffleManager.registerReaderGetHook(hook)
+
+    val value = Range(1, 10000).mkString(",")
+    val tuples = sparkSession.sparkContext.parallelize(1 to 10000, 2)
+      .map { i => (i, value) }.groupByKey(16).collect()
+
+    // verify result
+    assert(hook.executed.get() == true)
+    assert(preventShuffleFetchFailure)
+    assert(tuples.length == 10000)
+    for (elem <- tuples) {
+      assert(elem._2.mkString(",").equals(value))
+    }
+
+    shuffleMgr.unregisterShuffle(0)
+    assert(lifecycleManager.getUnregisterShuffleTime().containsKey(0))
+    assert(lifecycleManager.getUnregisterShuffleTime().containsKey(1))
+
+    sparkSession.stop()
+  }
+
   private def findAppShuffleId(rdd: RDD[_]): Int = {
     val deps = rdd.dependencies
     if (deps.size != 1 && !deps.head.isInstanceOf[ShuffleDependency[_, _, _]]) {
