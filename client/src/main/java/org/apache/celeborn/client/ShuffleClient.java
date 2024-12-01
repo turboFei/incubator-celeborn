@@ -221,11 +221,13 @@ public abstract class ShuffleClient {
    * @throws IOException
    */
   public CelebornInputStream readPartition(
+          long taskId,
       int shuffleId,
       int partitionId,
       int attemptNumber,
       int startMapIndex,
       int endMapIndex,
+      long taskId,
       MetricsCallback metricsCallback)
       throws IOException {
     return readPartition(
@@ -235,6 +237,7 @@ public abstract class ShuffleClient {
         attemptNumber,
         startMapIndex,
         endMapIndex,
+        taskId,
         null,
         null,
         null,
@@ -249,6 +252,7 @@ public abstract class ShuffleClient {
       int attemptNumber,
       int startMapIndex,
       int endMapIndex,
+      long taskId,
       ExceptionMaker exceptionMaker,
       ArrayList<PartitionLocation> locations,
       ArrayList<PbStreamHandler> streamHandlers,
@@ -276,7 +280,7 @@ public abstract class ShuffleClient {
    * cleanup for spark app. It must be a sync call and make sure the cleanup is done, otherwise,
    * incorrect shuffle data can be fetched in re-run tasks
    */
-  public abstract boolean reportShuffleFetchFailure(int appShuffleId, int shuffleId);
+  public abstract boolean reportShuffleFetchFailure(int appShuffleId, int shuffleId, long taskId);
 
   /**
    * Report barrier task failure. When any barrier task fails, all (shuffle) output for that stage

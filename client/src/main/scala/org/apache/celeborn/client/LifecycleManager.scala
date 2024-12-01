@@ -441,8 +441,18 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
     case pb: PbReportShuffleFetchFailure =>
       val appShuffleId = pb.getAppShuffleId
       val shuffleId = pb.getShuffleId
-      logDebug(s"Received ReportShuffleFetchFailure request, appShuffleId $appShuffleId shuffleId $shuffleId")
-      handleReportShuffleFetchFailure(context, appShuffleId, shuffleId)
+      val stageId = pb.getStageId
+      val taskIndex = pb.getTaskIndex
+      val taskAttempt = pb.getTaskAttempt
+      logDebug(s"Received ReportShuffleFetchFailure request, appShuffleId $appShuffleId shuffleId $shuffleId, " +
+        s"stageId $stageId, taskIndex $taskIndex, taskAttempt $taskAttempt")
+      handleReportShuffleFetchFailure(
+        context,
+        appShuffleId,
+        shuffleId,
+        stageId,
+        taskIndex,
+        taskAttempt)
 
     case pb: PbReportBarrierStageAttemptFailure =>
       val appShuffleId = pb.getAppShuffleId
@@ -931,13 +941,17 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
   private def handleReportShuffleFetchFailure(
       context: RpcCallContext,
       appShuffleId: Int,
-      shuffleId: Int): Unit = {
+      shuffleId: Int,
+      stageId: Int,
+      taskIndex: Int,
+      taskAttempt: Int): Unit = {
 
     val shuffleIds = shuffleIdMapping.get(appShuffleId)
     if (shuffleIds == null) {
       throw new UnsupportedOperationException(s"unexpected! unknown appShuffleId $appShuffleId")
     }
     var ret = true
+    if (!(stageId == 0 && taskIndex == 0 && taskAttempt == 0)) {}
     shuffleIds.synchronized {
       shuffleIds.find(e => e._2._1 == shuffleId) match {
         case Some((appShuffleIdentifier, (shuffleId, true))) =>
