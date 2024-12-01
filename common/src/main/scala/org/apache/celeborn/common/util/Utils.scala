@@ -1169,6 +1169,8 @@ object Utils extends Logging {
         StatusCode.SEGMENT_START_FAIL_REPLICA
       case 53 =>
         StatusCode.SEGMENT_START_FAIL_PRIMARY
+      case 54 =>
+        StatusCode.SHUFFLE_PARTITIONS_EXCEEDED
       case _ =>
         null
     }

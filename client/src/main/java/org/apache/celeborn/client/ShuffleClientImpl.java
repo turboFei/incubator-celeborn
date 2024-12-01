@@ -688,6 +688,9 @@ public class ShuffleClientImpl extends ShuffleClient {
               "LifecycleManager request slots return {}, retry again, remain retry times {}.",
               StatusCode.RESERVE_SLOTS_FAILED,
               numRetries - 1);
+        } else if (StatusCode.SHUFFLE_PARTITIONS_EXCEEDED.equals(respStatus)) {
+          throw new CelebornIOException(
+              "Register shuffle failed for shuffle " + shuffleId + ", reason: " + respStatus);
         } else {
           lastFailedStatusCode = respStatus;
           logger.error(
