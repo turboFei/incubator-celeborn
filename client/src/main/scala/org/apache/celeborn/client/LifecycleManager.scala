@@ -716,13 +716,13 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
       }
       // Forth, register shuffle success, update status
       val allocatedWorkers =
-        JavaUtils.newConcurrentHashMap[WorkerInfo, ShufflePartitionLocationInfo]()
+        JavaUtils.newConcurrentHashMap[String, ShufflePartitionLocationInfo]()
       slots.asScala.foreach { case (workerInfo, (primaryLocations, replicaLocations)) =>
         val partitionLocationInfo = new ShufflePartitionLocationInfo(workerInfo)
         partitionLocationInfo.addPrimaryPartitions(primaryLocations)
         updateLatestPartitionLocations(shuffleId, primaryLocations)
         partitionLocationInfo.addReplicaPartitions(replicaLocations)
-        allocatedWorkers.put(workerInfo, partitionLocationInfo)
+        allocatedWorkers.put(workerInfo.toUniqueId(), partitionLocationInfo)
       }
       shuffleAllocatedWorkers.put(shuffleId, allocatedWorkers)
       registeredShuffle.add(shuffleId)
@@ -1758,7 +1758,7 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
   }
 
   def getAllocatedWorkers(): Set[WorkerInfo] = {
-    shuffleAllocatedWorkers.asScala.values.flatMap(_.keys().asScala).toSet
+    shuffleAllocatedWorkers.asScala.values.flatMap(_.values().asScala.map(_.workerInfo)).toSet
   }
 
   // delegate workerStatusTracker to register listener
