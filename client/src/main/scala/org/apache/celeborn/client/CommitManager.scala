@@ -320,7 +320,7 @@ class CommitManager(appUniqueId: String, val conf: CelebornConf, lifecycleManage
               val needCommitPartitionLocations = new util.HashSet[PartitionLocation]()
 
               workersStatus.shutdownWorkers.asScala.foreach { worker =>
-                val partitionLocationInfos = workerToPartitionLocationInfos.get(worker)
+                val partitionLocationInfos = workerToPartitionLocationInfos.get(worker.toUniqueId())
                 if (partitionLocationInfos != null) {
                   logWarning(s"Worker ${worker.toUniqueId()} shutdown, " +
                     s"commit all it's partition locations for shuffle $shuffleId.")
