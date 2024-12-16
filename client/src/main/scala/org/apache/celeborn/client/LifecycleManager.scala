@@ -63,7 +63,7 @@ object LifecycleManager {
   type ShuffleFileGroups =
     ConcurrentHashMap[Int, ConcurrentHashMap[Integer, util.Set[PartitionLocation]]]
   type ShuffleAllocatedWorkers =
-    ConcurrentHashMap[Int, ConcurrentHashMap[WorkerInfo, ShufflePartitionLocationInfo]]
+    ConcurrentHashMap[Int, ConcurrentHashMap[String, ShufflePartitionLocationInfo]]
   type ShuffleFailedWorkers = ConcurrentHashMap[WorkerInfo, (StatusCode, Long)]
 }
 
@@ -121,7 +121,7 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
   private val authEnabled = conf.authEnabledOnClient
   private var applicationMeta: ApplicationMeta = _
   @VisibleForTesting
-  def workerSnapshots(shuffleId: Int): util.Map[WorkerInfo, ShufflePartitionLocationInfo] =
+  def workerSnapshots(shuffleId: Int): util.Map[String, ShufflePartitionLocationInfo] =
     shuffleAllocatedWorkers.get(shuffleId)
 
   @VisibleForTesting
