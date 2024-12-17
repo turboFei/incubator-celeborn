@@ -20,6 +20,7 @@ package org.apache.celeborn.common.metrics.source
 import com.codahale.metrics.MetricRegistry
 
 trait Source {
+  def role: String
   def sourceName: String
   def metricRegistry: MetricRegistry
   def sample[T](metricsName: String, key: String)(f: => T): T
@@ -28,8 +29,4 @@ trait Source {
   def incCounter(metricsName: String, incV: Long): Unit
   def getMetrics: String
   def destroy(): Unit
-}
-
-object Source {
-  var SOURCE_INSTANCE: String = _
 }

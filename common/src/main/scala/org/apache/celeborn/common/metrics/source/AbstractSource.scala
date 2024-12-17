@@ -48,7 +48,7 @@ case class NamedHistogram(name: String, histogram: Histogram, labels: Map[String
 
 case class NamedTimer(name: String, timer: Timer, labels: Map[String, String]) extends MetricLabels
 
-abstract class AbstractSource(conf: CelebornConf, role: String)
+abstract class AbstractSource(conf: CelebornConf, override val role: String)
   extends Source with Logging {
   override val metricRegistry = new MetricRegistry()
 
@@ -68,7 +68,13 @@ abstract class AbstractSource(conf: CelebornConf, role: String)
     ThreadUtils.newDaemonSingleThreadScheduledExecutor("worker-metrics-cleaner")
 
   val roleLabel: (String, String) = "role" -> role
-  val instanceLabel: Map[String, String] = Option(Source.SOURCE_INSTANCE).map("instance" -> _).toMap
+  val instanceLabel: Map[String, String] = role match {
+    case Role.MASTER =>
+      Map("instance" -> s"${Utils.localHostName(conf)}:${conf.masterHttpPort}")
+    case Role.WORKER =>
+      Map("instance" -> s"${Utils.localHostName(conf)}:${conf.workerHttpPort}")
+    case _ => Map.empty
+  }
   val staticLabels: Map[String, String] = conf.metricsExtraLabels + roleLabel ++ instanceLabel
   val staticLabelsString: String = MetricLabels.labelString(staticLabels)
 

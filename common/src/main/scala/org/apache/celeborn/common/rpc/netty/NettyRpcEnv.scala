@@ -32,6 +32,7 @@ import scala.util.control.NonFatal
 
 import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.internal.Logging
+import org.apache.celeborn.common.metrics.source.Role
 import org.apache.celeborn.common.network.TransportContext
 import org.apache.celeborn.common.network.client._
 import org.apache.celeborn.common.network.protocol.{RequestMessage => NRequestMessage, RpcRequest}
@@ -55,9 +56,10 @@ class NettyRpcEnv(
     config.transportModule,
     celebornConf.rpcIoThreads.getOrElse(config.numUsableCores))
 
-  private val source: RpcSource = new RpcSource(celebornConf)
+  private val role = config.source.map(_.role).getOrElse(Role.CLIENT)
+  private val _rpcSource: RpcSource = new RpcSource(celebornConf, role)
 
-  private val dispatcher: Dispatcher = new Dispatcher(this, source)
+  private val dispatcher: Dispatcher = new Dispatcher(this, _rpcSource)
 
   private var worker: RpcEndpoint = null
 
@@ -364,7 +366,7 @@ class NettyRpcEnv(
     }
   }
 
-  override def rpcSource(): RpcSource = source
+  override def rpcSource(): RpcSource = _rpcSource
 }
 
 private[celeborn] object NettyRpcEnv extends Logging {
