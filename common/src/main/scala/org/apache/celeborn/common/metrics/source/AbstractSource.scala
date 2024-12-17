@@ -48,7 +48,7 @@ case class NamedHistogram(name: String, histogram: Histogram, labels: Map[String
 
 case class NamedTimer(name: String, timer: Timer, labels: Map[String, String]) extends MetricLabels
 
-abstract class AbstractSource(conf: CelebornConf, override val role: String)
+abstract class AbstractSource(conf: CelebornConf, role: String)
   extends Source with Logging {
   override val metricRegistry = new MetricRegistry()
 

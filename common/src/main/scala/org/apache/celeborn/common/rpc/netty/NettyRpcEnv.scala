@@ -56,8 +56,7 @@ class NettyRpcEnv(
     config.transportModule,
     celebornConf.rpcIoThreads.getOrElse(config.numUsableCores))
 
-  private val role = config.source.map(_.role).getOrElse(Role.CLIENT)
-  private val _rpcSource: RpcSource = new RpcSource(celebornConf, role)
+  private val _rpcSource: RpcSource = new RpcSource(celebornConf, config.role)
 
   private val dispatcher: Dispatcher = new Dispatcher(this, _rpcSource)
 
