@@ -20,8 +20,10 @@ package org.apache.spark.shuffle.celeborn;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.celeborn.client.ShuffleClient;
 import org.apache.celeborn.common.CelebornConf;
+import org.apache.celeborn.common.util.JavaUtils;
 import org.apache.celeborn.common.util.Utils;
 import org.apache.celeborn.reflect.DynFields;
 
@@ -258,6 +261,14 @@ public class SparkUtils {
     }
   }
 
+  public static Map<Integer, List<TaskInfo>> reportedStageShuffleFetchFailureTasks =
+      JavaUtils.newConcurrentHashMap();
+
+  /**
+   * Only check for the shuffle fetch failure task whether another attempt is running or successful.
+   * If another attempt(excluding the reported shuffle fetch failure tasks in current stage) is
+   * running or successful, return true. Otherwise, return false.
+   */
   public static synchronized boolean taskAnotherAttemptRunningOrSuccessful(long taskId) {
     TaskSetManager taskSetManager = getTaskSetManager(taskId);
     if (taskSetManager != null) {
@@ -267,31 +278,50 @@ public class SparkUtils {
           taskAttempts.stream().filter(ti -> ti.taskId() == taskId).findFirst();
       if (taskInfoOpt.isPresent()) {
         TaskInfo taskInfo = taskInfoOpt.get();
+
+        List<TaskInfo> reportedStageTasks =
+            reportedStageShuffleFetchFailureTasks.computeIfAbsent(stageId, k -> new ArrayList<>());
+
         int taskIndex = taskInfo.index();
-        for (TaskInfo ti : taskAttempts) {
-          if (ti.taskId() != taskId) {
-            if (ti.successful()) {
-              LOG.info(
-                  "StageId={} index={} taskId={} attempt={} another attempt {} is finished.",
-                  stageId,
-                  taskIndex,
-                  taskId,
-                  taskInfo.attemptNumber(),
-                  ti.attemptNumber());
-              return true;
-            } else if (ti.running()) {
-              LOG.info(
-                  "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
-                  stageId,
-                  taskIndex,
-                  taskId,
-                  taskInfo.attemptNumber(),
-                  ti.attemptNumber());
-              return true;
+        try {
+          for (TaskInfo ti : taskAttempts) {
+            if (ti.taskId() != taskId) {
+              if (ti.successful()) {
+                LOG.info(
+                    "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
+                    stageId,
+                    taskIndex,
+                    taskId,
+                    taskInfo.attemptNumber(),
+                    ti.attemptNumber());
+                return true;
+              } else if (reportedStageTasks.stream()
+                  .filter(t -> t.taskId() == ti.taskId())
+                  .findFirst()
+                  .isPresent()) {
+                LOG.info(
+                    "StageId={} index={} taskId={} attempt={} another attempt {} has reported shuffle fetch failure, ignore it.",
+                    stageId,
+                    taskIndex,
+                    taskId,
+                    taskInfo.attemptNumber(),
+                    ti.attemptNumber());
+              } else if (ti.running()) {
+                LOG.info(
+                    "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
+                    stageId,
+                    taskIndex,
+                    taskId,
+                    taskInfo.attemptNumber(),
+                    ti.attemptNumber());
+                return true;
+              }
             }
           }
+          return false;
+        } finally {
+          reportedStageTasks.add(taskInfo);
         }
-        return false;
       } else {
         LOG.error("Can not get TaskInfo for taskId: {}", taskId);
         return false;
