@@ -346,11 +346,16 @@ public class SparkUtils {
               .defaultAlwaysNull()
               .build();
 
+  /**
+   * TaskSetManager - it is not designed to be used outside the spark scheduler. Please be careful.
+   */
   @VisibleForTesting
   protected static TaskSetManager getTaskSetManager(TaskSchedulerImpl taskScheduler, long taskId) {
-    ConcurrentHashMap<Long, TaskSetManager> taskIdToTaskSetManager =
-        TASK_ID_TO_TASK_SET_MANAGER_FIELD.bind(taskScheduler).get();
-    return taskIdToTaskSetManager.get(taskId);
+    synchronized (taskScheduler) {
+      ConcurrentHashMap<Long, TaskSetManager> taskIdToTaskSetManager =
+          TASK_ID_TO_TASK_SET_MANAGER_FIELD.bind(taskScheduler).get();
+      return taskIdToTaskSetManager.get(taskId);
+    }
   }
 
   @VisibleForTesting
