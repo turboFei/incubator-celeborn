@@ -266,10 +266,10 @@ public class SparkUtils {
 
   /**
    * Only check for the shuffle fetch failure task whether another attempt is running or successful.
-   * If task another attempt has reported fetch failure, return false. If another attempt is running
-   * or successful, return true. Otherwise, return false.
+   * If another attempt(excluding the reported shuffle fetch failure tasks in current stage) is
+   * running or successful, return true. Otherwise, return false.
    */
-  public static boolean taskAnotherAttemptRunningOrSuccessful(long taskId) {
+  public static synchronized boolean taskAnotherAttemptRunningOrSuccessful(long taskId) {
     TaskSetManager taskSetManager = getTaskSetManager(taskId);
     if (taskSetManager != null) {
       int stageId = taskSetManager.stageId();
@@ -281,45 +281,47 @@ public class SparkUtils {
 
         List<TaskInfo> reportedStageTasks =
             reportedStageShuffleFetchFailureTasks.computeIfAbsent(stageId, k -> new ArrayList<>());
-        for (TaskInfo reportedTi : reportedStageTasks) {
-          if (taskInfo.index() == reportedTi.index()) {
-            LOG.info(
-                "StageId={} index={} taskId={} attempt={} another attempt {} already reported fetch failure.",
-                stageId,
-                taskInfo.index(),
-                taskId,
-                taskInfo.attemptNumber(),
-                reportedTi.attemptNumber());
-            return false;
-          }
-        }
-        reportedStageTasks.add(taskInfo);
 
         int taskIndex = taskInfo.index();
-        for (TaskInfo ti : taskAttempts) {
-          if (ti.taskId() != taskId) {
-            if (ti.successful()) {
-              LOG.info(
-                  "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
-                  stageId,
-                  taskIndex,
-                  taskId,
-                  taskInfo.attemptNumber(),
-                  ti.attemptNumber());
-              return true;
-            } else if (ti.running()) {
-              LOG.info(
-                  "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
-                  stageId,
-                  taskIndex,
-                  taskId,
-                  taskInfo.attemptNumber(),
-                  ti.attemptNumber());
-              return true;
+        try {
+          for (TaskInfo ti : taskAttempts) {
+            if (ti.taskId() != taskId) {
+              if (ti.successful()) {
+                LOG.info(
+                    "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
+                    stageId,
+                    taskIndex,
+                    taskId,
+                    taskInfo.attemptNumber(),
+                    ti.attemptNumber());
+                return true;
+              } else if (reportedStageTasks.stream()
+                  .filter(t -> t.taskId() == ti.taskId())
+                  .findFirst()
+                  .isPresent()) {
+                LOG.info(
+                    "StageId={} index={} taskId={} attempt={} another attempt {} has reported shuffle fetch failure, ignore it.",
+                    stageId,
+                    taskIndex,
+                    taskId,
+                    taskInfo.attemptNumber(),
+                    ti.attemptNumber());
+              } else if (ti.running()) {
+                LOG.info(
+                    "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
+                    stageId,
+                    taskIndex,
+                    taskId,
+                    taskInfo.attemptNumber(),
+                    ti.attemptNumber());
+                return true;
+              }
             }
           }
+          return false;
+        } finally {
+          reportedStageTasks.add(taskInfo);
         }
-        return false;
       } else {
         LOG.error("Can not get TaskInfo for taskId: {}", taskId);
         return false;
