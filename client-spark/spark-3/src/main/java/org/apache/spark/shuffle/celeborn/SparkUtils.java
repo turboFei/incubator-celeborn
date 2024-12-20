@@ -18,8 +18,11 @@
 package org.apache.spark.shuffle.celeborn;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
@@ -54,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.celeborn.client.ShuffleClient;
 import org.apache.celeborn.common.CelebornConf;
+import org.apache.celeborn.common.util.JavaUtils;
 import org.apache.celeborn.reflect.DynConstructors;
 import org.apache.celeborn.reflect.DynFields;
 import org.apache.celeborn.reflect.DynMethods;
@@ -374,10 +378,22 @@ public class SparkUtils {
     }
   }
 
+  public static Map<Integer, Set<Long>> reportedStageShuffleFetchFailureTaskIds =
+      JavaUtils.newConcurrentHashMap();
+
+  /**
+   * Only check for the shuffle fetch failure task whether another attempt is running or successful.
+   * If another attempt(excluding the reported shuffle fetch failure tasks in current stage) is
+   * running or successful, return true. Otherwise, return false.
+   */
   public static synchronized boolean taskAnotherAttemptRunningOrSuccessful(long taskId) {
     TaskSetManager taskSetManager = getTaskSetManager(taskId);
     if (taskSetManager != null) {
       int stageId = taskSetManager.stageId();
+      Set<Long> reportedStageTaskIds =
+          reportedStageShuffleFetchFailureTaskIds.computeIfAbsent(stageId, k -> new HashSet<>());
+      reportedStageTaskIds.add(taskId);
+
       List<TaskInfo> taskAttempts = getTaskAttempts(taskSetManager, taskId);
       Optional<TaskInfo> taskInfoOpt =
           taskAttempts.stream().filter(ti -> ti.taskId() == taskId).findFirst();
@@ -386,9 +402,17 @@ public class SparkUtils {
         int taskIndex = taskInfo.index();
         for (TaskInfo ti : taskAttempts) {
           if (ti.taskId() != taskId) {
-            if (ti.successful()) {
+            if (reportedStageTaskIds.contains(ti.taskId())) {
               LOG.info(
-                  "StageId={} index={} taskId={} attempt={} another attempt {} is finished.",
+                  "StageId={} index={} taskId={} attempt={} another attempt {} has reported shuffle fetch failure, ignore it.",
+                  stageId,
+                  taskIndex,
+                  taskId,
+                  taskInfo.attemptNumber(),
+                  ti.attemptNumber());
+            } else if (ti.successful()) {
+              LOG.info(
+                  "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
                   stageId,
                   taskIndex,
                   taskId,
