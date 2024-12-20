@@ -149,6 +149,8 @@ public class SparkShuffleManager implements ShuffleManager {
 
             lifecycleManager.registerShuffleTrackerCallback(
                 shuffleId -> SparkUtils.unregisterAllMapOutput(mapOutputTracker, shuffleId));
+
+            SparkUtils.addListener(new ShuffleFetchFailureTaskCleanListener());
           }
         }
       }

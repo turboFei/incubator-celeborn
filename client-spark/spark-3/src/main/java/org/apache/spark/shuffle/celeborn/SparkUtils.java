@@ -38,13 +38,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext$;
 import org.apache.spark.TaskContext;
-import org.apache.spark.scheduler.DAGScheduler;
-import org.apache.spark.scheduler.MapStatus;
-import org.apache.spark.scheduler.MapStatus$;
-import org.apache.spark.scheduler.ShuffleMapStage;
-import org.apache.spark.scheduler.TaskInfo;
-import org.apache.spark.scheduler.TaskSchedulerImpl;
-import org.apache.spark.scheduler.TaskSetManager;
+import org.apache.spark.scheduler.*;
 import org.apache.spark.shuffle.ShuffleHandle;
 import org.apache.spark.shuffle.ShuffleReadMetricsReporter;
 import org.apache.spark.shuffle.ShuffleReader;
@@ -379,9 +373,13 @@ public class SparkUtils {
     }
   }
 
-  @VisibleForTesting
-  protected static Map<String, Set<Long>> reportedStageShuffleFetchFailureTaskIds =
+  private static Map<String, Set<Long>> reportedStageShuffleFetchFailureTaskIds =
       JavaUtils.newConcurrentHashMap();
+
+  protected static void removeStageReportedShuffleFetchFailureTaskIds(
+      int stageId, int stageAttemptId) {
+    reportedStageShuffleFetchFailureTaskIds.remove(stageId + "-" + stageAttemptId);
+  }
 
   /**
    * Only used to check for the shuffle fetch failure task whether another attempt is running or
@@ -451,6 +449,13 @@ public class SparkUtils {
         LOG.error("Can not get TaskSetManager for taskId: {}", taskId);
         return false;
       }
+    }
+  }
+
+  public static void addListener(SparkListener listener) {
+    SparkContext sparkContext = SparkContext$.MODULE$.getActive().getOrElse(null);
+    if (sparkContext != null) {
+      sparkContext.addSparkListener(listener);
     }
   }
 }
