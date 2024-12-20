@@ -17,11 +17,9 @@
 
 package org.apache.spark.shuffle.celeborn;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
@@ -353,23 +351,26 @@ public class SparkUtils {
   }
 
   @VisibleForTesting
-  protected static List<TaskInfo> getTaskAttempts(TaskSetManager taskSetManager, long taskId) {
+  protected static Tuple2<TaskInfo, List<TaskInfo>> getTaskAttempts(
+      TaskSetManager taskSetManager, long taskId) {
     if (taskSetManager != null) {
       scala.Option<TaskInfo> taskInfoOption =
           TASK_INFOS_FIELD.bind(taskSetManager).get().get(taskId);
       if (taskInfoOption.isDefined()) {
-        int taskIndex = taskInfoOption.get().index();
-        return scala.collection.JavaConverters.asJavaCollectionConverter(
-                taskSetManager.taskAttempts()[taskIndex])
-            .asJavaCollection().stream()
-            .collect(Collectors.toList());
+        TaskInfo taskInfo = taskInfoOption.get();
+        List<TaskInfo> taskAttempts =
+            scala.collection.JavaConverters.asJavaCollectionConverter(
+                    taskSetManager.taskAttempts()[taskInfo.index()])
+                .asJavaCollection().stream()
+                .collect(Collectors.toList());
+        return Tuple2.apply(taskInfo, taskAttempts);
       } else {
         LOG.error("Can not get TaskInfo for taskId: {}", taskId);
-        return Collections.emptyList();
+        return null;
       }
     } else {
       LOG.error("Can not get TaskSetManager for taskId: {}", taskId);
-      return Collections.emptyList();
+      return null;
     }
   }
 
@@ -404,47 +405,43 @@ public class SparkUtils {
                 stageUniqId, k -> new HashSet<>());
         reportedStageTaskIds.add(taskId);
 
-        List<TaskInfo> taskAttempts = getTaskAttempts(taskSetManager, taskId);
-        Optional<TaskInfo> taskInfoOpt =
-            taskAttempts.stream().filter(ti -> ti.taskId() == taskId).findFirst();
-        if (taskInfoOpt.isPresent()) {
-          TaskInfo taskInfo = taskInfoOpt.get();
-          for (TaskInfo ti : taskAttempts) {
-            if (ti.taskId() != taskId) {
-              if (reportedStageTaskIds.contains(ti.taskId())) {
-                LOG.info(
-                    "StageId={} index={} taskId={} attempt={} another attempt {} has reported shuffle fetch failure, ignore it.",
-                    stageId,
-                    taskInfo.index(),
-                    taskId,
-                    taskInfo.attemptNumber(),
-                    ti.attemptNumber());
-              } else if (ti.successful()) {
-                LOG.info(
-                    "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
-                    stageId,
-                    taskInfo.index(),
-                    taskId,
-                    taskInfo.attemptNumber(),
-                    ti.attemptNumber());
-                return true;
-              } else if (ti.running()) {
-                LOG.info(
-                    "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
-                    stageId,
-                    taskInfo.index(),
-                    taskId,
-                    taskInfo.attemptNumber(),
-                    ti.attemptNumber());
-                return true;
-              }
+        Tuple2<TaskInfo, List<TaskInfo>> taskAttempts = getTaskAttempts(taskSetManager, taskId);
+
+        if (taskAttempts == null) return false;
+
+        TaskInfo taskInfo = taskAttempts._1();
+        for (TaskInfo ti : taskAttempts._2()) {
+          if (ti.taskId() != taskId) {
+            if (reportedStageTaskIds.contains(ti.taskId())) {
+              LOG.info(
+                  "StageId={} index={} taskId={} attempt={} another attempt {} has reported shuffle fetch failure, ignore it.",
+                  stageId,
+                  taskInfo.index(),
+                  taskId,
+                  taskInfo.attemptNumber(),
+                  ti.attemptNumber());
+            } else if (ti.successful()) {
+              LOG.info(
+                  "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
+                  stageId,
+                  taskInfo.index(),
+                  taskId,
+                  taskInfo.attemptNumber(),
+                  ti.attemptNumber());
+              return true;
+            } else if (ti.running()) {
+              LOG.info(
+                  "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
+                  stageId,
+                  taskInfo.index(),
+                  taskId,
+                  taskInfo.attemptNumber(),
+                  ti.attemptNumber());
+              return true;
             }
           }
-          return false;
-        } else {
-          LOG.error("Can not get TaskInfo for taskId: {}", taskId);
-          return false;
         }
+        return false;
       } else {
         LOG.error("Can not get TaskSetManager for taskId: {}", taskId);
         return false;

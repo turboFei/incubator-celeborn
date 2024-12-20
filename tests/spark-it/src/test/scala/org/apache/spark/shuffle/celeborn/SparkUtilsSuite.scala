@@ -55,7 +55,7 @@ class SparkUtilsSuite extends AnyFunSuite {
         val taskId = 0
         val taskSetManager = SparkUtils.getTaskSetManager(taskScheduler, taskId)
         assert(taskSetManager != null)
-        assert(SparkUtils.getTaskAttempts(taskSetManager, taskId).size() == 1)
+        assert(SparkUtils.getTaskAttempts(taskSetManager, taskId)._2.size() == 1)
         assert(!SparkUtils.taskAnotherAttemptRunningOrSuccessful(taskId))
       }
 
