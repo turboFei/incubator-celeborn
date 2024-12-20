@@ -18,6 +18,7 @@
 package org.apache.spark.shuffle.celeborn
 
 import org.apache.spark.SparkConf
+import org.apache.spark.scheduler.TaskSchedulerImpl
 import org.apache.spark.sql.SparkSession
 import org.scalatest.concurrent.Eventually.eventually
 import org.scalatest.concurrent.Futures.{interval, timeout}
@@ -49,9 +50,10 @@ class SparkUtilsSuite extends AnyFunSuite {
       }
       jobThread.start()
 
+      val taskScheduler = sc.taskScheduler.asInstanceOf[TaskSchedulerImpl]
       eventually(timeout(5.seconds), interval(100.milliseconds)) {
         val taskId = 0
-        val taskSetManager = SparkUtils.getTaskSetManager(taskId)
+        val taskSetManager = SparkUtils.getTaskSetManager(taskScheduler, taskId)
         assert(taskSetManager != null)
         assert(SparkUtils.getTaskAttempts(taskSetManager, taskId).size() == 1)
         assert(!SparkUtils.taskAnotherAttemptRunningOrSuccessful(taskId))
