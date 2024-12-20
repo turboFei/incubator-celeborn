@@ -19,7 +19,7 @@ package org.apache.spark.shuffle.celeborn
 
 import org.apache.spark.scheduler.{SparkListener, SparkListenerStageCompleted}
 
-class ShuffleFetchFailureTaskCleanListener extends SparkListener {
+class ShuffleFetchFailureReportTaskCleanListener extends SparkListener {
   override def onStageCompleted(stageCompleted: SparkListenerStageCompleted): Unit = {
     SparkUtils.removeStageReportedShuffleFetchFailureTaskIds(
       stageCompleted.stageInfo.stageId,

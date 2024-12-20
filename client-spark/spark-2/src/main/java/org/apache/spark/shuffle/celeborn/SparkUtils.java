@@ -32,6 +32,7 @@ import scala.Option;
 import scala.Some;
 import scala.Tuple2;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.spark.BarrierTaskContext;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
@@ -41,6 +42,7 @@ import org.apache.spark.scheduler.DAGScheduler;
 import org.apache.spark.scheduler.MapStatus;
 import org.apache.spark.scheduler.MapStatus$;
 import org.apache.spark.scheduler.ShuffleMapStage;
+import org.apache.spark.scheduler.SparkListener;
 import org.apache.spark.scheduler.TaskInfo;
 import org.apache.spark.scheduler.TaskSchedulerImpl;
 import org.apache.spark.scheduler.TaskSetManager;
@@ -263,7 +265,7 @@ public class SparkUtils {
     }
   }
 
-  private static Map<String, Set<Long>> reportedStageShuffleFetchFailureTaskIds =
+  protected static Map<String, Set<Long>> reportedStageShuffleFetchFailureTaskIds =
       JavaUtils.newConcurrentHashMap();
 
   protected static void removeStageReportedShuffleFetchFailureTaskIds(
@@ -338,7 +340,7 @@ public class SparkUtils {
     }
   }
 
-  public static void addListener(SparkListener listener) {
+  public static void addSparkListener(SparkListener listener) {
     SparkContext sparkContext = SparkContext$.MODULE$.getActive().getOrElse(null);
     if (sparkContext != null) {
       sparkContext.addSparkListener(listener);

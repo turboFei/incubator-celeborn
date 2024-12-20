@@ -20,17 +20,38 @@ package org.apache.spark.shuffle.celeborn
 import org.apache.spark.SparkConf
 import org.apache.spark.scheduler.TaskSchedulerImpl
 import org.apache.spark.sql.SparkSession
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.Eventually.eventually
 import org.scalatest.concurrent.Futures.{interval, timeout}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
-class SparkUtilsSuite extends AnyFunSuite {
+import org.apache.celeborn.client.ShuffleClient
+import org.apache.celeborn.common.protocol.ShuffleMode
+import org.apache.celeborn.tests.spark.SparkTestBase
+
+class SparkUtilsSuite extends AnyFunSuite
+  with SparkTestBase
+  with BeforeAndAfterEach {
+
+  override def beforeEach(): Unit = {
+    ShuffleClient.reset()
+  }
+
+  override def afterEach(): Unit = {
+    System.gc()
+  }
+
   test("another task running or successful") {
-    val sparkConf = new SparkConf().setAppName("rss-demo").setMaster("local[2]")
+    val sparkConf = new SparkConf().setAppName("rss-demo").setMaster("local[2,3]")
     val sparkSession = SparkSession.builder()
-      .config(sparkConf)
+      .config(updateSparkConf(sparkConf, ShuffleMode.HASH))
       .config("spark.sql.shuffle.partitions", 2)
+      .config("spark.celeborn.shuffle.forceFallback.partition.enabled", false)
+      .config("spark.celeborn.client.spark.fetch.throwsFetchFailure", "true")
+      .config(
+        "spark.shuffle.manager",
+        "org.apache.spark.shuffle.celeborn.TestCelebornShuffleManager")
       .getOrCreate()
 
     try {
@@ -38,11 +59,12 @@ class SparkUtilsSuite extends AnyFunSuite {
       val jobThread = new Thread {
         override def run(): Unit = {
           try {
-            val rdd = sc.parallelize(1 to 100, 2)
-            rdd.mapPartitions { iter =>
-              Thread.sleep(5000)
-              iter
-            }.collect()
+            sc.parallelize(1 to 100, 2)
+              .repartition(1)
+              .mapPartitions { iter =>
+                Thread.sleep(3000)
+                iter
+              }.collect()
           } catch {
             case _: InterruptedException =>
           }
@@ -51,15 +73,22 @@ class SparkUtilsSuite extends AnyFunSuite {
       jobThread.start()
 
       val taskScheduler = sc.taskScheduler.asInstanceOf[TaskSchedulerImpl]
-      eventually(timeout(5.seconds), interval(100.milliseconds)) {
+      eventually(timeout(3.seconds), interval(100.milliseconds)) {
         val taskId = 0
         val taskSetManager = SparkUtils.getTaskSetManager(taskScheduler, taskId)
         assert(taskSetManager != null)
         assert(SparkUtils.getTaskAttempts(taskSetManager, taskId)._2.size() == 1)
         assert(!SparkUtils.taskAnotherAttemptRunningOrSuccessful(taskId))
+        assert(SparkUtils.reportedStageShuffleFetchFailureTaskIds.size() == 1)
       }
 
+      sparkSession.sparkContext.cancelAllJobs()
+
       jobThread.interrupt()
+
+      eventually(timeout(3.seconds), interval(100.milliseconds)) {
+        assert(SparkUtils.reportedStageShuffleFetchFailureTaskIds.size() == 0)
+      }
     } finally {
       sparkSession.stop()
     }
