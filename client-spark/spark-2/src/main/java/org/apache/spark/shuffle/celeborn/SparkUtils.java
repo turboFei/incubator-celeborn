@@ -283,14 +283,13 @@ public class SparkUtils {
           taskAttempts.stream().filter(ti -> ti.taskId() == taskId).findFirst();
       if (taskInfoOpt.isPresent()) {
         TaskInfo taskInfo = taskInfoOpt.get();
-        int taskIndex = taskInfo.index();
         for (TaskInfo ti : taskAttempts) {
           if (ti.taskId() != taskId) {
             if (reportedStageTaskIds.contains(ti.taskId())) {
               LOG.info(
                   "StageId={} index={} taskId={} attempt={} another attempt {} has reported shuffle fetch failure, ignore it.",
                   stageId,
-                  taskIndex,
+                  taskInfo.index(),
                   taskId,
                   taskInfo.attemptNumber(),
                   ti.attemptNumber());
@@ -298,7 +297,7 @@ public class SparkUtils {
               LOG.info(
                   "StageId={} index={} taskId={} attempt={} another attempt {} is successful.",
                   stageId,
-                  taskIndex,
+                  taskInfo.index(),
                   taskId,
                   taskInfo.attemptNumber(),
                   ti.attemptNumber());
@@ -307,7 +306,7 @@ public class SparkUtils {
               LOG.info(
                   "StageId={} index={} taskId={} attempt={} another attempt {} is running.",
                   stageId,
-                  taskIndex,
+                  taskInfo.index(),
                   taskId,
                   taskInfo.attemptNumber(),
                   ti.attemptNumber());
