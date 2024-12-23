@@ -43,7 +43,7 @@ class LoggerResource extends ApiRequestContext {
     content = Array(new Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = new Schema(implementation = classOf[LoggerInfo]))),
-    description = "Get the logger level.")
+    description = "Get the logger level, return all loggers if no name specified.")
   @GET
   def getLoggerLevel(@QueryParam("name") name: String): LoggerInfos = {
     if (StringUtils.isNotBlank(name)) {
