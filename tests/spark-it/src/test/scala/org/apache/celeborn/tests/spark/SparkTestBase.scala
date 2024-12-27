@@ -143,7 +143,7 @@ trait SparkTestBase extends AnyFunSuite
               new File(s"$dir/celeborn-worker/shuffle_data/$appUniqueId/$celebornShuffleId")
             })
             val datafile = allFiles.filter(_.exists())
-              .flatMap(_.listFiles().iterator).headOption
+              .flatMap(_.listFiles().iterator).sortBy(_.getName).headOption
             datafile match {
               case Some(file) => file.delete()
               case None => throw new RuntimeException("unexpected, there must be some data file" +
