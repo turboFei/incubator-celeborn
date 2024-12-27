@@ -17,13 +17,10 @@
 
 package org.apache.spark.shuffle.celeborn
 
-import java.io.File
 import java.util.Optional
-import java.util.concurrent.atomic.AtomicBoolean
 
-import org.apache.spark.{SparkConf, TaskContext}
+import org.apache.spark.SparkConf
 import org.apache.spark.scheduler.TaskSchedulerImpl
-import org.apache.spark.shuffle.ShuffleHandle
 import org.apache.spark.sql.SparkSession
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.Eventually.eventually
@@ -32,7 +29,6 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import org.apache.celeborn.client.ShuffleClient
-import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.protocol.ShuffleMode
 import org.apache.celeborn.tests.spark.SparkTestBase
 
@@ -61,7 +57,7 @@ class SparkUtilsSuite extends AnyFunSuite
       .getOrCreate()
 
     val celebornConf = SparkUtils.fromSparkConf(sparkSession.sparkContext.getConf)
-    val hook = new ShuffleReaderGetHook(celebornConf)
+    val hook = new ShuffleReaderFetchFailureGetHook(celebornConf)
     TestCelebornShuffleManager.registerReaderGetHook(hook)
 
     try {
@@ -107,47 +103,6 @@ class SparkUtilsSuite extends AnyFunSuite
       }
     } finally {
       sparkSession.stop()
-    }
-  }
-
-  class ShuffleReaderGetHook(conf: CelebornConf) extends ShuffleManagerHook {
-    var executed: AtomicBoolean = new AtomicBoolean(false)
-    val lock = new Object
-
-    override def exec(
-        handle: ShuffleHandle,
-        startPartition: Int,
-        endPartition: Int,
-        context: TaskContext): Unit = {
-      if (executed.get() == true) return
-
-      lock.synchronized {
-        handle match {
-          case h: CelebornShuffleHandle[_, _, _] => {
-            val appUniqueId = h.appUniqueId
-            val shuffleClient = ShuffleClient.get(
-              h.appUniqueId,
-              h.lifecycleManagerHost,
-              h.lifecycleManagerPort,
-              conf,
-              h.userIdentifier,
-              h.extension)
-            val celebornShuffleId = SparkUtils.celebornShuffleId(shuffleClient, h, context, false)
-            val allFiles = workerDirs.map(dir => {
-              new File(s"$dir/celeborn-worker/shuffle_data/$appUniqueId/$celebornShuffleId")
-            })
-            val datafile = allFiles.filter(_.exists())
-              .flatMap(_.listFiles().iterator).headOption
-            datafile match {
-              case Some(file) => file.delete()
-              case None => throw new RuntimeException("unexpected, there must be some data file" +
-                  s" under ${workerDirs.mkString(",")}")
-            }
-          }
-          case _ => throw new RuntimeException("unexpected, only support RssShuffleHandle here")
-        }
-        executed.set(true)
-      }
     }
   }
 }
