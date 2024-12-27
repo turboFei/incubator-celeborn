@@ -17,7 +17,7 @@
 
 package org.apache.spark.shuffle.celeborn
 
-import java.util.Optional
+import scala.collection.JavaConverters._
 
 import org.apache.spark.SparkConf
 import org.apache.spark.scheduler.TaskSchedulerImpl
@@ -78,16 +78,14 @@ class SparkUtilsSuite extends AnyFunSuite
           }
         }
       }
-
-      SparkUtils.firstReportedShuffleFetchFailureTaskId = Optional.empty();
-
       jobThread.start()
 
       val taskScheduler = sc.taskScheduler.asInstanceOf[TaskSchedulerImpl]
       eventually(timeout(30.seconds), interval(0.milliseconds)) {
         assert(hook.executed.get() == true)
-        assert(SparkUtils.firstReportedShuffleFetchFailureTaskId.isPresent)
-        val reportedTaskId = SparkUtils.firstReportedShuffleFetchFailureTaskId.get()
+        val reportedTaskId =
+          SparkUtils.reportedStageShuffleFetchFailureTaskIds.values().asScala.flatMap(
+            _.asScala).head
         val taskSetManager = SparkUtils.getTaskSetManager(taskScheduler, reportedTaskId)
         assert(taskSetManager != null)
         assert(SparkUtils.getTaskAttempts(taskSetManager, reportedTaskId)._2.size() == 1)
