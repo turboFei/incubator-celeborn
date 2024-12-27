@@ -32,7 +32,6 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.apache.celeborn.client.ShuffleClient
 import org.apache.celeborn.common.CelebornConf
 import org.apache.celeborn.common.protocol.ShuffleMode
-import org.apache.celeborn.service.deploy.worker.Worker
 
 class CelebornFetchFailureSuite extends AnyFunSuite
   with SparkTestBase
@@ -44,16 +43,6 @@ class CelebornFetchFailureSuite extends AnyFunSuite
 
   override def afterEach(): Unit = {
     System.gc()
-  }
-
-  var workerDirs: Seq[String] = Seq.empty
-
-  override def createWorker(map: Map[String, String]): Worker = {
-    val storageDir = createTmpDir()
-    this.synchronized {
-      workerDirs = workerDirs :+ storageDir
-    }
-    super.createWorker(map, storageDir)
   }
 
   class ShuffleReaderGetHook(conf: CelebornConf) extends ShuffleManagerHook {

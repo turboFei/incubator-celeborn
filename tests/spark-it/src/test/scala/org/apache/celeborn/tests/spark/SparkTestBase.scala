@@ -30,6 +30,7 @@ import org.apache.celeborn.common.CelebornConf._
 import org.apache.celeborn.common.internal.Logging
 import org.apache.celeborn.common.protocol.ShuffleMode
 import org.apache.celeborn.service.deploy.MiniClusterFeature
+import org.apache.celeborn.service.deploy.worker.Worker
 
 trait SparkTestBase extends AnyFunSuite
   with Logging with MiniClusterFeature with BeforeAndAfterAll with BeforeAndAfterEach {
@@ -50,6 +51,16 @@ trait SparkTestBase extends AnyFunSuite
   override def afterAll(): Unit = {
     logInfo("all test complete , stop Celeborn mini cluster")
     shutdownMiniCluster()
+  }
+
+  var workerDirs: Seq[String] = Seq.empty
+
+  override def createWorker(map: Map[String, String]): Worker = {
+    val storageDir = createTmpDir()
+    this.synchronized {
+      workerDirs = workerDirs :+ storageDir
+    }
+    super.createWorker(map, storageDir)
   }
 
   def updateSparkConf(sparkConf: SparkConf, mode: ShuffleMode): SparkConf = {

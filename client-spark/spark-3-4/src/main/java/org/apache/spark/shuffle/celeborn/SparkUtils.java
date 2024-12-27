@@ -20,6 +20,7 @@ package org.apache.spark.shuffle.celeborn;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
@@ -381,6 +382,9 @@ public class SparkUtils {
     }
   }
 
+  // For testing only
+  protected static Optional<Long> firstReportedShuffleFetchFailureTaskId = Optional.empty();
+
   protected static Map<String, Set<Long>> reportedStageShuffleFetchFailureTaskIds =
       JavaUtils.newConcurrentHashMap();
 
@@ -411,6 +415,9 @@ public class SparkUtils {
             reportedStageShuffleFetchFailureTaskIds.computeIfAbsent(
                 stageUniqId, k -> new HashSet<>());
         reportedStageTaskIds.add(taskId);
+        if (!firstReportedShuffleFetchFailureTaskId.isPresent()) {
+          firstReportedShuffleFetchFailureTaskId = Optional.of(taskId);
+        }
 
         Tuple2<TaskInfo, List<TaskInfo>> taskAttempts = getTaskAttempts(taskSetManager, taskId);
 
