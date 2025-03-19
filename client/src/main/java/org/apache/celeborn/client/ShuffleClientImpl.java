@@ -1814,6 +1814,16 @@ public class ShuffleClientImpl extends ShuffleClient {
               ClassTag$.MODULE$.apply(GetReducerFileGroupResponse.class));
       switch (response.status()) {
         case SUCCESS:
+          if (response.broadcast() != null && response.broadcast().length > 0) {
+            logger.info(
+                "Deserializing broadcast GetReducerFileGroupResponse for shuffle: {}.", shuffleId);
+            response =
+                ShuffleClient.deserializeReducerFileGroupResponse(shuffleId, response.broadcast());
+            if (response == null) {
+              throw new CelebornIOException(
+                  "Failed to get broadcast GetReducerFileGroupResponse for shuffle: " + shuffleId);
+            }
+          }
           logger.info(
               "Shuffle {} request reducer file group success using {} ms, result partition size {}.",
               shuffleId,

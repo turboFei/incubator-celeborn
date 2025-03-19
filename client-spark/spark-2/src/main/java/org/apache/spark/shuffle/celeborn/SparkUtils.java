@@ -17,7 +17,10 @@
 
 package org.apache.spark.shuffle.celeborn;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
@@ -38,6 +42,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext$;
 import org.apache.spark.TaskContext;
+import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.scheduler.DAGScheduler;
 import org.apache.spark.scheduler.MapStatus;
 import org.apache.spark.scheduler.MapStatus$;
@@ -54,7 +59,9 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.celeborn.client.ShuffleClient;
 import org.apache.celeborn.common.CelebornConf;
+import org.apache.celeborn.common.protocol.message.ControlMessages.GetReducerFileGroupResponse;
 import org.apache.celeborn.common.util.JavaUtils;
+import org.apache.celeborn.common.util.KeyLock;
 import org.apache.celeborn.common.util.Utils;
 import org.apache.celeborn.reflect.DynFields;
 
@@ -345,5 +352,116 @@ public class SparkUtils {
     if (sparkContext != null) {
       sparkContext.addSparkListener(listener);
     }
+  }
+
+  /**
+   * A [[KeyLock]] whose key is a shuffle id to ensure there is only one thread accessing the
+   * broadcast belonging to the shuffle id at a time.
+   */
+  private static KeyLock<Integer> shuffleBroadcastLock = new KeyLock();
+
+  @VisibleForTesting
+  public static AtomicInteger getReducerFileGroupResponseBroadcastNum = new AtomicInteger();
+
+  protected static Map<Integer, Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>>
+      getReducerFileGroupResponseBroadcasts = JavaUtils.newConcurrentHashMap();
+
+  public static byte[] serializeGetReducerFileGroupResponse(
+      Integer shuffleId, GetReducerFileGroupResponse response) {
+    SparkContext sparkContext = SparkContext$.MODULE$.getActive().getOrElse(null);
+    if (sparkContext == null) {
+      logger.error("Can not get active SparkContext.");
+      return null;
+    }
+
+    return shuffleBroadcastLock.withLock(
+        shuffleId,
+        () -> {
+          Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>
+              cachedSerializeGetReducerFileGroupResponse =
+                  getReducerFileGroupResponseBroadcasts.get(shuffleId);
+          if (cachedSerializeGetReducerFileGroupResponse != null) {
+            return cachedSerializeGetReducerFileGroupResponse._2;
+          }
+
+          try {
+            logger.info("Broadcasting GetReducerFileGroupResponse for shuffle: {}", shuffleId);
+            Broadcast<GetReducerFileGroupResponse> broadcast =
+                sparkContext.broadcast(
+                    response,
+                    scala.reflect.ClassManifestFactory.fromClass(
+                        GetReducerFileGroupResponse.class));
+
+            // Using `org.apache.commons.io.output.ByteArrayOutputStream` instead of the standard
+            // one
+            // This implementation doesn't reallocate the whole memory block but allocates
+            // additional buffers. This way no buffers need to be garbage collected and
+            // the contents don't have to be copied to the new buffer.
+            org.apache.commons.io.output.ByteArrayOutputStream out =
+                new org.apache.commons.io.output.ByteArrayOutputStream();
+            try (ObjectOutputStream oos = new ObjectOutputStream(out)) {
+              oos.writeObject(broadcast);
+            }
+            byte[] _serializeResult = out.toByteArray();
+            getReducerFileGroupResponseBroadcasts.put(
+                shuffleId, Tuple2.apply(broadcast, _serializeResult));
+            getReducerFileGroupResponseBroadcastNum.incrementAndGet();
+            return _serializeResult;
+          } catch (Throwable e) {
+            logger.error(
+                "Failed to serialize GetReducerFileGroupResponse for shuffle: " + shuffleId, e);
+            return null;
+          }
+        });
+  }
+
+  public static GetReducerFileGroupResponse deserializeGetReducerFileGroupResponse(
+      Integer shuffleId, byte[] bytes) {
+    SparkContext sparkContext = SparkContext$.MODULE$.getActive().getOrElse(null);
+    if (sparkContext == null) {
+      logger.error("Can not get active SparkContext.");
+      return null;
+    }
+
+    return shuffleBroadcastLock.withLock(
+        shuffleId,
+        () -> {
+          GetReducerFileGroupResponse response = null;
+          logger.info(
+              "Deserializing GetReducerFileGroupResponse broadcast for shuffle: {}", shuffleId);
+
+          try {
+            try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+              Broadcast<GetReducerFileGroupResponse> broadcast =
+                  (Broadcast<GetReducerFileGroupResponse>) objIn.readObject();
+              response = broadcast.value();
+            }
+          } catch (Throwable e) {
+            logger.error(
+                "Failed to deserialize GetReducerFileGroupResponse for shuffle: " + shuffleId, e);
+          }
+          return response;
+        });
+  }
+
+  public static void invalidateSerializedGetReducerFileGroupResponse(Integer shuffleId) {
+    shuffleBroadcastLock.withLock(
+        shuffleId,
+        () -> {
+          try {
+            Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>
+                cachedSerializeGetReducerFileGroupResponse =
+                    getReducerFileGroupResponseBroadcasts.remove(shuffleId);
+            if (cachedSerializeGetReducerFileGroupResponse != null) {
+              cachedSerializeGetReducerFileGroupResponse._1().destroy();
+            }
+          } catch (Throwable e) {
+            logger.error(
+                "Failed to invalidate serialized GetReducerFileGroupResponse for shuffle: "
+                    + shuffleId,
+                e);
+          }
+          return null;
+        });
   }
 }
