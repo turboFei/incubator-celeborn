@@ -173,9 +173,10 @@ class SparkUtilsSuite extends AnyFunSuite
       .getOrCreate()
 
     try {
+      val shuffleId = Integer.MAX_VALUE
       val getReducerFileGroupResponse = GetReducerFileGroupResponse(
         StatusCode.SUCCESS,
-        Map(Integer.valueOf(1) -> Set(new PartitionLocation(
+        Map(Integer.valueOf(shuffleId) -> Set(new PartitionLocation(
           0,
           1,
           "localhost",
@@ -185,24 +186,26 @@ class SparkUtilsSuite extends AnyFunSuite
           4,
           PartitionLocation.Mode.REPLICA)).asJava).asJava,
         Array(1),
-        Set(Integer.valueOf(1)).asJava)
+        Set(Integer.valueOf(shuffleId)).asJava)
 
       val serializedBytes =
-        SparkUtils.serializeGetReducerFileGroupResponse(1, getReducerFileGroupResponse)
+        SparkUtils.serializeGetReducerFileGroupResponse(shuffleId, getReducerFileGroupResponse)
       assert(serializedBytes != null && serializedBytes.length > 0)
       val broadcast = SparkUtils.getReducerFileGroupResponseBroadcasts.values().asScala.head._1
       assert(broadcast.value == getReducerFileGroupResponse)
 
       val deserializedGetReducerFileGroupResponse =
-        SparkUtils.deserializeGetReducerFileGroupResponse(1, serializedBytes)
+        SparkUtils.deserializeGetReducerFileGroupResponse(shuffleId, serializedBytes)
       assert(deserializedGetReducerFileGroupResponse == getReducerFileGroupResponse)
 
       assert(!SparkUtils.getReducerFileGroupResponseBroadcasts.isEmpty)
-      SparkUtils.invalidateSerializedGetReducerFileGroupResponse(1)
+      SparkUtils.invalidateSerializedGetReducerFileGroupResponse(shuffleId)
       assert(SparkUtils.getReducerFileGroupResponseBroadcasts.isEmpty)
       assert(!broadcast.isValid)
     } finally {
       sparkSession.stop()
+      SparkUtils.getReducerFileGroupResponseBroadcasts.clear()
+      SparkUtils.getReducerFileGroupResponseBroadcastNum.set(0)
     }
   }
 }

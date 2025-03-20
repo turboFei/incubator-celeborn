@@ -69,6 +69,7 @@ class CelebornSortSuite extends AnyFunSuite
   }
 
   test("celeborn spark integration test - GetReducerFileGroupResponse broadcast") {
+    SparkUtils.getReducerFileGroupResponseBroadcasts.clear()
     SparkUtils.getReducerFileGroupResponseBroadcastNum.set(0)
     val sparkConf = new SparkConf().setAppName("celeborn-demo").setMaster("local[2]")
       .set(s"spark.${CelebornConf.CLIENT_PUSH_SORT_RANDOMIZE_PARTITION_ENABLED.key}", "false")
@@ -104,5 +105,7 @@ class CelebornSortSuite extends AnyFunSuite
     assert(SparkUtils.getReducerFileGroupResponseBroadcastNum.get() > 0)
 
     celebornSparkSession.stop()
+    SparkUtils.getReducerFileGroupResponseBroadcasts.clear()
+    SparkUtils.getReducerFileGroupResponseBroadcastNum.set(0)
   }
 }

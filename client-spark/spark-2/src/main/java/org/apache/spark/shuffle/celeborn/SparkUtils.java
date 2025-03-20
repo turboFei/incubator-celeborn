@@ -363,7 +363,8 @@ public class SparkUtils {
   @VisibleForTesting
   public static AtomicInteger getReducerFileGroupResponseBroadcastNum = new AtomicInteger();
 
-  protected static Map<Integer, Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>>
+  @VisibleForTesting
+  public static Map<Integer, Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>>
       getReducerFileGroupResponseBroadcasts = JavaUtils.newConcurrentHashMap();
 
   public static byte[] serializeGetReducerFileGroupResponse(
