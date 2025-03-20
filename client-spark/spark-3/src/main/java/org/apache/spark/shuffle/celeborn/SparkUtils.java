@@ -39,6 +39,8 @@ import org.apache.spark.MapOutputTrackerMaster;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext$;
+import org.apache.spark.SparkEnv;
+import org.apache.spark.SparkEnv$;
 import org.apache.spark.TaskContext;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.io.CompressionCodec;
@@ -537,9 +539,9 @@ public class SparkUtils {
 
   public static GetReducerFileGroupResponse deserializeGetReducerFileGroupResponse(
       Integer shuffleId, byte[] bytes) {
-    SparkContext sparkContext = SparkContext$.MODULE$.getActive().getOrElse(null);
-    if (sparkContext == null) {
-      LOG.error("Can not get active SparkContext.");
+    SparkEnv sparkEnv = SparkEnv$.MODULE$.get();
+    if (sparkEnv == null) {
+      LOG.error("Can not get SparkEnv.");
       return null;
     }
 
@@ -551,7 +553,7 @@ public class SparkUtils {
               "Deserializing GetReducerFileGroupResponse broadcast for shuffle: {}", shuffleId);
 
           try {
-            CompressionCodec codec = CompressionCodec.createCodec(sparkContext.conf());
+            CompressionCodec codec = CompressionCodec.createCodec(sparkEnv.conf());
             try (ObjectInputStream objIn =
                 new ObjectInputStream(
                     codec.compressedInputStream(new ByteArrayInputStream(bytes)))) {

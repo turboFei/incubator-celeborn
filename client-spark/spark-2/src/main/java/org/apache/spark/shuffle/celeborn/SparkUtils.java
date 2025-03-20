@@ -41,6 +41,8 @@ import org.apache.spark.BarrierTaskContext;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext$;
+import org.apache.spark.SparkEnv;
+import org.apache.spark.SparkEnv$;
 import org.apache.spark.TaskContext;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.scheduler.DAGScheduler;
@@ -418,9 +420,9 @@ public class SparkUtils {
 
   public static GetReducerFileGroupResponse deserializeGetReducerFileGroupResponse(
       Integer shuffleId, byte[] bytes) {
-    SparkContext sparkContext = SparkContext$.MODULE$.getActive().getOrElse(null);
-    if (sparkContext == null) {
-      logger.error("Can not get active SparkContext.");
+    SparkEnv sparkEnv = SparkEnv$.MODULE$.get();
+    if (sparkEnv == null) {
+      logger.error("Can not get SparkEnv.");
       return null;
     }
 
