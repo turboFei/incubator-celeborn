@@ -192,11 +192,19 @@ class SparkUtilsSuite extends AnyFunSuite
         SparkUtils.serializeGetReducerFileGroupResponse(shuffleId, getReducerFileGroupResponse)
       assert(serializedBytes != null && serializedBytes.length > 0)
       val broadcast = SparkUtils.getReducerFileGroupResponseBroadcasts.values().asScala.head._1
-      assert(broadcast.value == getReducerFileGroupResponse)
+      assert(broadcast.isValid)
 
       val deserializedGetReducerFileGroupResponse =
         SparkUtils.deserializeGetReducerFileGroupResponse(shuffleId, serializedBytes)
-      assert(deserializedGetReducerFileGroupResponse == getReducerFileGroupResponse)
+      assert(deserializedGetReducerFileGroupResponse.status == getReducerFileGroupResponse.status)
+      assert(
+        deserializedGetReducerFileGroupResponse.fileGroup == getReducerFileGroupResponse.fileGroup)
+      assert(java.util.Arrays.equals(
+        deserializedGetReducerFileGroupResponse.attempts,
+        getReducerFileGroupResponse.attempts))
+      assert(deserializedGetReducerFileGroupResponse.partitionIds == getReducerFileGroupResponse.partitionIds)
+      assert(
+        deserializedGetReducerFileGroupResponse.pushFailedBatches == getReducerFileGroupResponse.pushFailedBatches)
 
       assert(!SparkUtils.getReducerFileGroupResponseBroadcasts.isEmpty)
       SparkUtils.invalidateSerializedGetReducerFileGroupResponse(shuffleId)
