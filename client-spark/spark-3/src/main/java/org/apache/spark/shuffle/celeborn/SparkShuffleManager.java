@@ -151,11 +151,11 @@ public class SparkShuffleManager implements ShuffleManager {
             lifecycleManager.registerShuffleTrackerCallback(
                 shuffleId -> SparkUtils.unregisterAllMapOutput(mapOutputTracker, shuffleId));
 
-            lifecycleManager.registerBroadcastGetReducerFileGroupResponse(
+            lifecycleManager.registerBroadcastGetReducerFileGroupResponseCallback(
                 (shuffleId, getReducerFileGroupResponse) ->
                     SparkUtils.serializeGetReducerFileGroupResponse(
                         shuffleId, getReducerFileGroupResponse));
-            lifecycleManager.registerInvalidatedBroadcastGetReducerFileGroupResponse(
+            lifecycleManager.registerInvalidatedBroadcastCallback(
                 shuffleId -> SparkUtils.invalidateSerializedGetReducerFileGroupResponse(shuffleId));
           }
         }

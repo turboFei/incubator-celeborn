@@ -1840,20 +1840,20 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
     cancelShuffleCallback = Some(callback)
   }
 
-  @volatile private var broadcastGetReducerFileGroupResponse
+  @volatile private var broadcastGetReducerFileGroupResponseCallback
       : Option[java.util.function.BiFunction[Integer, GetReducerFileGroupResponse, Array[Byte]]] =
     None
-  def registerBroadcastGetReducerFileGroupResponse(call: java.util.function.BiFunction[
+  def registerBroadcastGetReducerFileGroupResponseCallback(call: java.util.function.BiFunction[
     Integer,
     GetReducerFileGroupResponse,
     Array[Byte]]): Unit = {
-    broadcastGetReducerFileGroupResponse = Some(call)
+    broadcastGetReducerFileGroupResponseCallback = Some(call)
   }
 
-  @volatile private var invalidatedBroadcastGetReducerFileGroupResponse: Option[Consumer[Integer]] =
+  @volatile private var invalidatedBroadcastCallback: Option[Consumer[Integer]] =
     None
-  def registerInvalidatedBroadcastGetReducerFileGroupResponse(call: Consumer[Integer]): Unit = {
-    invalidatedBroadcastGetReducerFileGroupResponse = Some(call)
+  def registerInvalidatedBroadcastCallback(call: Consumer[Integer]): Unit = {
+    invalidatedBroadcastCallback = Some(call)
   }
 
   def invalidateLatestMaxLocsCache(shuffleId: Int): Unit = {
@@ -1893,14 +1893,14 @@ class LifecycleManager(val appUniqueId: String, val conf: CelebornConf) extends 
   def broadcastGetReducerFileGroupResponse(
       shuffleId: Int,
       response: GetReducerFileGroupResponse): Option[Array[Byte]] = {
-    broadcastGetReducerFileGroupResponse match {
+    broadcastGetReducerFileGroupResponseCallback match {
       case Some(c) => Option(c.apply(shuffleId, response))
       case _ => None
     }
   }
 
   private def invalidatedBroadcastGetReducerFileGroupResponse(shuffleId: Int): Unit = {
-    invalidatedBroadcastGetReducerFileGroupResponse match {
+    invalidatedBroadcastCallback match {
       case Some(c) => c.accept(shuffleId)
       case _ =>
     }
