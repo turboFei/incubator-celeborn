@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.celeborn.client.ShuffleClient;
 import org.apache.celeborn.common.CelebornConf;
+import org.apache.celeborn.common.network.protocol.TransportMessage;
 import org.apache.celeborn.common.protocol.message.ControlMessages.GetReducerFileGroupResponse;
 import org.apache.celeborn.common.util.JavaUtils;
 import org.apache.celeborn.common.util.KeyLock;
@@ -366,7 +367,7 @@ public class SparkUtils {
   public static AtomicInteger getReducerFileGroupResponseBroadcastNum = new AtomicInteger();
 
   @VisibleForTesting
-  public static Map<Integer, Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>>
+  public static Map<Integer, Tuple2<Broadcast<TransportMessage>, byte[]>>
       getReducerFileGroupResponseBroadcasts = JavaUtils.newConcurrentHashMap();
 
   public static byte[] serializeGetReducerFileGroupResponse(
@@ -380,20 +381,20 @@ public class SparkUtils {
     return shuffleBroadcastLock.withLock(
         shuffleId,
         () -> {
-          Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>
-              cachedSerializeGetReducerFileGroupResponse =
-                  getReducerFileGroupResponseBroadcasts.get(shuffleId);
+          Tuple2<Broadcast<TransportMessage>, byte[]> cachedSerializeGetReducerFileGroupResponse =
+              getReducerFileGroupResponseBroadcasts.get(shuffleId);
           if (cachedSerializeGetReducerFileGroupResponse != null) {
             return cachedSerializeGetReducerFileGroupResponse._2;
           }
 
           try {
             logger.info("Broadcasting GetReducerFileGroupResponse for shuffle: {}", shuffleId);
-            Broadcast<GetReducerFileGroupResponse> broadcast =
+            TransportMessage transportMessage =
+                (TransportMessage) Utils.toTransportMessage(response);
+            Broadcast<TransportMessage> broadcast =
                 sparkContext.broadcast(
-                    response,
-                    scala.reflect.ClassManifestFactory.fromClass(
-                        GetReducerFileGroupResponse.class));
+                    transportMessage,
+                    scala.reflect.ClassManifestFactory.fromClass(TransportMessage.class));
 
             // Using `org.apache.commons.io.output.ByteArrayOutputStream` instead of the standard
             // one
@@ -435,9 +436,10 @@ public class SparkUtils {
 
           try {
             try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
-              Broadcast<GetReducerFileGroupResponse> broadcast =
-                  (Broadcast<GetReducerFileGroupResponse>) objIn.readObject();
-              response = broadcast.value();
+              Broadcast<TransportMessage> broadcast =
+                  (Broadcast<TransportMessage>) objIn.readObject();
+              response =
+                  (GetReducerFileGroupResponse) Utils.fromTransportMessage(broadcast.value());
             }
           } catch (Throwable e) {
             logger.error(
@@ -452,9 +454,8 @@ public class SparkUtils {
         shuffleId,
         () -> {
           try {
-            Tuple2<Broadcast<GetReducerFileGroupResponse>, byte[]>
-                cachedSerializeGetReducerFileGroupResponse =
-                    getReducerFileGroupResponseBroadcasts.remove(shuffleId);
+            Tuple2<Broadcast<TransportMessage>, byte[]> cachedSerializeGetReducerFileGroupResponse =
+                getReducerFileGroupResponseBroadcasts.remove(shuffleId);
             if (cachedSerializeGetReducerFileGroupResponse != null) {
               cachedSerializeGetReducerFileGroupResponse._1().destroy();
             }
