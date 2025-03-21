@@ -1815,13 +1815,11 @@ public class ShuffleClientImpl extends ShuffleClient {
       switch (response.status()) {
         case SUCCESS:
           if (response.broadcast() != null && response.broadcast().length > 0) {
-            logger.info(
-                "Deserializing broadcast GetReducerFileGroupResponse for shuffle: {}.", shuffleId);
             response =
                 ShuffleClient.deserializeReducerFileGroupResponse(shuffleId, response.broadcast());
             if (response == null) {
               throw new CelebornIOException(
-                  "Failed to get broadcast GetReducerFileGroupResponse for shuffle: " + shuffleId);
+                  "Failed to get GetReducerFileGroupResponse broadcast for shuffle: " + shuffleId);
             }
           }
           logger.info(
