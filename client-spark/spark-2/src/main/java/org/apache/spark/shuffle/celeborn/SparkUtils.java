@@ -45,6 +45,8 @@ import org.apache.spark.SparkEnv;
 import org.apache.spark.SparkEnv$;
 import org.apache.spark.TaskContext;
 import org.apache.spark.broadcast.Broadcast;
+import org.apache.spark.io.CompressionCodec;
+import org.apache.spark.io.CompressionCodec$;
 import org.apache.spark.scheduler.DAGScheduler;
 import org.apache.spark.scheduler.MapStatus;
 import org.apache.spark.scheduler.MapStatus$;
@@ -396,6 +398,7 @@ public class SparkUtils {
                     transportMessage,
                     scala.reflect.ClassManifestFactory.fromClass(TransportMessage.class));
 
+            CompressionCodec codec = CompressionCodec$.MODULE$.createCodec(sparkContext.conf());
             // Using `org.apache.commons.io.output.ByteArrayOutputStream` instead of the standard
             // one
             // This implementation doesn't reallocate the whole memory block but allocates
@@ -403,7 +406,8 @@ public class SparkUtils {
             // the contents don't have to be copied to the new buffer.
             org.apache.commons.io.output.ByteArrayOutputStream out =
                 new org.apache.commons.io.output.ByteArrayOutputStream();
-            try (ObjectOutputStream oos = new ObjectOutputStream(out)) {
+            try (ObjectOutputStream oos =
+                new ObjectOutputStream(codec.compressedOutputStream(out))) {
               oos.writeObject(broadcast);
             }
             byte[] _serializeResult = out.toByteArray();
@@ -435,7 +439,10 @@ public class SparkUtils {
               "Deserializing GetReducerFileGroupResponse broadcast for shuffle: {}", shuffleId);
 
           try {
-            try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+            CompressionCodec codec = CompressionCodec$.MODULE$.createCodec(sparkEnv.conf());
+            try (ObjectInputStream objIn =
+                new ObjectInputStream(
+                    codec.compressedInputStream(new ByteArrayInputStream(bytes)))) {
               Broadcast<TransportMessage> broadcast =
                   (Broadcast<TransportMessage>) objIn.readObject();
               response =
