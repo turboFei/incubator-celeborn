@@ -159,7 +159,7 @@ class SparkUtilsSuite extends AnyFunSuite
     }
   }
 
-  test("is stage inDeterminate") {
+  test("is stage inDeterminate and killTaskSetManagerRunningTasks") {
     if (Spark3OrNewer) {
       val sparkConf = new SparkConf().setAppName("rss-demo").setMaster("local[2,3]")
       val sparkSession = SparkSession.builder()
