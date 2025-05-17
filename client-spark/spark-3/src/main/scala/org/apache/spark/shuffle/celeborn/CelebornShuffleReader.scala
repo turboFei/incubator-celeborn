@@ -106,14 +106,16 @@ class CelebornShuffleReader[K, C](
       }
     }
 
-    val fetchTimeoutMs = conf.clientFetchTimeoutMs
-    val localFetchEnabled = conf.enableReadLocalShuffleFile
-    val localHostAddress = Utils.localHostName(conf)
-    val shuffleKey = Utils.makeShuffleKey(handle.appUniqueId, shuffleId)
-    var fileGroups: ReduceFileGroups = null
+    // Wait for the shuffle stage end before getting reducer file group.
     var isShuffleStageEnd: Boolean = false
-    var updateFileGroupsRetryTimes = 0
+    var getStageEndCount = 0
+    val getStageEndInterval = conf.clientRpcGetStageEndInterval
     do {
+      if (getStageEndCount > 0) {
+        logInfo(
+          s"Attempting to wait shuffle $shuffleId stage end with interval $getStageEndInterval ms")
+        Thread.sleep(getStageEndInterval)
+      }
       isShuffleStageEnd =
         try {
           shuffleClient.isShuffleStageEnd(shuffleId)
@@ -122,24 +124,25 @@ class CelebornShuffleReader[K, C](
             logInfo(s"Failed to check shuffle stage end for $shuffleId, assume ended", e)
             true
         }
-      try {
-        // startPartition is irrelevant
-        fileGroups = shuffleClient.updateFileGroup(shuffleId, startPartition)
-      } catch {
-        case ce: CelebornIOException
-            if ce.getCause != null && ce.getCause.isInstanceOf[
-              TimeoutException] && !isShuffleStageEnd =>
-          updateFileGroupsRetryTimes += 1
-          logInfo(
-            s"UpdateFileGroup for $shuffleKey timeout due to shuffle stage not ended," +
-              s" retry again, retry times $updateFileGroupsRetryTimes",
-            ce)
-        case ce @ (_: CelebornIOException | _: PartitionUnRetryAbleException) =>
-          // if a task is interrupted, should not report fetch failure
-          // if a task update file group timeout, should not report fetch failure
-          checkAndReportFetchFailureForUpdateFileGroupFailure(shuffleId, ce)
-      }
-    } while (fileGroups == null)
+      getStageEndCount += 1
+    } while (!isShuffleStageEnd)
+    logInfo(s"Shuffle $shuffleId stage ended after $getStageEndCount attempts waiting," +
+      " starting to get reducer file group")
+
+    val fetchTimeoutMs = conf.clientFetchTimeoutMs
+    val localFetchEnabled = conf.enableReadLocalShuffleFile
+    val localHostAddress = Utils.localHostName(conf)
+    val shuffleKey = Utils.makeShuffleKey(handle.appUniqueId, shuffleId)
+    var fileGroups: ReduceFileGroups = null
+    try {
+      // startPartition is irrelevant
+      fileGroups = shuffleClient.updateFileGroup(shuffleId, startPartition)
+    } catch {
+      case ce @ (_: CelebornIOException | _: PartitionUnRetryAbleException) =>
+        // if a task is interrupted, should not report fetch failure
+        // if a task update file group timeout, should not report fetch failure
+        checkAndReportFetchFailureForUpdateFileGroupFailure(shuffleId, ce)
+    }
 
     val batchOpenStreamStartTime = System.currentTimeMillis()
     // host-port -> (TransportClient, PartitionLocation Array, PbOpenStreamList)
