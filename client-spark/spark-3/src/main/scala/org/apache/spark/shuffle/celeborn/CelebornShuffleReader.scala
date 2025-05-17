@@ -121,7 +121,7 @@ class CelebornShuffleReader[K, C](
           shuffleClient.isShuffleStageEnd(shuffleId)
         } catch {
           case e: Exception =>
-            logInfo(s"Failed to check shuffle stage end for $shuffleId, assume ended", e)
+            logError(s"Failed to check shuffle $shuffleId stage end, assume ended", e)
             true
         }
       getStageEndCount += 1
