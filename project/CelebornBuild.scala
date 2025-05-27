@@ -1011,7 +1011,7 @@ trait SparkClientProjects {
       // ref: https://www.scala-sbt.org/1.x/docs/Multi-Project.html#Classpath+dependencies
       .dependsOn(sparkColumnarCommon)
       .dependsOn(sparkClient % "test->test;compile->compile")
-      .dependsOn(CelebornClient.client % "test")
+      .dependsOn(CelebornClient.client % "test->test;compile->compile")
       .settings(
         commonSettings,
         libraryDependencies ++= Seq(
