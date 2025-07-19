@@ -3507,7 +3507,7 @@
               "refId": "A"
             }
           ],
-          "title": "metrics_ PartitionFileSizeBytes_Mean",
+          "title": "metrics_PartitionFileSizeBytes_Mean",
           "type": "timeseries"
         },
         {
@@ -3705,7 +3705,7 @@
           "refId": "A"
         }
       ],
-      "title": "metrics_ PartitionFileSizeBytes_99thPercentile",
+      "title": "metrics_PartitionFileSizeBytes_99thPercentile",
       "type": "timeseries"
     },
     {
