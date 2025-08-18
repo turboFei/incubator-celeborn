@@ -18,18 +18,16 @@
 package org.apache.celeborn.common
 
 import java.io.{File, IOException}
-import java.util.{Collection => JCollection, Collections, HashMap => JHashMap, Locale, Map => JMap, UUID}
+import java.util.{Collections, Locale, UUID, Collection => JCollection, HashMap => JHashMap, Map => JMap}
 import java.util.concurrent.TimeUnit
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.Try
 import scala.util.matching.Regex
-
 import io.netty.channel.epoll.Epoll
-
 import org.apache.celeborn.common.authentication.AnonymousAuthenticationProviderImpl
+import org.apache.celeborn.common.client.{ApplicationInfoProvider, DefaultApplicationInfoProvider}
 import org.apache.celeborn.common.identity.{DefaultIdentityProvider, HadoopBasedIdentityProvider, IdentityProvider}
 import org.apache.celeborn.common.internal.Logging
 import org.apache.celeborn.common.internal.config._
@@ -5628,6 +5626,17 @@ object CelebornConf extends Logging {
       .doc("Whether to add UUID suffix for application id for unique. When `true`, add UUID suffix for unique application id. Currently, this only applies to Spark and MR.")
       .booleanConf
       .createWithDefault(false)
+
+  val CLIENT_APPLICATION_INFO_PROVIDER: ConfigEntry[String] =
+    buildConf("celeborn.client.application.info.provider")
+      .categories("client")
+      .doc(s"ApplicationInfoProvider class name. Default class is " +
+        s"`${classOf[DefaultApplicationInfoProvider].getName}`. " +
+        s"Optional values: " +
+        s"${classOf[DefaultIdentityProvider].getName} user name and tenant id are default values or user-specific values.")
+      .version("0.6.1")
+      .stringConf
+      .createWithDefault(classOf[DefaultApplicationInfoProvider].getName)
 
   val CLIENT_APPLICATION_EXTRA_INFO: ConfigEntry[Seq[String]] =
     buildConf("celeborn.client.application.extraInfo")
