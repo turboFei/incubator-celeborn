@@ -18,14 +18,17 @@
 package org.apache.celeborn.common
 
 import java.io.{File, IOException}
-import java.util.{Collections, Locale, UUID, Collection => JCollection, HashMap => JHashMap, Map => JMap}
+import java.util.{Collection => JCollection, Collections, HashMap => JHashMap, Locale, Map => JMap, UUID}
 import java.util.concurrent.TimeUnit
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.Try
 import scala.util.matching.Regex
+
 import io.netty.channel.epoll.Epoll
+
 import org.apache.celeborn.common.authentication.AnonymousAuthenticationProviderImpl
 import org.apache.celeborn.common.client.{ApplicationInfoProvider, DefaultApplicationInfoProvider}
 import org.apache.celeborn.common.identity.{DefaultIdentityProvider, HadoopBasedIdentityProvider, IdentityProvider}
@@ -948,8 +951,9 @@ class CelebornConf(loadDefaults: Boolean) extends Cloneable with Logging with Se
     get(CLIENT_EXCLUDE_PEER_WORKER_ON_FAILURE_ENABLED)
   def clientMrMaxPushData: Long = get(CLIENT_MR_PUSH_DATA_MAX)
   def clientApplicationUUIDSuffixEnabled: Boolean = get(CLIENT_APPLICATION_UUID_SUFFIX_ENABLED)
-  def clientApplicationExtraInfo: Map[String, String] =
-    get(CLIENT_APPLICATION_EXTRA_INFO).map(Utils.parseKeyValuePair).toMap
+  def clientApplicationInfoProvider: String = get(CLIENT_APPLICATION_INFO_PROVIDER)
+  def clientApplicationInfoUserSpecific: Map[String, String] =
+    get(USER_SPECIFIC_APPLICATION_INFO).map(Utils.parseKeyValuePair).toMap
   def clientShuffleIntegrityCheckEnabled: Boolean =
     get(CLIENT_SHUFFLE_INTEGRITY_CHECK_ENABLED)
 
@@ -5638,11 +5642,11 @@ object CelebornConf extends Logging {
       .stringConf
       .createWithDefault(classOf[DefaultApplicationInfoProvider].getName)
 
-  val CLIENT_APPLICATION_EXTRA_INFO: ConfigEntry[Seq[String]] =
-    buildConf("celeborn.client.application.extraInfo")
+  val USER_SPECIFIC_APPLICATION_INFO: ConfigEntry[Seq[String]] =
+    buildConf("celeborn.client.application.info.user-specific")
       .categories("client")
       .version("0.6.1")
-      .doc("Extra information for application registration, pattern is" +
+      .doc("User specific information for application registration, pattern is" +
         " `<key1>=<value1>[,<key2>=<value2>]*`, e.g. `cluster=celeborn`.")
       .stringConf
       .toSequence
