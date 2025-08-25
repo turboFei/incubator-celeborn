@@ -904,6 +904,9 @@ message PbRegisterApplicationResponse {
 message PbApplicationMeta {
   string appId = 1;
   string secret = 2;
+  PbUserIdentifier userIdentifier = 3;
+  map<string, string> extraInfo = 4;
+  int64 registrationTime = 5;
 }
 
 message PbApplicationInfo {

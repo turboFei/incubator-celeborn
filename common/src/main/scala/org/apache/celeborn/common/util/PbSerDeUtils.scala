@@ -493,11 +493,20 @@ object PbSerDeUtils {
   def toPbApplicationMeta(meta: ApplicationMeta): PbApplicationMeta = {
     PbApplicationMeta.newBuilder()
       .setAppId(meta.appId)
-      .setSecret(meta.secret).build()
+      .setSecret(meta.secret)
+      .setUserIdentifier(toPbUserIdentifier(meta.userIdentifier))
+      .putAllExtraInfo(meta.extraInfo)
+      .setRegistrationTime(meta.registrationTime)
+      .build()
   }
 
   def fromPbApplicationMeta(pbApplicationMeta: PbApplicationMeta): ApplicationMeta = {
-    ApplicationMeta(pbApplicationMeta.getAppId, pbApplicationMeta.getSecret)
+    ApplicationMeta(
+      pbApplicationMeta.getAppId,
+      pbApplicationMeta.getSecret,
+      fromPbUserIdentifier(pbApplicationMeta.getUserIdentifier),
+      pbApplicationMeta.getExtraInfoMap,
+      pbApplicationMeta.getRegistrationTime)
   }
 
   def toPbApplicationInfo(applicationInfo: ApplicationInfo): PbApplicationInfo = {
