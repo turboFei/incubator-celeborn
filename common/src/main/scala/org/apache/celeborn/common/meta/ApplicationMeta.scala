@@ -29,8 +29,8 @@ import org.apache.celeborn.common.identity.UserIdentifier
 case class ApplicationMeta(
     appId: String,
     secret: String,
-    userIdentifier: UserIdentifier = UserIdentifier("", ""),
-    extraInfo: JMap[String, String] = Map.empty[String, String].asJava,
+    var userIdentifier: UserIdentifier = UserIdentifier("", ""),
+    var extraInfo: JMap[String, String] = Map.empty[String, String].asJava,
     registrationTime: Long = System.currentTimeMillis()) {
   def this(appId: String, secret: String) = {
     this(

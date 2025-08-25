@@ -97,15 +97,18 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
   public final Map<String, Long> shuffleFallbackCounts = JavaUtils.newConcurrentHashMap();
   public final Map<String, Long> applicationFallbackCounts = JavaUtils.newConcurrentHashMap();
 
-  public final ConcurrentHashMap<String, ApplicationInfo> applicationInfos =
-      JavaUtils.newConcurrentHashMap();
   public final ConcurrentHashMap<String, ApplicationMeta> applicationMetas =
       JavaUtils.newConcurrentHashMap();
 
   public void updateApplicationInfo(
       String appId, UserIdentifier userIdentifier, Map<String, String> extraInfo) {
-    applicationInfos.putIfAbsent(
-        appId, new ApplicationInfo(appId, userIdentifier, extraInfo, System.currentTimeMillis()));
+    ApplicationMeta applicationMeta = applicationMetas.get(appId);
+    if (applicationMeta == null) {
+      applicationMetas.put(appId, new ApplicationMeta(appId, userIdentifier, extraInfo));
+    } else {
+      applicationMeta.userIdentifier_$eq(userIdentifier);
+      applicationMeta.extraInfo_$eq(extraInfo);
+    }
   }
 
   public void updateRequestSlotsMeta(
@@ -179,7 +182,6 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     registeredAppAndShuffles.remove(appId);
     appHeartbeatTime.remove(appId);
     applicationMetas.remove(appId);
-    applicationInfos.remove(appId);
   }
 
   @VisibleForTesting
@@ -383,7 +385,6 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
                 shutdownWorkers,
                 workerEventInfos,
                 applicationMetas,
-                applicationInfos,
                 decommissionWorkers)
             .toByteArray();
     Files.write(file.toPath(), snapshotBytes);
@@ -489,11 +490,6 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
           .forEach(
               (key, value) -> applicationMetas.put(key, PbSerDeUtils.fromPbApplicationMeta(value)));
 
-      snapshotMetaInfo
-          .getApplicationInfosMap()
-          .forEach(
-              (key, value) -> applicationInfos.put(key, PbSerDeUtils.fromPbApplicationInfo(value)));
-
       availableWorkers.addAll(
           workersMap.values().stream()
               .filter(worker -> isWorkerAvailable(worker))
@@ -533,7 +529,6 @@ public abstract class AbstractMetaManager implements IMetadataHandler {
     applicationFallbackCounts.clear();
     workerEventInfos.clear();
     applicationMetas.clear();
-    applicationInfos.clear();
   }
 
   public void updateMetaByReportWorkerUnavailable(List<WorkerInfo> failedWorkers) {
