@@ -28,37 +28,25 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request.body || '';
-            const prNumber = context.payload.pull_request.number;
-            const { owner, repo } = context.repo;
-            const LABEL = 'correctness';
+      - name: Apply or remove correctness label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Extract only the correctness section (up to the next ### heading).
+          # PR_BODY is passed via env so it never touches the shell command string.
+          section=$(printf '%s' "$PR_BODY" | awk '
+            /Does this PR resolve a correctness bug/ { found=1 }
+            found && /^###/ && !/Does this PR resolve/ { exit }
+            found { print }
+          ')
+          if printf '%s' "$section" | grep -qE -- '- \[[xX]\] Yes'; then
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "correctness"
+          else
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --remove-label "correctness" 2>/dev/null || true
+          fi
+            
+            
 
-            // Extract only the "correctness bug" section (up to the next ### heading or end of body).
-            // Body is accessed via context.payload (JS), not via ${{ }} interpolation — no injection risk.
-            const sectionMatch = body.match(
-              /###\s*Does this PR resolve a correctness bug\?[\s\S]*?(?=\n###|$)/i
-            );
-            const isYes = sectionMatch != null &&
-              /- \[[xX]\] Yes/.test(sectionMatch[0]);
-
-            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
-              owner, repo, issue_number: prNumber,
-            });
-            const hasLabel = currentLabels.some(l => l.name === LABEL);
-
-            if (isYes && !hasLabel) {
-              await github.rest.issues.addLabels({
-                owner, repo, issue_number: prNumber, labels: [LABEL],
-              });
-              core.info(`Added '${LABEL}' label`);
-            } else if (!isYes && hasLabel) {
-              await github.rest.issues.removeLabel({
-                owner, repo, issue_number: prNumber, name: LABEL,
-              });
-              core.info(`Removed '${LABEL}' label`);
-            } else {
-              core.info(`No label change needed (isYes=${isYes}, hasLabel=${hasLabel})`);
-            }
